@@ -8,6 +8,9 @@ enabled = true
   environment = ["nodejs"]
   plugins = ["typescript"]
 
+[[analyzers]]
+name = "test-coverage"
+
 [[transformers]]
 name = "prettier"
 enabled = true
