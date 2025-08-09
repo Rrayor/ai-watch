@@ -5,6 +5,31 @@ All notable changes to AI Watch will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Custom Format Support** - Token-based date formatting (YYYY, MM, DD, HH, mm, ss)
+- **Enhanced Error Handling** - Improved timezone validation with user-friendly messages
+- **Business Day Wrap-around** - Support for date boundaries in business day calculations
+- **Architecture Documentation** - Comprehensive documentation with Mermaid diagrams
+
+### Changed
+- **Modular Architecture** - Organized code into 6-layer module system with 23+ focused files
+- **Zero Code Duplication** - Eliminated redundancy through centralized utilities
+- **Performance Optimizations** - Enhanced string operations and timezone formatting
+- **Duration Logic** - Removed confusing "ago" suffix from positive durations
+
+### Fixed
+- **Timezone Validation** - Proper error handling for invalid timezone inputs
+- **Business Day Calculations** - Corrected wrap-around behavior for date boundaries
+- **Duration Formatting** - Fixed inconsistent "ago" suffix in positive durations
+
+### Technical
+- **Single Responsibility** - Each module has a clear, focused purpose
+- **100% Backward Compatibility** - All APIs preserved during restructuring
+- **Enhanced Type Safety** - Comprehensive TypeScript interfaces across all modules
+- **Improved Maintainability** - Significantly better code organization and readability
+
 ## [1.0.0] - 2025-08-09
 
 ### Added
