@@ -38,6 +38,29 @@ AI Watch enables a wide range of practical, time-driven workflows for individual
 - Get creative! 😉
 
 ### Example Prompts
+#### Comprehensive Example Prompt
+
+> "For our global product launch, please:
+> - Get the current time in UTC, Tokyo, and New York.
+> - Schedule the release for 2 weeks and 3 business days from today, ensuring it lands on a business day in London.
+> - Convert the planned release time to the local timezones for our teams in Sydney and Berlin.
+> - Calculate how long it’s been since our last deployment on 2025-07-01T14:30:00Z, and format the duration in a human-readable way.
+> - Add a TODO to review the deployment 1 month after the release date.
+> - List all dates in this document older than 6 months and flag them for review.
+> - Summarize the time difference between the last two releases in both total hours and a compact format."
+
+**What this prompt demonstrates:**
+
+- Get current time in multiple timezones: `getCurrentDate`, `convertTimezone`
+- Schedule with business day math: `addTime`, `businessDay`
+- Timezone conversion for teams: `convertTimezone`
+- Duration since last deployment: `calculateDifference`, `formatDuration`
+- Add a TODO for future review: `addTime`
+- Find and flag old dates: `dateQuery` and date comparison
+- Summarize time difference in various formats: `calculateDifference`, `formatDuration` with verbosity options
+
+#### Specific Examples
+
 > "Update the 'Last Reviewed' date in this README to today’s date in ISO format."
 > 
 > "Log this architectural decision with the current UTC timestamp and a summary of the change."
