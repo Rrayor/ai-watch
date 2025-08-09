@@ -1,10 +1,10 @@
-# Copilot Watch
+# AI Watch
 
-A VSCode extension to provide GitHub Copilot with a tool to request the current time.
+A VSCode extension to provide AI assistants with a tool to request the current time.
 
 ## Features
 
-Copilot Watch enables Copilot and other VS Code extensions to reliably access accurate, up-to-date time and date information for AI-assisted development workflows. 
+AI Watch enables AI assistants and other VS Code extensions to reliably access accurate, up-to-date time and date information for AI-assisted development workflows.
 
 ### **Current Capabilities**
 
@@ -59,7 +59,7 @@ Other extensions, AI agents, and development tools can access all functionality 
 
 ### **Basic Current Time**
 ```typescript
-const result = await vscode.commands.executeCommand('copilot-watch.getCurrentDate');
+const result = await vscode.commands.executeCommand('ai-watch.getCurrentDate');
 // result: { 
 //   iso: "2025-08-09T13:37:01.000Z", 
 //   utc: "2025-08-09 13:37:01",
@@ -72,7 +72,7 @@ const result = await vscode.commands.executeCommand('copilot-watch.getCurrentDat
 
 #### Get Current Date/Time in a Specific Time Zone
 ```typescript
-const result = await vscode.commands.executeCommand('copilot-watch.getCurrentDate', {
+const result = await vscode.commands.executeCommand('ai-watch.getCurrentDate', {
   timezone: 'Asia/Tokyo'
 });
 // result: { 
@@ -87,7 +87,7 @@ const result = await vscode.commands.executeCommand('copilot-watch.getCurrentDat
 
 #### Calculate Time Differences for Performance Analysis
 ```typescript
-const result = await vscode.commands.executeCommand('copilot-watch.calculateDifference', {
+const result = await vscode.commands.executeCommand('ai-watch.calculateDifference', {
   from: '2025-08-01T00:00:00Z',
   to: '2025-08-09T13:37:01Z'
 });
@@ -103,7 +103,7 @@ const result = await vscode.commands.executeCommand('copilot-watch.calculateDiff
 
 #### Future Time Calculations for Scheduling
 ```typescript
-const result = await vscode.commands.executeCommand('copilot-watch.addTime', {
+const result = await vscode.commands.executeCommand('ai-watch.addTime', {
   hours: 4,
   minutes: 2,
   timezone: 'Europe/London'
@@ -123,7 +123,7 @@ const result = await vscode.commands.executeCommand('copilot-watch.addTime', {
 
 #### Historical Time Calculations for Analysis
 ```typescript
-const result = await vscode.commands.executeCommand('copilot-watch.subtractTime', {
+const result = await vscode.commands.executeCommand('ai-watch.subtractTime', {
   weeks: 4,
   hours: 2,
   minutes: 64
@@ -141,7 +141,7 @@ const result = await vscode.commands.executeCommand('copilot-watch.subtractTime'
 
 #### Cross-Timezone Coordination
 ```typescript
-const result = await vscode.commands.executeCommand('copilot-watch.convertTimezone', {
+const result = await vscode.commands.executeCommand('ai-watch.convertTimezone', {
   date: '2025-08-09T13:37:01Z',
   toTimezone: 'Asia/Tokyo'
 });
@@ -157,7 +157,7 @@ const result = await vscode.commands.executeCommand('copilot-watch.convertTimezo
 
 ## Language Model Tools
 
-Copilot Watch provides five comprehensive language model tools that GitHub Copilot can use for time-related operations in AI-assisted development:
+AI Watch provides five comprehensive language model tools that AI assistants can use for time-related operations in AI-assisted development:
 
 ### `getCurrentDate`
 - **Description**: Returns the current date and time with timezone awareness
@@ -294,7 +294,7 @@ Copilot Watch provides five comprehensive language model tools that GitHub Copil
 
 #### Configuration and Customization
 
-Copilot Watch supports flexible business day calculations with the following options:
+AI Watch supports flexible business day calculations with the following options:
 
 - **Business Day Range**: Specify which days are considered business days using a string like `"Mon-Fri"` (default), `"Sun-Thu"`, or a comma-separated list like `"Mon,Wed,Fri"`.
 - **Custom Excluded Dates**: Provide a list of dates (e.g., holidays, company shutdowns) in `YYYY-MM-DD` format to be excluded from business day calculations.
@@ -313,8 +313,8 @@ Copilot Watch supports flexible business day calculations with the following opt
 
 **Example VS Code Settings:**
 ```json
-"copilotWatch.businessDays": "Sun-Thu",
-"copilotWatch.excludedDates": ["2025-12-25", "2025-12-26"]
+"aiWatch.businessDays": "Sun-Thu",
+"aiWatch.excludedDates": ["2025-12-25", "2025-12-26"]
 ```
 
 **How it works:**
@@ -388,7 +388,7 @@ This extension does **not** support advanced timezone features such as:
 - The extension does not bundle a city/country-to-timezone database or use external APIs for such lookups
 
 **User Responsibility:**
-- Users must provide valid IANA timezone names. If mapping is needed, it should be handled outside the extension (e.g., by Copilot or user prompt)
+- Users must provide valid IANA timezone names. If mapping is needed, it should be handled outside the extension (e.g., by AI assistants or user prompt)
 
 **Examples:**
 - ✅ Supported: `convertTimezone({ date: '2025-08-09T13:37:01Z', toTimezone: 'Asia/Tokyo' })`
@@ -402,7 +402,7 @@ I'm unable to retrieve the current date and time using the tool right now due to
 
 ## 🚀 Complete Feature Demonstration
 
-Here's a comprehensive prompt that demonstrates **every single feature** of the Copilot Watch extension:
+Here's a comprehensive prompt that demonstrates **every single feature** of the AI Watch extension:
 
 ### **Master Demonstration Prompt**
 
@@ -495,7 +495,7 @@ This single prompt validates that **all 8 tools are working correctly** and demo
 
 ### Language Model Tools API
 
-All tools are accessible to GitHub Copilot and other AI assistants through the Language Model Tools interface. Each tool provides comprehensive input validation, sensible defaults, and detailed error handling.
+All tools are accessible to AI assistants through the Language Model Tools interface. Each tool provides comprehensive input validation, sensible defaults, and detailed error handling.
 
 #### **getCurrentDate**
 
@@ -520,15 +520,15 @@ Returns current date and time with optional timezone and formatting support.
 **Example Usage:**
 ```javascript
 // Basic current time
-await vscode.commands.executeCommand('copilot-watch.getCurrentDate');
+await vscode.commands.executeCommand('ai-watch.getCurrentDate');
 
 // Specific timezone
-await vscode.commands.executeCommand('copilot-watch.getCurrentDate', {
+await vscode.commands.executeCommand('ai-watch.getCurrentDate', {
   timezone: 'Asia/Tokyo'
 });
 
 // Custom format
-await vscode.commands.executeCommand('copilot-watch.getCurrentDate', {
+await vscode.commands.executeCommand('ai-watch.getCurrentDate', {
   timezone: 'Europe/London',
   format: 'DD/MM/YYYY HH:mm'
 });
@@ -556,7 +556,7 @@ Calculates precise time differences between two dates with detailed breakdown.
 
 **Example Usage:**
 ```javascript
-await vscode.commands.executeCommand('copilot-watch.calculateDifference', {
+await vscode.commands.executeCommand('ai-watch.calculateDifference', {
   from: '2025-08-01T00:00:00Z',
   to: '2025-08-09T13:37:01Z'
 });
@@ -584,7 +584,7 @@ Converts date/time between different timezones using IANA timezone identifiers.
 
 **Example Usage:**
 ```javascript
-await vscode.commands.executeCommand('copilot-watch.convertTimezone', {
+await vscode.commands.executeCommand('ai-watch.convertTimezone', {
   date: '2025-08-09T13:37:01Z',
   toTimezone: 'Asia/Tokyo'
 });
@@ -622,13 +622,13 @@ Adds specified duration components to a base time (current time if not specified
 **Example Usage:**
 ```javascript
 // Add 2 hours and 30 minutes from now
-await vscode.commands.executeCommand('copilot-watch.addTime', {
+await vscode.commands.executeCommand('ai-watch.addTime', {
   hours: 2,
   minutes: 30
 });
 
 // Add complex duration to specific base time
-await vscode.commands.executeCommand('copilot-watch.addTime', {
+await vscode.commands.executeCommand('ai-watch.addTime', {
   baseTime: '2025-08-09T10:00:00Z',
   weeks: 2,
   days: 3,
@@ -668,14 +668,14 @@ Subtracts specified duration components from a base time (current time if not sp
 **Example Usage:**
 ```javascript
 // Go back 4 weeks, 2 days, and 3 hours from now
-await vscode.commands.executeCommand('copilot-watch.subtractTime', {
+await vscode.commands.executeCommand('ai-watch.subtractTime', {
   weeks: 4,
   days: 2,
   hours: 3
 });
 
 // Historical calculation from specific time
-await vscode.commands.executeCommand('copilot-watch.subtractTime', {
+await vscode.commands.executeCommand('ai-watch.subtractTime', {
   baseTime: '2025-08-09T14:30:00Z',
   months: 1,
   days: 15,
@@ -708,14 +708,14 @@ Converts time duration between two dates into human-readable format with configu
 **Example Usage:**
 ```javascript
 // Basic duration formatting
-await vscode.commands.executeCommand('copilot-watch.formatDuration', {
+await vscode.commands.executeCommand('ai-watch.formatDuration', {
   from: '2025-08-09T12:00:00Z',
   to: '2025-08-09T14:47:33Z'
 });
 // Returns: { formatted: "2 hours, 47 minutes, 33 seconds" }
 
 // Compact format with limited units
-await vscode.commands.executeCommand('copilot-watch.formatDuration', {
+await vscode.commands.executeCommand('ai-watch.formatDuration', {
   from: '2025-08-01T00:00:00Z',
   to: '2025-08-09T13:37:01Z',
   verbosity: 'compact',
@@ -762,14 +762,14 @@ Performs business day calculations including validation and addition/subtraction
 **Example Usage:**
 ```javascript
 // Check if date is business day
-await vscode.commands.executeCommand('copilot-watch.businessDay', {
+await vscode.commands.executeCommand('ai-watch.businessDay', {
   operation: 'isBusinessDay',
   date: '2025-08-15T10:00:00Z'
 });
 // Returns: { date: "2025-08-15T10:00:00Z", isBusinessDay: true, weekday: "Friday" }
 
 // Add business days
-await vscode.commands.executeCommand('copilot-watch.businessDay', {
+await vscode.commands.executeCommand('ai-watch.businessDay', {
   operation: 'addBusinessDays',
   date: '2025-08-12T10:00:00Z',
   days: 5
@@ -818,14 +818,14 @@ Performs advanced date queries including weekday navigation and period boundary 
 **Example Usage:**
 ```javascript
 // Find next Friday
-await vscode.commands.executeCommand('copilot-watch.dateQuery', {
+await vscode.commands.executeCommand('ai-watch.dateQuery', {
   baseDate: '2025-08-11T10:00:00Z',
   queries: [{ type: 'nextWeekday', weekday: 'friday' }]
 });
 // Returns: { date: "2025-08-15T10:00:00Z" }
 
 // Get start and end of current month
-await vscode.commands.executeCommand('copilot-watch.dateQuery', {
+await vscode.commands.executeCommand('ai-watch.dateQuery', {
   baseDate: '2025-08-15T10:00:00Z',
   queries: [
     { type: 'startOfPeriod', period: 'month' },
@@ -835,7 +835,7 @@ await vscode.commands.executeCommand('copilot-watch.dateQuery', {
 // Returns: { dates: ["2025-08-01T00:00:00Z", "2025-08-31T23:59:59Z"] }
 
 // Chained operations: find previous Wednesday, then next Monday from that date
-await vscode.commands.executeCommand('copilot-watch.dateQuery', {
+await vscode.commands.executeCommand('ai-watch.dateQuery', {
   baseDate: '2025-08-15T10:00:00Z',
   queries: [
     { type: 'previousWeekday', weekday: 'wednesday' },
@@ -850,25 +850,25 @@ await vscode.commands.executeCommand('copilot-watch.dateQuery', {
 All functionality is also available through direct VS Code commands for programmatic access by other extensions.
 
 **Available Commands:**
-- `copilot-watch.getCurrentDate`
-- `copilot-watch.calculateDifference`
-- `copilot-watch.convertTimezone`
-- `copilot-watch.addTime`
-- `copilot-watch.subtractTime`
-- `copilot-watch.formatDuration`
-- `copilot-watch.businessDay`
-- `copilot-watch.dateQuery`
+- `ai-watch.getCurrentDate`
+- `ai-watch.calculateDifference`
+- `ai-watch.convertTimezone`
+- `ai-watch.addTime`
+- `ai-watch.subtractTime`
+- `ai-watch.formatDuration`
+- `ai-watch.businessDay`
+- `ai-watch.dateQuery`
 
 **Usage Pattern:**
 ```typescript
-const result = await vscode.commands.executeCommand('copilot-watch.[command]', parameters);
+const result = await vscode.commands.executeCommand('ai-watch.[command]', parameters);
 ```
 
 ## ⚙️ VS Code Settings
 
-Copilot Watch supports the following workspace and user settings for customization:
+AI Watch supports the following workspace and user settings for customization:
 
-### **copilotWatch.defaultTimezone**
+### **aiWatch.defaultTimezone**
 - **Type:** `string`
 - **Default:** Auto-detected from system
 - **Description:** Default timezone for operations when not specified
@@ -877,11 +877,11 @@ Copilot Watch supports the following workspace and user settings for customizati
 - **Example:**
 ```json
 {
-  "copilotWatch.defaultTimezone": "Europe/London"
+  "aiWatch.defaultTimezone": "Europe/London"
 }
 ```
 
-### **copilotWatch.defaultDateFormat**
+### **aiWatch.defaultDateFormat**
 - **Type:** `string`
 - **Default:** `"YYYY-MM-DD HH:mm:ss"`
 - **Description:** Default date/time format pattern for display
@@ -890,11 +890,11 @@ Copilot Watch supports the following workspace and user settings for customizati
 - **Examples:**
 ```json
 {
-  "copilotWatch.defaultDateFormat": "DD/MM/YYYY HH:mm"
+  "aiWatch.defaultDateFormat": "DD/MM/YYYY HH:mm"
 }
 ```
 
-### **copilotWatch.businessDays**
+### **aiWatch.businessDays**
 - **Type:** `string`
 - **Default:** `"Mon-Fri"`
 - **Description:** Defines which days are considered business days
@@ -905,11 +905,11 @@ Copilot Watch supports the following workspace and user settings for customizati
 - **Examples:**
 ```json
 {
-  "copilotWatch.businessDays": "Sun-Thu"
+  "aiWatch.businessDays": "Sun-Thu"
 }
 ```
 
-### **copilotWatch.excludedDates**
+### **aiWatch.excludedDates**
 - **Type:** `array of strings`
 - **Default:** `[]`
 - **Description:** List of dates to exclude from business day calculations (holidays, company shutdowns)
@@ -918,7 +918,7 @@ Copilot Watch supports the following workspace and user settings for customizati
 - **Examples:**
 ```json
 {
-  "copilotWatch.excludedDates": [
+  "aiWatch.excludedDates": [
     "2025-12-25",
     "2025-12-26",
     "2025-01-01",
@@ -927,7 +927,7 @@ Copilot Watch supports the following workspace and user settings for customizati
 }
 ```
 
-### **copilotWatch.weekStart**
+### **aiWatch.weekStart**
 - **Type:** `string`
 - **Default:** `"monday"`
 - **Description:** Defines which day is considered the start of the week for period calculations
@@ -936,11 +936,11 @@ Copilot Watch supports the following workspace and user settings for customizati
 - **Examples:**
 ```json
 {
-  "copilotWatch.weekStart": "sunday"
+  "aiWatch.weekStart": "sunday"
 }
 ```
 
-### **copilotWatch.durationFormat**
+### **aiWatch.durationFormat**
 - **Type:** `string`
 - **Default:** `"standard"`
 - **Description:** Default verbosity level for duration formatting
@@ -949,11 +949,11 @@ Copilot Watch supports the following workspace and user settings for customizati
 - **Examples:**
 ```json
 {
-  "copilotWatch.durationFormat": "verbose"
+  "aiWatch.durationFormat": "verbose"
 }
 ```
 
-### **copilotWatch.maxDurationUnits**
+### **aiWatch.maxDurationUnits**
 - **Type:** `number`
 - **Default:** `3`
 - **Description:** Maximum number of time units to display in duration formatting
@@ -962,7 +962,7 @@ Copilot Watch supports the following workspace and user settings for customizati
 - **Examples:**
 ```json
 {
-  "copilotWatch.maxDurationUnits": 2
+  "aiWatch.maxDurationUnits": 2
 }
 ```
 
@@ -971,21 +971,21 @@ Copilot Watch supports the following workspace and user settings for customizati
 #### **Global Team Configuration**
 ```json
 {
-  "copilotWatch.defaultTimezone": "UTC",
-  "copilotWatch.defaultDateFormat": "YYYY-MM-DD HH:mm:ss",
-  "copilotWatch.businessDays": "Mon-Fri",
-  "copilotWatch.weekStart": "monday",
-  "copilotWatch.durationFormat": "standard"
+  "aiWatch.defaultTimezone": "UTC",
+  "aiWatch.defaultDateFormat": "YYYY-MM-DD HH:mm:ss",
+  "aiWatch.businessDays": "Mon-Fri",
+  "aiWatch.weekStart": "monday",
+  "aiWatch.durationFormat": "standard"
 }
 ```
 
 #### **Middle East Regional Configuration**
 ```json
 {
-  "copilotWatch.defaultTimezone": "Asia/Dubai",
-  "copilotWatch.businessDays": "Sun-Thu",
-  "copilotWatch.weekStart": "sunday",
-  "copilotWatch.excludedDates": [
+  "aiWatch.defaultTimezone": "Asia/Dubai",
+  "aiWatch.businessDays": "Sun-Thu",
+  "aiWatch.weekStart": "sunday",
+  "aiWatch.excludedDates": [
     "2025-12-02",  // UAE National Day
     "2025-12-03"   // UAE National Day Holiday
   ]
@@ -995,17 +995,17 @@ Copilot Watch supports the following workspace and user settings for customizati
 #### **US Enterprise Configuration**
 ```json
 {
-  "copilotWatch.defaultTimezone": "America/New_York",
-  "copilotWatch.defaultDateFormat": "MM/DD/YYYY hh:mm A",
-  "copilotWatch.businessDays": "Mon-Fri",
-  "copilotWatch.excludedDates": [
+  "aiWatch.defaultTimezone": "America/New_York",
+  "aiWatch.defaultDateFormat": "MM/DD/YYYY hh:mm A",
+  "aiWatch.businessDays": "Mon-Fri",
+  "aiWatch.excludedDates": [
     "2025-01-01",  // New Year's Day
     "2025-07-04",  // Independence Day
     "2025-11-28",  // Thanksgiving
     "2025-12-25"   // Christmas
   ],
-  "copilotWatch.durationFormat": "verbose",
-  "copilotWatch.maxDurationUnits": 4
+  "aiWatch.durationFormat": "verbose",
+  "aiWatch.maxDurationUnits": 4
 }
 ```
 

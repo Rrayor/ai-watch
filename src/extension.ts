@@ -1,61 +1,84 @@
+/**
+ * AI Watch Extension
+ * 
+ * Provides comprehensive date and time manipulation tools for AI assistants and VS Code.
+ * Enables AI-assisted development workflows with accurate timezone handling, business day
+ * calculations, duration formatting, and advanced date queries.
+ * 
+ * @author Benjamin Simon
+ * @version 1.0.0
+ */
+
 import * as vscode from 'vscode';
 
+/**
+ * Registers all Language Model Tools with VS Code for AI assistant integration.
+ * These tools enable AI assistants to perform sophisticated date/time operations.
+ * 
+ * @param context - VS Code extension context for managing subscriptions
+ */
 export function registerChatTools(context: vscode.ExtensionContext) {
-	context.subscriptions.push(vscode.lm.registerTool('copilot-watch_getCurrentDate', new GetCurrentDateTool()));
-	context.subscriptions.push(vscode.lm.registerTool('copilot-watch_calculateDifference', new CalculateDifferenceTool()));
-	context.subscriptions.push(vscode.lm.registerTool('copilot-watch_convertTimezone', new ConvertTimezoneTool()));
-	context.subscriptions.push(vscode.lm.registerTool('copilot-watch_addTime', new AddTimeTool()));
-	context.subscriptions.push(vscode.lm.registerTool('copilot-watch_subtractTime', new SubtractTimeTool()));
-	context.subscriptions.push(vscode.lm.registerTool('copilot-watch_formatDuration', new FormatDurationTool()));
-	context.subscriptions.push(vscode.lm.registerTool('copilot-watch_businessDay', new BusinessDayTool()));
-	context.subscriptions.push(vscode.lm.registerTool('copilot-watch_dateQuery', new DateQueryTool()));
+	context.subscriptions.push(vscode.lm.registerTool('ai-watch_getCurrentDate', new GetCurrentDateTool()));
+	context.subscriptions.push(vscode.lm.registerTool('ai-watch_calculateDifference', new CalculateDifferenceTool()));
+	context.subscriptions.push(vscode.lm.registerTool('ai-watch_convertTimezone', new ConvertTimezoneTool()));
+	context.subscriptions.push(vscode.lm.registerTool('ai-watch_addTime', new AddTimeTool()));
+	context.subscriptions.push(vscode.lm.registerTool('ai-watch_subtractTime', new SubtractTimeTool()));
+	context.subscriptions.push(vscode.lm.registerTool('ai-watch_formatDuration', new FormatDurationTool()));
+	context.subscriptions.push(vscode.lm.registerTool('ai-watch_businessDay', new BusinessDayTool()));
+	context.subscriptions.push(vscode.lm.registerTool('ai-watch_dateQuery', new DateQueryTool()));
 }
 
+/**
+ * Registers all VS Code commands for programmatic access by other extensions.
+ * Commands provide the same functionality as Language Model Tools but with direct API access.
+ * 
+ * @param context - VS Code extension context for managing command subscriptions
+ */
 export function registerCommands(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
-		vscode.commands.registerCommand('copilot-watch.getCurrentDate', (options?: GetCurrentDateOptions) => {
+		vscode.commands.registerCommand('ai-watch.getCurrentDate', (options?: GetCurrentDateOptions) => {
 			return getCurrentDateCommand(options);
 		})
 	);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('copilot-watch.calculateDifference', (options: CalculateDifferenceOptions) => {
+		vscode.commands.registerCommand('ai-watch.calculateDifference', (options: CalculateDifferenceOptions) => {
 			return calculateDifferenceCommand(options);
 		})
 	);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('copilot-watch.convertTimezone', (options: ConvertTimezoneOptions) => {
+		vscode.commands.registerCommand('ai-watch.convertTimezone', (options: ConvertTimezoneOptions) => {
 			return convertTimezoneCommand(options);
 		})
 	);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('copilot-watch.addTime', (options: AddTimeOptions) => {
+		vscode.commands.registerCommand('ai-watch.addTime', (options: AddTimeOptions) => {
 			return addTimeCommand(options);
 		})
 	);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('copilot-watch.subtractTime', (options: SubtractTimeOptions) => {
+		vscode.commands.registerCommand('ai-watch.subtractTime', (options: SubtractTimeOptions) => {
 			return subtractTimeCommand(options);
 		})
 	);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('copilot-watch.formatDuration', (options: FormatDurationOptions) => {
+		vscode.commands.registerCommand('ai-watch.formatDuration', (options: FormatDurationOptions) => {
 			return formatDurationCommand(options);
 		})
 	);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('copilot-watch.businessDay', (options: BusinessDayOptions) => {
+		vscode.commands.registerCommand('ai-watch.businessDay', (options: BusinessDayOptions) => {
 			return businessDayCommand(options);
 		})
 	);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('copilot-watch.dateQuery', (options: DateQueryOptions) => {
+		vscode.commands.registerCommand('ai-watch.dateQuery', (options: DateQueryOptions) => {
 			return dateQueryCommand(options);
 		})
 	);
@@ -66,138 +89,283 @@ interface IGetCurrentDateParameters {
 	format?: string;
 }
 
+/**
+ * Options for getting current date and time with optional timezone and formatting.
+ */
 interface GetCurrentDateOptions {
+	/** IANA timezone identifier (e.g., 'America/New_York', 'Europe/Berlin') */
 	timezone?: string;
+	/** Date format pattern, defaults to 'YYYY-MM-DD HH:mm:ss' */
 	format?: string;
 }
 
+/**
+ * Options for calculating time differences between two dates.
+ */
 interface CalculateDifferenceOptions {
+	/** Starting date/time in ISO 8601 format */
 	from: string;
+	/** Ending date/time in ISO 8601 format */
 	to: string;
 }
 
+/**
+ * Language Model Tool parameters for calculating time differences.
+ */
 interface ICalculateDifferenceParameters {
+	/** Starting date/time in ISO 8601 format */
 	from: string;
+	/** Ending date/time in ISO 8601 format */
 	to: string;
 }
 
+/**
+ * Options for converting dates between timezones.
+ */
 interface ConvertTimezoneOptions {
+	/** Date/time in ISO 8601 format to convert */
 	date: string;
+	/** Source timezone (defaults to UTC if not specified) */
 	fromTimezone?: string;
+	/** Target IANA timezone identifier */
 	toTimezone: string;
 }
 
+/**
+ * Language Model Tool parameters for timezone conversion.
+ */
 interface IConvertTimezoneParameters {
+	/** Date/time in ISO 8601 format to convert */
 	date: string;
+	/** Source timezone (defaults to UTC if not specified) */
 	fromTimezone?: string;
+	/** Target IANA timezone identifier */
 	toTimezone: string;
 }
 
+/**
+ * Options for adding time durations to a base date.
+ */
 interface AddTimeOptions {
+	/** Base time in ISO format (defaults to current time) */
 	baseTime?: string;
+	/** Number of years to add */
 	years?: number;
+	/** Number of months to add */
 	months?: number;
+	/** Number of weeks to add */
 	weeks?: number;
+	/** Number of days to add */
 	days?: number;
+	/** Number of hours to add */
 	hours?: number;
+	/** Number of minutes to add */
 	minutes?: number;
+	/** Number of seconds to add */
 	seconds?: number;
+	/** Display result in specific timezone */
 	timezone?: string;
 }
 
+/**
+ * Language Model Tool parameters for adding time durations.
+ */
 interface IAddTimeParameters {
+	/** Base time in ISO format (defaults to current time) */
 	baseTime?: string;
+	/** Number of years to add */
 	years?: number;
+	/** Number of months to add */
 	months?: number;
+	/** Number of weeks to add */
 	weeks?: number;
+	/** Number of days to add */
 	days?: number;
+	/** Number of hours to add */
 	hours?: number;
+	/** Number of minutes to add */
 	minutes?: number;
+	/** Number of seconds to add */
 	seconds?: number;
+	/** Display result in specific timezone */
 	timezone?: string;
 }
 
+/**
+ * Options for subtracting time durations from a base date.
+ */
 interface SubtractTimeOptions {
+	/** Base time in ISO format (defaults to current time) */
 	baseTime?: string;
+	/** Number of years to subtract */
 	years?: number;
+	/** Number of months to subtract */
 	months?: number;
+	/** Number of weeks to subtract */
 	weeks?: number;
+	/** Number of days to subtract */
 	days?: number;
+	/** Number of hours to subtract */
 	hours?: number;
+	/** Number of minutes to subtract */
 	minutes?: number;
+	/** Number of seconds to subtract */
 	seconds?: number;
+	/** Display result in specific timezone */
 	timezone?: string;
 }
 
+/**
+ * Language Model Tool parameters for subtracting time durations.
+ */
 interface ISubtractTimeParameters {
+	/** Base time in ISO format (defaults to current time) */
 	baseTime?: string;
+	/** Number of years to subtract */
 	years?: number;
+	/** Number of months to subtract */
 	months?: number;
+	/** Number of weeks to subtract */
 	weeks?: number;
+	/** Number of days to subtract */
 	days?: number;
+	/** Number of hours to subtract */
 	hours?: number;
+	/** Number of minutes to subtract */
 	minutes?: number;
+	/** Number of seconds to subtract */
 	seconds?: number;
+	/** Display result in specific timezone */
 	timezone?: string;
 }
 
+/**
+ * Options for formatting time durations into human-readable text.
+ */
 interface FormatDurationOptions {
+	/** Starting date/time in ISO format */
 	from: string;
+	/** Ending date/time in ISO format */
 	to: string;
+	/** Format verbosity: 'compact', 'standard', or 'verbose' */
 	verbosity?: 'compact' | 'standard' | 'verbose';
+	/** Maximum number of time units to display */
 	maxUnits?: number;
 }
 
+/**
+ * Language Model Tool parameters for duration formatting.
+ */
 interface IFormatDurationParameters {
+	/** Starting date/time in ISO format */
 	from: string;
+	/** Ending date/time in ISO format */
 	to: string;
+	/** Format verbosity: 'compact', 'standard', or 'verbose' */
 	verbosity?: 'compact' | 'standard' | 'verbose';
+	/** Maximum number of time units to display */
 	maxUnits?: number;
 }
 
+/**
+ * Options for advanced date queries and navigation.
+ */
 interface DateQueryOptions {
+	/** Base date for calculations in ISO format */
 	baseDate: string;
+	/** Array of query operations to perform in sequence */
 	queries: Array<{
+		/** Type of date query operation */
 		type: 'nextWeekday' | 'previousWeekday' | 'startOfPeriod' | 'endOfPeriod';
+		/** Target weekday for weekday queries */
 		weekday?: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+		/** Period type for period queries */
 		period?: 'week' | 'month' | 'quarter' | 'year';
+		/** Week start day (defaults to monday) */
 		weekStart?: 'monday' | 'sunday';
 	}>;
 }
 
+/**
+ * Language Model Tool parameters for date queries.
+ */
 interface IDateQueryParameters {
+	/** Base date for calculations in ISO format */
 	baseDate: string;
+	/** Array of query operations to perform in sequence */
 	queries: Array<{
+		/** Type of date query operation */
 		type: 'nextWeekday' | 'previousWeekday' | 'startOfPeriod' | 'endOfPeriod';
+		/** Target weekday for weekday queries */
 		weekday?: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+		/** Period type for period queries */
 		period?: 'week' | 'month' | 'quarter' | 'year';
+		/** Week start day (defaults to monday) */
 		weekStart?: 'monday' | 'sunday';
 	}>;
 }
 
+/**
+ * Options for business day operations.
+ */
 interface BusinessDayOptions {
+	/** Type of business day operation to perform */
 	operation: 'isBusinessDay' | 'addBusinessDays' | 'subtractBusinessDays';
+	/** Base date in ISO format */
 	date: string;
+	/** Number of business days to add/subtract (required for add/subtract operations) */
 	days?: number;
 }
 
+/**
+ * Language Model Tool parameters for business day operations.
+ */
 interface IBusinessDayParameters {
+	/** Type of business day operation to perform */
 	operation: 'isBusinessDay' | 'addBusinessDays' | 'subtractBusinessDays';
+	/** Base date in ISO format */
 	date: string;
+	/** Number of business days to add/subtract (required for add/subtract operations) */
 	days?: number;
 }
 
+/**
+ * Formats a Date object into UTC string format.
+ * 
+ * @param date - Date object to format
+ * @returns Formatted UTC string in 'YYYY-MM-DD HH:mm:ss' format
+ */
 function formatUTC(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  const y = date.getUTCFullYear();
-  const m = pad(date.getUTCMonth() + 1);
-  const d = pad(date.getUTCDate());
-  const hh = pad(date.getUTCHours());
-  const mm = pad(date.getUTCMinutes());
-  const ss = pad(date.getUTCSeconds());
-  return `${y}-${m}-${d} ${hh}:${mm}:${ss}`;
+	return date.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, '');
 }
 
+/**
+ * Converts a weekday string to its corresponding numeric value.
+ * 
+ * @param weekday - String representation of weekday
+ * @returns Numeric day of week (0=Sunday, 1=Monday, etc.)
+ */
+function weekdayToNumber(weekday: string): number {
+	const weekdays = {
+		'sunday': 0,
+		'monday': 1,
+		'tuesday': 2,
+		'wednesday': 3,
+		'thursday': 4,
+		'friday': 5,
+		'saturday': 6
+	};
+	return weekdays[weekday as keyof typeof weekdays];
+}
+
+/**
+ * Formats a date in a specific timezone.
+ * 
+ * @param date - Date object to format
+ * @param timezone - Target timezone (optional)
+ * @param customFormat - Custom format string (optional)
+ * @returns Formatted date string
+ */
 function formatInTimezone(date: Date, timezone?: string, customFormat?: string): string {
 	try {
 		if (timezone) {
@@ -224,6 +392,11 @@ function formatInTimezone(date: Date, timezone?: string, customFormat?: string):
 	}
 }
 
+/**
+ * Gets the user's current timezone.
+ * 
+ * @returns User's timezone string, defaults to UTC if detection fails
+ */
 function getUserTimezone(): string {
 	try {
 		return Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -232,6 +405,13 @@ function getUserTimezone(): string {
 	}
 }
 
+/**
+ * Parses an ISO date string and returns a Date object.
+ * 
+ * @param dateString - ISO date string to parse
+ * @returns Parsed Date object
+ * @throws Error if date format is invalid
+ */
 function parseISOString(dateString: string): Date {
 	const date = new Date(dateString);
 	if (isNaN(date.getTime())) {
@@ -240,6 +420,13 @@ function parseISOString(dateString: string): Date {
 	return date;
 }
 
+/**
+ * Calculates the difference between two dates in various units.
+ * 
+ * @param from - Start date
+ * @param to - End date
+ * @returns Object containing the difference in days, hours, minutes, and seconds
+ */
 function calculateDateDifference(from: Date, to: Date) {
 	const diffMs = to.getTime() - from.getTime();
 	return {
@@ -251,6 +438,15 @@ function calculateDateDifference(from: Date, to: Date) {
 }
 
 // Duration formatting functions
+/**
+ * Formats a duration value into a human-readable string.
+ * 
+ * @param value - Duration value
+ * @param unit - Unit of the duration value (milliseconds, seconds, minutes, hours, days)
+ * @param verbosity - Format verbosity (compact, standard, verbose)
+ * @param maxUnits - Maximum number of units to display
+ * @returns Formatted duration string
+ */
 function formatDuration(value: number, unit: string, verbosity: string = 'standard', maxUnits: number = 3): string {
 	// Convert everything to seconds first
 	let totalSeconds: number;
@@ -324,6 +520,12 @@ function formatDuration(value: number, unit: string, verbosity: string = 'standa
 }
 
 // Business day functions
+/**
+ * Parses a business days string and returns an array of day numbers.
+ * 
+ * @param businessDaysString - String describing business days (e.g., "Mon-Fri", "Mon,Wed,Fri")
+ * @returns Array of day numbers (0=Sunday, 1=Monday, etc.)
+ */
 function parseBusinessDays(businessDaysString: string): number[] {
 	const dayMap = {
 		'Mon': 1, 'Monday': 1,
@@ -354,6 +556,14 @@ function parseBusinessDays(businessDaysString: string): number[] {
 		.filter(day => day !== undefined);
 }
 
+/**
+ * Checks if a date is a business day and not in excluded dates.
+ * 
+ * @param date - Date to check
+ * @param businessDays - Array of business day numbers
+ * @param excludedDates - Set of excluded date strings
+ * @returns True if the date is a business day and not excluded
+ */
 function isBusinessDay(date: Date, businessDays: number[], excludedDates: Set<string>): boolean {
 	const dayOfWeek = date.getDay();
 	const dateString = date.toISOString().split('T')[0];
@@ -361,6 +571,15 @@ function isBusinessDay(date: Date, businessDays: number[], excludedDates: Set<st
 	return businessDays.includes(dayOfWeek) && !excludedDates.has(dateString);
 }
 
+/**
+ * Adds a specified number of business days to a start date.
+ * 
+ * @param startDate - Starting date
+ * @param days - Number of business days to add (can be negative)
+ * @param businessDays - Array of business day numbers
+ * @param excludedDates - Set of excluded date strings
+ * @returns New date with business days added
+ */
 function addBusinessDays(startDate: Date, days: number, businessDays: number[], excludedDates: Set<string>): Date {
 	const result = new Date(startDate);
 	let daysToAdd = Math.abs(days);
@@ -377,6 +596,13 @@ function addBusinessDays(startDate: Date, days: number, businessDays: number[], 
 }
 
 // Date query functions
+/**
+ * Gets the next occurrence of a specific weekday from a start date.
+ * 
+ * @param startDate - Starting date
+ * @param targetWeekday - Target weekday name
+ * @returns Date of the next occurrence of the target weekday
+ */
 function getNextWeekday(startDate: Date, targetWeekday: string): Date {
 	const weekdayMap = {
 		'sunday': 0, 'monday': 1, 'tuesday': 2, 'wednesday': 3,
@@ -601,6 +827,12 @@ function dateQueryCommand(options: DateQueryOptions) {
 }
 
 // Command implementations
+/**
+ * Command function for getting the current date and time.
+ * 
+ * @param options - Optional configuration for timezone and format
+ * @returns Object with current date/time information
+ */
 function getCurrentDateCommand(options?: GetCurrentDateOptions) {
 	const now = new Date();
 	const result: any = {
@@ -633,6 +865,12 @@ function getCurrentDateCommand(options?: GetCurrentDateOptions) {
 	return result;
 }
 
+/**
+ * Command function for calculating differences between dates.
+ * 
+ * @param options - Configuration with from/to dates and unit
+ * @returns Object with calculated date difference
+ */
 function calculateDifferenceCommand(options: CalculateDifferenceOptions) {
 	try {
 		const fromDate = parseISOString(options.from);
@@ -646,6 +884,12 @@ function calculateDifferenceCommand(options: CalculateDifferenceOptions) {
 	}
 }
 
+/**
+ * Command function for converting times between timezones.
+ * 
+ * @param options - Configuration with date and target timezone
+ * @returns Object with timezone conversion results
+ */
 function convertTimezoneCommand(options: ConvertTimezoneOptions) {
 	try {
 		const date = parseISOString(options.date);
@@ -756,7 +1000,18 @@ function subtractTimeCommand(options: SubtractTimeOptions) {
 	}
 }
 
+/**
+ * Language Model Tool for getting the current date and time with timezone support.
+ * Provides current date/time in various formats and timezones.
+ */
 export class GetCurrentDateTool implements vscode.LanguageModelTool<IGetCurrentDateParameters> {
+	/**
+	 * Invokes the get current date tool.
+	 * 
+	 * @param options - Tool invocation options containing input parameters
+	 * @param _token - Cancellation token (unused)
+	 * @returns Language model tool result with current date/time information
+	 */
 	async invoke(
 		options: vscode.LanguageModelToolInvocationOptions<IGetCurrentDateParameters>,
 		_token: vscode.CancellationToken
@@ -834,7 +1089,18 @@ export class GetCurrentDateTool implements vscode.LanguageModelTool<IGetCurrentD
 	}
 }
 
+/**
+ * Language Model Tool for calculating differences between two dates.
+ * Computes time differences in various units (days, hours, minutes, etc.).
+ */
 export class CalculateDifferenceTool implements vscode.LanguageModelTool<ICalculateDifferenceParameters> {
+	/**
+	 * Invokes the calculate difference tool.
+	 * 
+	 * @param options - Tool invocation options containing input parameters
+	 * @param _token - Cancellation token (unused)
+	 * @returns Language model tool result with date difference information
+	 */
 	async invoke(
 		options: vscode.LanguageModelToolInvocationOptions<ICalculateDifferenceParameters>,
 		_token: vscode.CancellationToken
@@ -877,7 +1143,18 @@ export class CalculateDifferenceTool implements vscode.LanguageModelTool<ICalcul
 	}
 }
 
+/**
+ * Language Model Tool for converting times between timezones.
+ * Converts dates and times from one timezone to another with proper formatting.
+ */
 export class ConvertTimezoneTool implements vscode.LanguageModelTool<IConvertTimezoneParameters> {
+	/**
+	 * Invokes the convert timezone tool.
+	 * 
+	 * @param options - Tool invocation options containing input parameters
+	 * @param _token - Cancellation token (unused)
+	 * @returns Language model tool result with timezone conversion information
+	 */
 	async invoke(
 		options: vscode.LanguageModelToolInvocationOptions<IConvertTimezoneParameters>,
 		_token: vscode.CancellationToken
@@ -920,7 +1197,18 @@ export class ConvertTimezoneTool implements vscode.LanguageModelTool<IConvertTim
 	}
 }
 
+/**
+ * Language Model Tool for adding time to dates.
+ * Adds specified amounts of time (years, months, weeks, days, hours, minutes, seconds) to a base date.
+ */
 export class AddTimeTool implements vscode.LanguageModelTool<IAddTimeParameters> {
+	/**
+	 * Invokes the add time tool.
+	 * 
+	 * @param options - Tool invocation options containing input parameters
+	 * @param _token - Cancellation token (unused)
+	 * @returns Language model tool result with the calculated future date
+	 */
 	async invoke(
 		options: vscode.LanguageModelToolInvocationOptions<IAddTimeParameters>,
 		_token: vscode.CancellationToken
@@ -1012,7 +1300,18 @@ export class AddTimeTool implements vscode.LanguageModelTool<IAddTimeParameters>
 	}
 }
 
+/**
+ * Language Model Tool for subtracting time from dates.
+ * Subtracts specified amounts of time (years, months, weeks, days, hours, minutes, seconds) from a base date.
+ */
 export class SubtractTimeTool implements vscode.LanguageModelTool<ISubtractTimeParameters> {
+	/**
+	 * Invokes the subtract time tool.
+	 * 
+	 * @param options - Tool invocation options containing input parameters
+	 * @param _token - Cancellation token (unused)
+	 * @returns Language model tool result with the calculated past date
+	 */
 	async invoke(
 		options: vscode.LanguageModelToolInvocationOptions<ISubtractTimeParameters>,
 		_token: vscode.CancellationToken
@@ -1065,7 +1364,18 @@ export class SubtractTimeTool implements vscode.LanguageModelTool<ISubtractTimeP
 	}
 }
 
+/**
+ * Language Model Tool for formatting duration values.
+ * Converts duration values into human-readable strings with various verbosity levels.
+ */
 export class FormatDurationTool implements vscode.LanguageModelTool<IFormatDurationParameters> {
+	/**
+	 * Invokes the format duration tool.
+	 * 
+	 * @param options - Tool invocation options containing input parameters
+	 * @param _token - Cancellation token (unused)
+	 * @returns Language model tool result with formatted duration string
+	 */
 	async invoke(
 		options: vscode.LanguageModelToolInvocationOptions<IFormatDurationParameters>,
 		_token: vscode.CancellationToken
@@ -1084,7 +1394,19 @@ export class FormatDurationTool implements vscode.LanguageModelTool<IFormatDurat
 	}
 }
 
+/**
+ * Language Model Tool for business day operations.
+ * Performs business day calculations including checking if a date is a business day,
+ * adding/subtracting business days, and handling custom business day definitions.
+ */
 export class BusinessDayTool implements vscode.LanguageModelTool<IBusinessDayParameters> {
+	/**
+	 * Invokes the business day tool.
+	 * 
+	 * @param options - Tool invocation options containing input parameters
+	 * @param _token - Cancellation token (unused)
+	 * @returns Language model tool result with business day operation results
+	 */
 	async invoke(
 		options: vscode.LanguageModelToolInvocationOptions<IBusinessDayParameters>,
 		_token: vscode.CancellationToken
@@ -1103,7 +1425,19 @@ export class BusinessDayTool implements vscode.LanguageModelTool<IBusinessDayPar
 	}
 }
 
+/**
+ * Language Model Tool for advanced date queries and navigation.
+ * Performs complex date operations like finding next/previous weekdays,
+ * calculating start/end of periods, and chaining multiple date operations.
+ */
 export class DateQueryTool implements vscode.LanguageModelTool<IDateQueryParameters> {
+	/**
+	 * Invokes the date query tool.
+	 * 
+	 * @param options - Tool invocation options containing input parameters
+	 * @param _token - Cancellation token (unused)
+	 * @returns Language model tool result with date query operation results
+	 */
 	async invoke(
 		options: vscode.LanguageModelToolInvocationOptions<IDateQueryParameters>,
 		_token: vscode.CancellationToken

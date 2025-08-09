@@ -1,7 +1,7 @@
 {
-  "name": "copilot-watch",
-  "displayName": "Copilot Watch",
-  "description": "A VSCode extension to provide Github Copilot with a tool to request the current time.",
+  "name": "ai-watch",
+  "displayName": "AI Watch",
+  "description": "A VSCode extension to provide AI assistants with a tool to request the current time.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.103.0"
@@ -13,41 +13,41 @@
   "contributes": {
     "commands": [
       {
-        "command": "copilot-watch.getCurrentDate",
+        "command": "ai-watch.getCurrentDate",
         "title": "Get Current Date and Time"
       },
       {
-        "command": "copilot-watch.calculateDifference",
+        "command": "ai-watch.calculateDifference",
         "title": "Calculate Time Difference"
       },
       {
-        "command": "copilot-watch.convertTimezone",
+        "command": "ai-watch.convertTimezone",
         "title": "Convert Timezone"
       },
       {
-        "command": "copilot-watch.addTime",
+        "command": "ai-watch.addTime",
         "title": "Add Time Duration"
       },
       {
-        "command": "copilot-watch.subtractTime",
+        "command": "ai-watch.subtractTime",
         "title": "Subtract Time Duration"
       },
       {
-        "command": "copilot-watch.formatDuration",
+        "command": "ai-watch.formatDuration",
         "title": "Format Duration"
       },
       {
-        "command": "copilot-watch.businessDay",
+        "command": "ai-watch.businessDay",
         "title": "Business Day Operations"
       },
       {
-        "command": "copilot-watch.dateQuery",
+        "command": "ai-watch.dateQuery",
         "title": "Date Query Operations"
       }
     ],
     "languageModelTools": [
       {
-        "name": "copilot-watch_getCurrentDate",
+        "name": "ai-watch_getCurrentDate",
         "tags": [
           "date",
           "time",
@@ -78,7 +78,7 @@
         }
       },
       {
-        "name": "copilot-watch_calculateDifference",
+        "name": "ai-watch_calculateDifference",
         "tags": [
           "date",
           "time",
@@ -112,7 +112,7 @@
         }
       },
       {
-        "name": "copilot-watch_convertTimezone",
+        "name": "ai-watch_convertTimezone",
         "tags": [
           "date",
           "time",
@@ -151,7 +151,7 @@
         }
       },
       {
-        "name": "copilot-watch_addTime",
+        "name": "ai-watch_addTime",
         "tags": [
           "date",
           "time",
@@ -218,7 +218,7 @@
         }
       },
       {
-        "name": "copilot-watch_subtractTime",
+        "name": "ai-watch_subtractTime",
         "tags": [
           "date",
           "time",
@@ -285,7 +285,7 @@
         }
       },
       {
-        "name": "copilot-watch_formatDuration",
+        "name": "ai-watch_formatDuration",
         "tags": [
           "date",
           "time",
@@ -328,7 +328,7 @@
         }
       },
       {
-        "name": "copilot-watch_businessDay",
+        "name": "ai-watch_businessDay",
         "tags": [
           "date",
           "business",
@@ -366,7 +366,7 @@
         }
       },
       {
-        "name": "copilot-watch_dateQuery",
+        "name": "ai-watch_dateQuery",
         "tags": [
           "date",
           "query",

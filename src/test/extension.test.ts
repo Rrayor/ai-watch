@@ -3,9 +3,9 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { GetCurrentDateTool, CalculateDifferenceTool, ConvertTimezoneTool, AddTimeTool, SubtractTimeTool, FormatDurationTool, BusinessDayTool, DateQueryTool } from '../extension';
 
-suite('Copilot Watch Test Suite', () => {
+suite('AI Watch Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
-	
+
 	test('GetCurrentDateTool should work without parameters', async () => {
 		const tool = new GetCurrentDateTool();
 		const mockOptions = {
@@ -111,19 +111,19 @@ suite('Copilot Watch Test Suite', () => {
 
 	test('Commands should be registered', async () => {
 		// Test that commands work
-		const getCurrentDateResult = await vscode.commands.executeCommand('copilot-watch.getCurrentDate');
+		const getCurrentDateResult = await vscode.commands.executeCommand('ai-watch.getCurrentDate');
 		assert.ok(getCurrentDateResult);
 		assert.ok((getCurrentDateResult as any).iso);
 		assert.ok((getCurrentDateResult as any).utc);
 
-		const calculateDifferenceResult = await vscode.commands.executeCommand('copilot-watch.calculateDifference', {
+		const calculateDifferenceResult = await vscode.commands.executeCommand('ai-watch.calculateDifference', {
 			from: '2025-08-01T00:00:00Z',
 			to: '2025-08-09T12:00:00Z'
 		});
 		assert.ok(calculateDifferenceResult);
 		assert.ok(typeof (calculateDifferenceResult as any).days === 'number');
 
-		const convertTimezoneResult = await vscode.commands.executeCommand('copilot-watch.convertTimezone', {
+		const convertTimezoneResult = await vscode.commands.executeCommand('ai-watch.convertTimezone', {
 			date: '2025-08-09T13:37:01Z',
 			toTimezone: 'Asia/Tokyo'
 		});
@@ -131,7 +131,7 @@ suite('Copilot Watch Test Suite', () => {
 		assert.ok((convertTimezoneResult as any).formatted);
 		assert.ok((convertTimezoneResult as any).toTimezone);
 
-		const addTimeResult = await vscode.commands.executeCommand('copilot-watch.addTime', {
+		const addTimeResult = await vscode.commands.executeCommand('ai-watch.addTime', {
 			hours: 4,
 			minutes: 2
 		});
@@ -386,7 +386,7 @@ suite('Copilot Watch Test Suite', () => {
 
 	test('All new commands should be registered', async () => {
 		// Test format duration command
-		const formatDurationResult = await vscode.commands.executeCommand('copilot-watch.formatDuration', {
+		const formatDurationResult = await vscode.commands.executeCommand('ai-watch.formatDuration', {
 			from: '2025-08-01T00:00:00Z',
 			to: '2025-08-01T04:30:00Z'
 		});
@@ -394,7 +394,7 @@ suite('Copilot Watch Test Suite', () => {
 		assert.ok((formatDurationResult as any).formatted);
 
 		// Test business day command
-		const businessDayResult = await vscode.commands.executeCommand('copilot-watch.businessDay', {
+		const businessDayResult = await vscode.commands.executeCommand('ai-watch.businessDay', {
 			operation: 'isBusinessDay',
 			date: '2025-08-11T10:00:00Z'
 		});
@@ -402,7 +402,7 @@ suite('Copilot Watch Test Suite', () => {
 		assert.ok(typeof (businessDayResult as any).isBusinessDay === 'boolean');
 
 		// Test date query command
-		const dateQueryResult = await vscode.commands.executeCommand('copilot-watch.dateQuery', {
+		const dateQueryResult = await vscode.commands.executeCommand('ai-watch.dateQuery', {
 			baseDate: '2025-08-13T10:00:00Z',
 			queries: [{ type: 'nextWeekday', weekday: 'friday' }]
 		});
