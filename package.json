@@ -1,14 +1,45 @@
 {
   "name": "ai-watch",
   "displayName": "AI Watch",
-  "description": "A VSCode extension to provide AI assistants with a tool to request the current time.",
-  "version": "0.0.1",
+  "description": "Comprehensive time and date tools for AI-assisted development workflows in VS Code.",
+  "version": "1.0.0",
+  "publisher": "rrayor",
+  "author": {
+    "name": "Benjamin Simon"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Rrayor/copilot-watch.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Rrayor/copilot-watch/issues"
+  },
+  "homepage": "https://github.com/Rrayor/copilot-watch#readme",
+  "keywords": [
+    "ai",
+    "time",
+    "date",
+    "timezone",
+    "copilot",
+    "assistant",
+    "development",
+    "tools",
+    "productivity",
+    "automation"
+  ],
   "engines": {
     "vscode": "^1.103.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "AI",
+    "Data Science"
   ],
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark",
+    "colorIcon": true
+  },
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -420,7 +451,62 @@
           "required": ["baseDate", "queries"]
         }
       }
-    ]
+    ],
+    "configuration": {
+      "title": "AI Watch",
+      "properties": {
+        "aiWatch.defaultTimezone": {
+          "type": "string",
+          "default": "",
+          "description": "Default timezone for operations when not specified (IANA timezone identifier, e.g., 'America/New_York'). Leave empty to auto-detect from system.",
+          "scope": "window"
+        },
+        "aiWatch.defaultDateFormat": {
+          "type": "string",
+          "default": "YYYY-MM-DD HH:mm:ss",
+          "description": "Default date/time format pattern for display",
+          "scope": "window"
+        },
+        "aiWatch.businessDays": {
+          "type": "string",
+          "default": "Mon-Fri",
+          "description": "Business days definition. Use range format like 'Mon-Fri' or 'Sun-Thu', or list format like 'Mon,Wed,Fri'",
+          "scope": "window"
+        },
+        "aiWatch.excludedDates": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "default": [],
+          "description": "List of dates to exclude from business day calculations (holidays, shutdowns) in YYYY-MM-DD format",
+          "scope": "window"
+        },
+        "aiWatch.weekStart": {
+          "type": "string",
+          "enum": ["monday", "sunday"],
+          "default": "monday",
+          "description": "First day of the week for period calculations",
+          "scope": "window"
+        },
+        "aiWatch.durationFormat": {
+          "type": "string",
+          "enum": ["compact", "standard", "verbose"],
+          "default": "standard",
+          "description": "Default verbosity level for duration formatting",
+          "scope": "window"
+        },
+        "aiWatch.maxDurationUnits": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 7,
+          "default": 3,
+          "description": "Maximum number of time units to display in duration formatting",
+          "scope": "window"
+        }
+      }
+    }
   },
   "activationEvents": [
     "onStartupFinished"

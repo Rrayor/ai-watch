@@ -1,0 +1,572 @@
+# AI Watch API Reference
+
+Complete API documentation for developers integrating with AI Watch.
+
+## Language Model Tools
+
+AI Watch provides 8 comprehensive tools accessible through VS Code's Language Model Tools interface. All tools provide input validation, sensible defaults, and detailed error handling.
+
+### getCurrentDate
+
+Returns current date and time with timezone and formatting support.
+
+**Parameters:**
+- `timezone` (optional, string): IANA timezone identifier
+- `format` (optional, string): Date format pattern, defaults to 'YYYY-MM-DD HH:mm:ss'
+
+**Returns:**
+```typescript
+{
+  iso: string;           // ISO 8601 format: "2025-08-09T13:37:01.000Z"
+  utc: string;           // UTC format: "2025-08-09 13:37:01"
+  local: string;         // Local timezone: "2025-08-09 09:37:01"
+  localTimezone: string; // Detected timezone: "America/New_York"
+  formatted?: string;    // Custom format (if timezone specified)
+  timezone?: string;     // Requested timezone (if specified)
+}
+```
+
+**Examples:**
+```javascript
+// Basic current time
+await vscode.commands.executeCommand('ai-watch.getCurrentDate');
+
+// Specific timezone
+await vscode.commands.executeCommand('ai-watch.getCurrentDate', {
+  timezone: 'Asia/Tokyo'
+});
+
+// Custom format
+await vscode.commands.executeCommand('ai-watch.getCurrentDate', {
+  timezone: 'Europe/London',
+  format: 'DD/MM/YYYY HH:mm'
+});
+```
+
+### calculateDifference
+
+Calculates precise time differences between two dates.
+
+**Parameters:**
+- `from` (required, string): Starting date/time in ISO 8601 format
+- `to` (required, string): Ending date/time in ISO 8601 format
+
+**Returns:**
+```typescript
+{
+  days: number;     // Total days difference
+  hours: number;    // Total hours difference
+  minutes: number;  // Total minutes difference
+  seconds: number;  // Total seconds difference
+  from: string;     // Echo of input from date
+  to: string;       // Echo of input to date
+}
+```
+
+**Example:**
+```javascript
+await vscode.commands.executeCommand('ai-watch.calculateDifference', {
+  from: '2025-08-01T00:00:00Z',
+  to: '2025-08-09T13:37:01Z'
+});
+// Returns: { days: 8, hours: 205, minutes: 12317, seconds: 739021 }
+```
+
+### convertTimezone
+
+Converts date/time between different timezones.
+
+**Parameters:**
+- `date` (required, string): Date/time in ISO 8601 format
+- `toTimezone` (required, string): Target IANA timezone
+- `fromTimezone` (optional, string): Source timezone, defaults to 'UTC'
+
+**Returns:**
+```typescript
+{
+  formatted: string;     // Converted date in target timezone
+  fromTimezone: string;  // Source timezone
+  toTimezone: string;    // Target timezone
+  iso: string;          // Original ISO date
+}
+```
+
+**Example:**
+```javascript
+await vscode.commands.executeCommand('ai-watch.convertTimezone', {
+  date: '2025-08-09T13:37:01Z',
+  toTimezone: 'Asia/Tokyo'
+});
+// Returns: { formatted: "2025-08-09 22:37:01", fromTimezone: "UTC", toTimezone: "Asia/Tokyo" }
+```
+
+### addTime
+
+Adds specified duration components to a base time.
+
+**Parameters:**
+- `baseTime` (optional, string): Starting time in ISO format, defaults to current time
+- `years` (optional, number): Years to add, defaults to 0
+- `months` (optional, number): Months to add, defaults to 0
+- `weeks` (optional, number): Weeks to add, defaults to 0
+- `days` (optional, number): Days to add, defaults to 0
+- `hours` (optional, number): Hours to add, defaults to 0
+- `minutes` (optional, number): Minutes to add, defaults to 0
+- `seconds` (optional, number): Seconds to add, defaults to 0
+- `timezone` (optional, string): Display result in specific timezone
+
+**Returns:**
+```typescript
+{
+  iso: string;           // Result in ISO format
+  utc: string;           // Result in UTC format
+  local: string;         // Result in local timezone
+  localTimezone: string; // Detected local timezone
+  baseTime: string;      // Original base time used
+  formatted?: string;    // Result in requested timezone (if specified)
+  timezone?: string;     // Requested timezone (if specified)
+}
+```
+
+**Examples:**
+```javascript
+// Add 2 hours and 30 minutes from now
+await vscode.commands.executeCommand('ai-watch.addTime', {
+  hours: 2,
+  minutes: 30
+});
+
+// Complex duration with specific base time and timezone
+await vscode.commands.executeCommand('ai-watch.addTime', {
+  baseTime: '2025-08-09T10:00:00Z',
+  weeks: 2,
+  days: 3,
+  hours: 6,
+  timezone: 'Europe/London'
+});
+```
+
+### subtractTime
+
+Subtracts specified duration components from a base time.
+
+**Parameters:**
+- `baseTime` (optional, string): Starting time in ISO format, defaults to current time
+- `years` (optional, number): Years to subtract, defaults to 0
+- `months` (optional, number): Months to subtract, defaults to 0
+- `weeks` (optional, number): Weeks to subtract, defaults to 0
+- `days` (optional, number): Days to subtract, defaults to 0
+- `hours` (optional, number): Hours to subtract, defaults to 0
+- `minutes` (optional, number): Minutes to subtract, defaults to 0
+- `seconds` (optional, number): Seconds to subtract, defaults to 0
+- `timezone` (optional, string): Display result in specific timezone
+
+**Returns:**
+```typescript
+{
+  iso: string;           // Result in ISO format
+  utc: string;           // Result in UTC format
+  local: string;         // Result in local timezone
+  localTimezone: string; // Detected local timezone
+  baseTime: string;      // Original base time used
+  formatted?: string;    // Result in requested timezone (if specified)
+  timezone?: string;     // Requested timezone (if specified)
+}
+```
+
+**Examples:**
+```javascript
+// Go back 4 weeks, 2 days, and 3 hours from now
+await vscode.commands.executeCommand('ai-watch.subtractTime', {
+  weeks: 4,
+  days: 2,
+  hours: 3
+});
+
+// Historical calculation from specific time
+await vscode.commands.executeCommand('ai-watch.subtractTime', {
+  baseTime: '2025-08-09T14:30:00Z',
+  months: 1,
+  days: 15,
+  timezone: 'America/New_York'
+});
+```
+
+### formatDuration
+
+Converts time duration between two dates into human-readable format.
+
+**Parameters:**
+- `from` (required, string): Starting date/time in ISO format
+- `to` (required, string): Ending date/time in ISO format
+- `verbosity` (optional, string): Format verbosity level
+  - `'compact'`: "2d 3h 45m" (shortest)
+  - `'standard'`: "2 days, 3 hours, 45 minutes" (default)
+  - `'verbose'`: "2 days, 3 hours and 45 minutes" (most detailed)
+- `maxUnits` (optional, number): Maximum number of time units to display, defaults to 3
+
+**Returns:**
+```typescript
+{
+  formatted: string;  // Human-readable duration
+} | {
+  error: string;     // Error message if invalid input
+}
+```
+
+**Examples:**
+```javascript
+// Basic duration formatting
+await vscode.commands.executeCommand('ai-watch.formatDuration', {
+  from: '2025-08-09T12:00:00Z',
+  to: '2025-08-09T14:47:33Z'
+});
+// Returns: { formatted: "2 hours, 47 minutes, 33 seconds" }
+
+// Compact format with limited units
+await vscode.commands.executeCommand('ai-watch.formatDuration', {
+  from: '2025-08-01T00:00:00Z',
+  to: '2025-08-09T13:37:01Z',
+  verbosity: 'compact',
+  maxUnits: 2
+});
+// Returns: { formatted: "8d 13h" }
+```
+
+### businessDay
+
+Performs business day calculations including validation and math operations.
+
+**Parameters:**
+- `operation` (required, string): Operation type
+  - `'isBusinessDay'`: Check if date is a business day
+  - `'addBusinessDays'`: Add business days to date
+  - `'subtractBusinessDays'`: Subtract business days from date
+- `date` (required, string): Base date in ISO format
+- `days` (optional, number): Number of business days to add/subtract (required for add/subtract operations)
+
+**Returns:**
+```typescript
+// For 'isBusinessDay'
+{
+  date: string;        // Input date
+  isBusinessDay: boolean; // Whether it's a business day
+  weekday: string;     // Day name (e.g., "Monday")
+}
+
+// For 'addBusinessDays' or 'subtractBusinessDays'
+{
+  date: string;        // Input date
+  operation: string;   // Operation performed
+  days: number;        // Number of days added/subtracted
+  result: string;      // Result date in ISO format
+}
+
+// Error case
+{
+  error: string;       // Error description
+}
+```
+
+**Examples:**
+```javascript
+// Check if date is business day
+await vscode.commands.executeCommand('ai-watch.businessDay', {
+  operation: 'isBusinessDay',
+  date: '2025-08-15T10:00:00Z'
+});
+
+// Add business days
+await vscode.commands.executeCommand('ai-watch.businessDay', {
+  operation: 'addBusinessDays',
+  date: '2025-08-12T10:00:00Z',
+  days: 5
+});
+
+// Subtract business days
+await vscode.commands.executeCommand('ai-watch.businessDay', {
+  operation: 'subtractBusinessDays',
+  date: '2025-08-20T10:00:00Z',
+  days: 3
+});
+```
+
+### dateQuery
+
+Performs advanced date queries including weekday navigation and period boundaries.
+
+**Parameters:**
+- `baseDate` (required, string): Base date for calculations in ISO format
+- `queries` (required, array): Array of query operations to perform in sequence
+  - Each query object supports:
+    - `type` (required, string): Query type
+      - `'nextWeekday'`: Find next occurrence of specified weekday
+      - `'previousWeekday'`: Find previous occurrence of specified weekday
+      - `'startOfPeriod'`: Get start of specified period
+      - `'endOfPeriod'`: Get end of specified period
+    - `weekday` (optional, string): Weekday name for weekday queries
+      - Valid: 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
+    - `period` (optional, string): Period type for period queries
+      - Valid: 'week', 'month', 'quarter', 'year'
+    - `weekStart` (optional, string): Week start day for period queries
+      - Valid: 'monday' (default), 'sunday'
+
+**Returns:**
+```typescript
+// Single query result
+{
+  date: string;        // Result date in ISO format
+}
+
+// Multiple query results
+{
+  dates: string[];     // Array of result dates in ISO format
+}
+
+// Error case
+{
+  error: string;       // Error description
+}
+```
+
+**Examples:**
+```javascript
+// Find next Friday
+await vscode.commands.executeCommand('ai-watch.dateQuery', {
+  baseDate: '2025-08-11T10:00:00Z',
+  queries: [{ type: 'nextWeekday', weekday: 'friday' }]
+});
+
+// Get start and end of current month
+await vscode.commands.executeCommand('ai-watch.dateQuery', {
+  baseDate: '2025-08-15T10:00:00Z',
+  queries: [
+    { type: 'startOfPeriod', period: 'month' },
+    { type: 'endOfPeriod', period: 'month' }
+  ]
+});
+
+// Chained operations
+await vscode.commands.executeCommand('ai-watch.dateQuery', {
+  baseDate: '2025-08-15T10:00:00Z',
+  queries: [
+    { type: 'previousWeekday', weekday: 'wednesday' },
+    { type: 'nextWeekday', weekday: 'monday' }
+  ]
+});
+```
+
+## VS Code Commands
+
+All functionality is available through direct VS Code commands for programmatic access.
+
+**Available Commands:**
+- `ai-watch.getCurrentDate`
+- `ai-watch.calculateDifference`
+- `ai-watch.convertTimezone`
+- `ai-watch.addTime`
+- `ai-watch.subtractTime`
+- `ai-watch.formatDuration`
+- `ai-watch.businessDay`
+- `ai-watch.dateQuery`
+
+**Usage Pattern:**
+```typescript
+const result = await vscode.commands.executeCommand('ai-watch.[command]', parameters);
+```
+
+## Error Handling
+
+All tools provide comprehensive error handling with descriptive messages:
+
+### Common Error Types
+
+**Invalid Date Format:**
+```javascript
+{
+  error: "Invalid date format. Please use ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ)"
+}
+```
+
+**Invalid Timezone:**
+```javascript
+{
+  error: "Invalid timezone 'EST'. Please use IANA timezone names like 'America/New_York'"
+}
+```
+
+**Missing Required Parameters:**
+```javascript
+{
+  error: "Parameter 'from' is required for calculateDifference operation"
+}
+```
+
+**Invalid Operation:**
+```javascript
+{
+  error: "Invalid operation 'invalid'. Supported operations: isBusinessDay, addBusinessDays, subtractBusinessDays"
+}
+```
+
+### Best Practices
+
+1. **Always check for errors** before using results
+2. **Use try-catch blocks** for robust error handling
+3. **Validate input data** before making API calls
+4. **Provide user feedback** for error conditions
+
+```javascript
+try {
+  const result = await vscode.commands.executeCommand('ai-watch.getCurrentDate', {
+    timezone: userTimezone
+  });
+  
+  if (result.error) {
+    console.error('AI Watch error:', result.error);
+    return;
+  }
+  
+  // Use result.iso, result.utc, etc.
+} catch (error) {
+  console.error('Command execution failed:', error);
+}
+```
+
+## Performance Considerations
+
+### Optimization Tips
+
+1. **Batch operations** when possible to reduce command calls
+2. **Cache results** for repeated calculations with same parameters
+3. **Use appropriate precision** - not all use cases need millisecond accuracy
+4. **Choose efficient formats** - compact formatting is faster than verbose
+
+### Rate Limiting
+
+No explicit rate limiting is implemented, but consider:
+- Avoiding high-frequency polling for current time
+- Batching multiple date calculations
+- Caching results when appropriate
+
+### Memory Usage
+
+All operations are stateless and don't retain data between calls. Memory usage is minimal and proportional to the complexity of the operation.
+
+## Integration Examples
+
+### Extension Development
+
+```typescript
+// In your VS Code extension
+export function activate(context: vscode.ExtensionContext) {
+  const disposable = vscode.commands.registerCommand('myext.scheduleTask', async () => {
+    // Calculate deadline 5 business days from now
+    const deadline = await vscode.commands.executeCommand('ai-watch.businessDay', {
+      operation: 'addBusinessDays',
+      date: new Date().toISOString(),
+      days: 5
+    });
+    
+    vscode.window.showInformationMessage(`Task deadline: ${deadline.result}`);
+  });
+  
+  context.subscriptions.push(disposable);
+}
+```
+
+### Language Model Tool
+
+```typescript
+// AI Assistant integration
+class TimeAwareAssistant {
+  async getCurrentContext() {
+    const now = await vscode.commands.executeCommand('ai-watch.getCurrentDate');
+    return {
+      timestamp: now.iso,
+      timezone: now.localTimezone,
+      formatted: now.local
+    };
+  }
+  
+  async calculateProjectDeadline(startDate: string, businessDays: number) {
+    return await vscode.commands.executeCommand('ai-watch.businessDay', {
+      operation: 'addBusinessDays',
+      date: startDate,
+      days: businessDays
+    });
+  }
+}
+```
+
+### Testing
+
+```typescript
+// Unit test example
+import assert from 'assert';
+import * as vscode from 'vscode';
+
+suite('AI Watch Integration Tests', () => {
+  test('Current date returns valid ISO format', async () => {
+    const result = await vscode.commands.executeCommand('ai-watch.getCurrentDate');
+    
+    assert.ok(result.iso);
+    assert.ok(new Date(result.iso).toISOString() === result.iso);
+  });
+  
+  test('Timezone conversion works correctly', async () => {
+    const result = await vscode.commands.executeCommand('ai-watch.convertTimezone', {
+      date: '2025-08-09T12:00:00Z',
+      toTimezone: 'America/New_York'
+    });
+    
+    assert.strictEqual(result.fromTimezone, 'UTC');
+    assert.strictEqual(result.toTimezone, 'America/New_York');
+    assert.ok(result.formatted);
+  });
+});
+```
+
+## Migration Guide
+
+### From Direct Date Usage
+
+If you're currently using JavaScript's Date object directly:
+
+**Before:**
+```javascript
+const now = new Date();
+const futureDate = new Date(now.getTime() + (24 * 60 * 60 * 1000)); // Add 1 day
+```
+
+**After:**
+```javascript
+const future = await vscode.commands.executeCommand('ai-watch.addTime', {
+  days: 1
+});
+const futureDate = new Date(future.iso);
+```
+
+### From Other Time Libraries
+
+Migrating from libraries like moment.js or date-fns:
+
+**Benefits:**
+- No additional dependencies
+- Built-in timezone support
+- AI assistant integration
+- Consistent error handling
+- Business day calculations
+
+**Considerations:**
+- Async API (returns Promises)
+- VS Code environment requirement
+- Limited to supported operations
+
+## Support
+
+For additional help:
+- Review the [User Guide](USER_GUIDE.md) for practical examples
+- Check [Configuration](CONFIGURATION.md) for settings
+- Report issues on [GitHub](https://github.com/Rrayor/copilot-watch/issues)
+- Request features through GitHub Issues
