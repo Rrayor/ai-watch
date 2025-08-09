@@ -216,11 +216,11 @@ suite('Business Day Utils Tests', () => {
       emptyExcludedDates,
     );
 
-    // Time components should be preserved
-    assert.strictEqual(nextBusinessDay.getHours(), 14);
-    assert.strictEqual(nextBusinessDay.getMinutes(), 30);
-    assert.strictEqual(nextBusinessDay.getSeconds(), 45);
-    assert.strictEqual(nextBusinessDay.getMilliseconds(), 123);
+    // Time components should be preserved (use UTC methods for timezone-independent tests)
+    assert.strictEqual(nextBusinessDay.getUTCHours(), 14);
+    assert.strictEqual(nextBusinessDay.getUTCMinutes(), 30);
+    assert.strictEqual(nextBusinessDay.getUTCSeconds(), 45);
+    assert.strictEqual(nextBusinessDay.getUTCMilliseconds(), 123);
   });
 
   test('business day utilities should handle edge cases', () => {

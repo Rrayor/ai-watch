@@ -14,8 +14,8 @@ suite('Get Current Date Command Tests', () => {
     // Validate ISO format
     assert.ok(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(result.iso));
 
-    // Validate UTC format
-    assert.ok(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(result.utc));
+    // Validate UTC format (should include " UTC" suffix)
+    assert.ok(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC$/.test(result.utc));
 
     // Validate local format
     assert.ok(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(result.local));
@@ -156,8 +156,8 @@ suite('Get Current Date Command Tests', () => {
     const isoDate = new Date(result.iso);
     assert.ok(!isNaN(isoDate.getTime()), 'ISO date should be valid');
 
-    // UTC format should be precise to seconds
-    const utcPattern = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+    // UTC format should be precise to seconds with UTC suffix
+    const utcPattern = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC$/;
     assert.ok(utcPattern.test(result.utc), 'UTC format should match expected pattern');
   });
 });

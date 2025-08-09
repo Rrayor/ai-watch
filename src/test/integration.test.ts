@@ -206,12 +206,12 @@ suite('AI Watch Integration Tests', () => {
 
     // Add 2 hours then subtract 2 hours should return to original
     const addResult = await vscode.commands.executeCommand('ai-watch.addTime', {
-      date: baseDate,
+      baseTime: baseDate,
       hours: 2,
     });
 
     const subtractResult = await vscode.commands.executeCommand('ai-watch.subtractTime', {
-      date: (addResult as any).iso,
+      baseTime: (addResult as any).iso,
       hours: 2,
     });
 

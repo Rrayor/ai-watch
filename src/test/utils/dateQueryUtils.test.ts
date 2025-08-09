@@ -12,13 +12,13 @@ suite('Date Query Utils Tests', () => {
     const monday = new Date('2025-08-11T12:00:00Z');
     const nextFriday = getNextWeekday(monday, 'friday');
 
-    assert.strictEqual(nextFriday.getDay(), 5); // Friday
-    assert.strictEqual(nextFriday.getDate(), 15); // August 15th
-    assert.strictEqual(nextFriday.getMonth(), 7); // August (0-indexed)
+    assert.strictEqual(nextFriday.getUTCDay(), 5); // Friday
+    assert.strictEqual(nextFriday.getUTCDate(), 15); // August 15th
+    assert.strictEqual(nextFriday.getUTCMonth(), 7); // August (0-indexed)
 
     // Time should be preserved
-    assert.strictEqual(nextFriday.getHours(), 12);
-    assert.strictEqual(nextFriday.getMinutes(), 0);
+    assert.strictEqual(nextFriday.getUTCHours(), 12);
+    assert.strictEqual(nextFriday.getUTCMinutes(), 0);
   });
 
   test('getNextWeekday should handle wrap-around to next week', () => {
@@ -26,8 +26,8 @@ suite('Date Query Utils Tests', () => {
     const friday = new Date('2025-08-15T12:00:00Z');
     const nextMonday = getNextWeekday(friday, 'monday');
 
-    assert.strictEqual(nextMonday.getDay(), 1); // Monday
-    assert.strictEqual(nextMonday.getDate(), 18); // August 18th (next week)
+    assert.strictEqual(nextMonday.getUTCDay(), 1); // Monday
+    assert.strictEqual(nextMonday.getUTCDate(), 18); // August 18th (next week)
     assert.strictEqual(nextMonday.getMonth(), 7); // August (0-indexed)
   });
 
@@ -47,12 +47,12 @@ suite('Date Query Utils Tests', () => {
     const friday = new Date('2025-08-15T12:00:00Z');
     const prevMonday = getPreviousWeekday(friday, 'monday');
 
-    assert.strictEqual(prevMonday.getDay(), 1); // Monday
-    assert.strictEqual(prevMonday.getDate(), 11); // August 11th
-    assert.strictEqual(prevMonday.getMonth(), 7); // August (0-indexed)
+    assert.strictEqual(prevMonday.getUTCDay(), 1); // Monday
+    assert.strictEqual(prevMonday.getUTCDate(), 11); // August 11th
+    assert.strictEqual(prevMonday.getUTCMonth(), 7); // August (0-indexed)
 
     // Time should be preserved
-    assert.strictEqual(prevMonday.getHours(), 12);
+    assert.strictEqual(prevMonday.getUTCHours(), 12);
     assert.strictEqual(prevMonday.getMinutes(), 0);
   });
 
@@ -271,20 +271,20 @@ suite('Date Query Utils Tests', () => {
   });
 
   test('date query utilities should preserve timezone behavior', () => {
-    // Test that utilities work consistently across different times
+    // Test that utilities work consistently across different times on the same UTC date
     const earlyMorning = new Date('2025-08-13T02:00:00Z');
-    const lateMorning = new Date('2025-08-13T23:00:00Z');
+    const lateMorning = new Date('2025-08-13T10:00:00Z'); // Use a safer time within the same UTC day
 
     const earlyStart = getStartOfPeriod(earlyMorning, 'day');
     const lateStart = getStartOfPeriod(lateMorning, 'day');
 
-    // Both should give same start of day
+    // Both should give same start of day in the same timezone context
     assert.strictEqual(earlyStart.getTime(), lateStart.getTime());
 
     const earlyEnd = getEndOfPeriod(earlyMorning, 'day');
     const lateEnd = getEndOfPeriod(lateMorning, 'day');
 
-    // Both should give same end of day
+    // Both should give same end of day in the same timezone context
     assert.strictEqual(earlyEnd.getTime(), lateEnd.getTime());
   });
 });

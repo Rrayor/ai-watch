@@ -6,13 +6,15 @@
  * Formats a Date object into UTC string format.
  *
  * @param date - Date object to format
- * @returns Formatted UTC string in 'YYYY-MM-DD HH:mm:ss' format
+ * @returns Formatted UTC string in 'YYYY-MM-DD HH:mm:ss UTC' format
  */
 export function formatUTC(date: Date): string {
-  return date
-    .toISOString()
-    .replace('T', ' ')
-    .replace(/\.\d{3}Z$/, '');
+  return (
+    date
+      .toISOString()
+      .replace('T', ' ')
+      .replace(/\.\d{3}Z$/, '') + ' UTC'
+  );
 }
 
 /**
@@ -30,12 +32,14 @@ export function parseISOString(dateString: string): Date {
 
   // Check if the parsed date matches the input (detect auto-correction)
   // This catches cases like Feb 29 in non-leap years where JS auto-corrects to March 1
-  if (date.toISOString() !== dateString && !dateString.endsWith('.000Z')) {
-    // If input doesn't have milliseconds but result does, check without milliseconds
-    const expectedWithMs = dateString.replace('Z', '.000Z');
-    if (date.toISOString() !== expectedWithMs) {
-      throw new Error(`Invalid date format: ${dateString}`);
-    }
+  // Handle the .000Z vs Z formatting difference that JavaScript introduces
+  const normalizedInput =
+    dateString.endsWith('Z') && !dateString.includes('.')
+      ? dateString.replace('Z', '.000Z')
+      : dateString;
+
+  if (date.toISOString() !== normalizedInput) {
+    throw new Error(`Invalid date format: ${dateString}`);
   }
 
   return date;
@@ -53,19 +57,19 @@ export function calculateDateDifference(from: Date, to: Date) {
   const absDiffMs = Math.abs(diffMs);
 
   // Calculate cumulative totals (each represents the entire difference in that unit)
-  const cumulativeDays = Math.floor(absDiffMs / (1000 * 60 * 60 * 24));
-  const cumulativeHours = Math.floor(absDiffMs / (1000 * 60 * 60));
-  const cumulativeMinutes = Math.floor(absDiffMs / (1000 * 60));
-  const cumulativeSeconds = Math.floor(absDiffMs / 1000);
+  const totalDays = Math.floor(absDiffMs / (1000 * 60 * 60 * 24));
+  const totalHours = Math.floor(absDiffMs / (1000 * 60 * 60));
+  const totalMinutes = Math.floor(absDiffMs / (1000 * 60));
+  const totalSeconds = Math.floor(absDiffMs / 1000);
 
   // Apply sign to all components
   const sign = diffMs < 0 ? -1 : 1;
 
   return {
-    days: sign * cumulativeDays,
-    hours: sign * cumulativeHours,
-    minutes: sign * cumulativeMinutes,
-    seconds: sign * cumulativeSeconds,
+    days: sign * totalDays,
+    hours: sign * totalHours,
+    minutes: sign * totalMinutes,
+    seconds: sign * totalSeconds,
   };
 }
 

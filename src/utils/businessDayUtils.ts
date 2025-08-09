@@ -62,7 +62,7 @@ export function isBusinessDay(
   businessDays: number[],
   excludedDates: Set<string>,
 ): boolean {
-  const dayOfWeek = date.getDay();
+  const dayOfWeek = date.getUTCDay();
   const dateString = date.toISOString().split('T')[0];
 
   return businessDays.includes(dayOfWeek) && !excludedDates.has(dateString);

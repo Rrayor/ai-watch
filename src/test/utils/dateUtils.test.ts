@@ -12,17 +12,17 @@ suite('Date Utils Tests', () => {
     const result = formatUTC(testDate);
 
     // Should match format 'YYYY-MM-DD HH:mm:ss'
-    assert.strictEqual(result, '2025-08-10 12:30:45');
+    assert.strictEqual(result, '2025-08-10 12:30:45 UTC');
 
     // Test edge case: beginning of year
     const newYearDate = new Date('2025-01-01T00:00:00.000Z');
     const newYearResult = formatUTC(newYearDate);
-    assert.strictEqual(newYearResult, '2025-01-01 00:00:00');
+    assert.strictEqual(newYearResult, '2025-01-01 00:00:00 UTC');
 
     // Test edge case: end of year
     const endYearDate = new Date('2025-12-31T23:59:59.999Z');
     const endYearResult = formatUTC(endYearDate);
-    assert.strictEqual(endYearResult, '2025-12-31 23:59:59');
+    assert.strictEqual(endYearResult, '2025-12-31 23:59:59 UTC');
   });
 
   test('parseISOString should parse valid ISO strings correctly', () => {
@@ -38,7 +38,11 @@ suite('Date Utils Tests', () => {
       const result = parseISOString(dateStr);
       assert.ok(result instanceof Date);
       assert.ok(!isNaN(result.getTime()));
-      assert.strictEqual(result.toISOString(), dateStr);
+
+      // For round-trip testing, normalize both to always include milliseconds
+      const expected =
+        dateStr.endsWith('Z') && !dateStr.includes('.') ? dateStr.replace('Z', '.000Z') : dateStr;
+      assert.strictEqual(result.toISOString(), expected);
     });
   });
 
@@ -184,7 +188,7 @@ suite('Date Utils Tests', () => {
     assert.ok(!isNaN(leapDate.getTime()));
 
     const formattedLeap = formatUTC(leapDate);
-    assert.strictEqual(formattedLeap, '2024-02-29 00:00:00');
+    assert.strictEqual(formattedLeap, '2024-02-29 00:00:00 UTC');
 
     // 2025 is not a leap year
     assert.throws(() => parseISOString('2025-02-29T00:00:00Z'));
@@ -194,11 +198,11 @@ suite('Date Utils Tests', () => {
     // Test UTC midnight
     const utcMidnight = new Date('2025-08-10T00:00:00Z');
     const formatted = formatUTC(utcMidnight);
-    assert.strictEqual(formatted, '2025-08-10 00:00:00');
+    assert.strictEqual(formatted, '2025-08-10 00:00:00 UTC');
 
     // Test just before midnight
     const beforeMidnight = new Date('2025-08-09T23:59:59Z');
     const formattedBefore = formatUTC(beforeMidnight);
-    assert.strictEqual(formattedBefore, '2025-08-09 23:59:59');
+    assert.strictEqual(formattedBefore, '2025-08-09 23:59:59 UTC');
   });
 });
