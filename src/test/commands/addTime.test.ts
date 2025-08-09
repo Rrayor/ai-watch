@@ -207,8 +207,8 @@ suite('addTime Command Tests', () => {
     // ISO should always be in UTC (end with Z)
     assert.ok(result.iso.endsWith('Z'));
 
-    // UTC format should be explicitly UTC
-    assert.ok(result.utc.includes('UTC') || result.utc.endsWith('Z'));
+    // UTC format should be explicitly UTC with suffix
+    assert.ok(result.utc.includes('UTC'));
 
     // Local format should be different from UTC (unless user is in UTC)
     // This test may vary based on system timezone

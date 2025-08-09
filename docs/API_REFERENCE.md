@@ -18,7 +18,7 @@ Returns current date and time with timezone and formatting support.
 ```typescript
 {
   iso: string;           // ISO 8601 format: "2025-08-09T13:37:01.000Z"
-  utc: string;           // UTC format: "2025-08-09 13:37:01"
+  utc: string;           // UTC format: "2025-08-09 13:37:01 UTC"
   local: string;         // Local timezone: "2025-08-09 09:37:01"
   localTimezone: string; // Detected timezone: "America/New_York"
   formatted?: string;    // Custom format (if timezone specified)
@@ -249,17 +249,18 @@ Performs business day calculations including validation and math operations.
 ```typescript
 // For 'isBusinessDay'
 {
-  date: string;        // Input date
+  date: string;         // Input date
+  operation: string;    // Operation performed ('isBusinessDay')
   isBusinessDay: boolean; // Whether it's a business day
-  weekday: string;     // Day name (e.g., "Monday")
+  weekday: string;      // Day name (e.g., "Monday")
 }
 
 // For 'addBusinessDays' or 'subtractBusinessDays'
 {
-  date: string;        // Input date
-  operation: string;   // Operation performed
-  days: number;        // Number of days added/subtracted
-  result: string;      // Result date in ISO format
+  date: string;         // Input date
+  operation: string;    // Operation performed
+  days: number;         // Number of days added/subtracted
+  result: string;       // Result date in ISO format
 }
 
 // Error case

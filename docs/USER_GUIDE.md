@@ -151,7 +151,7 @@ Get precise timestamps in multiple formats and timezones.
 ```javascript
 // Get current time in all standard formats
 const time = await vscode.commands.executeCommand('ai-watch.getCurrentDate');
-// Returns: { iso: "2025-08-09T13:37:01.000Z", utc: "2025-08-09 13:37:01", local: "2025-08-09 09:37:01" }
+// Returns: { iso: "2025-08-09T13:37:01.000Z", utc: "2025-08-09 13:37:01 UTC", local: "2025-08-09 09:37:01" }
 ```
 
 **AI Use Cases:**
@@ -259,7 +259,7 @@ const isWorkday = await vscode.commands.executeCommand('ai-watch.businessDay', {
   operation: 'isBusinessDay',
   date: '2025-08-15T10:00:00Z'
 });
-// Returns: { isBusinessDay: true, weekday: "Friday" }
+// Returns: { date: "2025-08-15T10:00:00Z", operation: "isBusinessDay", isBusinessDay: true, weekday: "Friday" }
 ```
 
 **Business Day Math:**
