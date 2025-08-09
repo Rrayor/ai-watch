@@ -94,6 +94,21 @@ All 8 tools are automatically available: `getCurrentDate`, `addTime`, `subtractT
 - **[User Guide](docs/USER_GUIDE.md)** - Comprehensive feature guide with examples
 - **[API Reference](docs/API_REFERENCE.md)** - Complete API documentation for developers
 - **[Configuration](docs/CONFIGURATION.md)** - Settings and customization options
+- **[Testing Guide](docs/TESTING.md)** - Testing strategy and guidelines for contributors
+
+## 🧪 Testing
+
+AI Watch features a comprehensive test suite with **155 tests across 22 test files** covering all functionality layers. The modular architecture enables isolated testing of utilities, command integration, and end-to-end workflows.
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+```
+
+See the [Testing Guide](docs/TESTING.md) for detailed information about the testing strategy and contributing test cases.
 
 ## 🤝 Contributing
 

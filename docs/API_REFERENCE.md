@@ -502,31 +502,111 @@ class TimeAwareAssistant {
 
 ### Testing
 
+The modular architecture enables comprehensive testing across multiple layers. Here are examples for each layer:
+
+#### Integration Testing
+
 ```typescript
-// Unit test example
+// End-to-end VS Code command testing
 import assert from 'assert';
 import * as vscode from 'vscode';
 
 suite('AI Watch Integration Tests', () => {
-  test('Current date returns valid ISO format', async () => {
+  test('getCurrentDate command returns valid formats', async () => {
     const result = await vscode.commands.executeCommand('ai-watch.getCurrentDate');
     
+    // Validate required fields
     assert.ok(result.iso);
-    assert.ok(new Date(result.iso).toISOString() === result.iso);
+    assert.ok(result.utc);
+    assert.ok(result.local);
+    
+    // Validate specific formats
+    assert.ok(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(result.iso));
+    assert.ok(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC$/.test(result.utc));
   });
   
-  test('Timezone conversion works correctly', async () => {
-    const result = await vscode.commands.executeCommand('ai-watch.convertTimezone', {
-      date: '2025-08-09T12:00:00Z',
-      toTimezone: 'America/New_York'
+  test('calculateDifference returns cumulative totals', async () => {
+    const result = await vscode.commands.executeCommand('ai-watch.calculateDifference', {
+      from: '2025-08-01T00:00:00Z',
+      to: '2025-08-09T13:37:01Z'
     });
     
-    assert.strictEqual(result.fromTimezone, 'UTC');
-    assert.strictEqual(result.toTimezone, 'America/New_York');
-    assert.ok(result.formatted);
+    // Validate cumulative behavior as documented
+    assert.strictEqual(result.days, 8);
+    assert.strictEqual(result.hours, 205); // 8*24 + 13
+    assert.strictEqual(result.minutes, 12317); // 205*60 + 37
   });
 });
 ```
+
+#### Unit Testing
+
+```typescript
+// Utils layer testing
+import assert from 'assert';
+import { formatUTC, calculateDateDifference } from '../utils/dateUtils';
+
+suite('Date Utils Tests', () => {
+  test('formatUTC includes UTC suffix', () => {
+    const testDate = new Date('2025-08-10T12:30:45Z');
+    const result = formatUTC(testDate);
+    
+    assert.strictEqual(result, '2025-08-10 12:30:45 UTC');
+  });
+  
+  test('calculateDateDifference returns cumulative totals', () => {
+    const from = new Date('2025-08-01T00:00:00Z');
+    const to = new Date('2025-08-09T13:37:01Z');
+    
+    const result = calculateDateDifference(from, to);
+    
+    // Cumulative totals as documented
+    assert.strictEqual(result.days, 8);
+    assert.strictEqual(result.hours, 205);
+    assert.strictEqual(result.minutes, 12317);
+    assert.strictEqual(result.seconds, 739021);
+  });
+});
+```
+
+#### Command Testing
+
+```typescript
+// Command layer testing
+import assert from 'assert';
+import { businessDayCommand } from '../commands/businessDay';
+
+suite('Business Day Command Tests', () => {
+  test('isBusinessDay returns complete structure', () => {
+    const result = businessDayCommand({
+      operation: 'isBusinessDay',
+      date: '2025-08-15T10:00:00Z'
+    });
+    
+    // Validate complete return structure matches docs
+    assert.strictEqual(result.date, '2025-08-15T10:00:00Z');
+    assert.strictEqual(result.operation, 'isBusinessDay');
+    assert.strictEqual(result.isBusinessDay, true);
+    assert.strictEqual(result.weekday, 'Friday');
+  });
+});
+```
+
+#### Test Organization
+
+The test suite consists of multiple test files organized by layer:
+
+- **Utils Layer**: Multiple test files covering core business logic
+- **Command Layer**: Test files covering VS Code command implementations  
+- **Integration Layer**: Test files covering end-to-end functionality
+- **Extension Layer**: Test files covering tool registration and lifecycle
+
+#### Best Practices
+
+1. **Document-Driven Testing**: Validate documented behavior, not implementation
+2. **Timezone Independence**: Use UTC methods to prevent environment-specific failures
+3. **Error Coverage**: Test both success and error conditions thoroughly
+4. **Format Validation**: Strictly check return structures match documentation
 
 ## Migration Guide
 

@@ -118,22 +118,64 @@ Feature requests are welcome! Please:
 
 ### Testing
 
-- **Unit Tests**: Add tests for all new functions
-- **Integration Tests**: Test VS Code command integration
-- **Error Cases**: Test error conditions and edge cases
-- **Documentation**: Test examples in documentation
+The modular architecture requires comprehensive testing across multiple layers:
 
-**Running Specific Tests:**
+#### Test Types by Layer
+
+- **Utils Tests**: Test pure business logic functions in isolation
+  - Location: `src/test/utils/`
+  - Focus: Core calculations, parsing, formatting
+  - Example: `dateUtils.test.ts`, `businessDayUtils.test.ts`
+
+- **Command Tests**: Test VS Code command implementations  
+  - Location: `src/test/commands/`
+  - Focus: Command integration, parameter validation, return formats
+  - Example: `getCurrentDate.test.ts`, `addTime.test.ts`
+
+- **Integration Tests**: Test end-to-end functionality
+  - Location: `src/test/integration.test.ts`
+  - Focus: Full workflow validation, VS Code API integration
+
+- **Extension Tests**: Test tool registration and extension lifecycle
+  - Location: `src/test/extension.test.ts`
+  - Focus: Extension activation, tool availability
+
+#### Test Guidelines
+
+- **Document-Driven**: Tests validate documented API behavior, not implementation details
+- **Timezone-Safe**: Use UTC methods (`getUTCHours()`) to prevent environment-specific failures
+- **Error Coverage**: Test both success and error conditions with meaningful assertions
+- **Format Validation**: Strictly validate return structures match documented formats
+
+#### Running Tests
+
 ```bash
 # Run all tests
 npm test
 
-# Run tests in watch mode
+# Run tests in watch mode during development
 npm run test:watch
 
 # Run specific test file
-npm test -- --grep "test-name"
+npm test -- --grep "dateUtils"
+
+# Run specific test by name
+npm test -- --grep "should calculate basic time difference"
+
+# Run tests for specific layer
+npm test src/test/utils/        # Utils layer only
+npm test src/test/commands/     # Command layer only
+npm test src/test/integration/  # Integration tests only
 ```
+
+#### Adding New Tests
+
+When adding functionality:
+
+1. **Utils Layer**: Add unit tests in appropriate `utils/*.test.ts` file
+2. **Command Layer**: Add command tests in `commands/*.test.ts` file  
+3. **Documentation**: Ensure test examples match API documentation
+4. **Coverage**: Aim for 100% coverage of new functionality including error cases
 
 ### Language Model Tools
 

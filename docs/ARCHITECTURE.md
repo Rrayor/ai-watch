@@ -282,13 +282,42 @@ graph LR
 
 ## Testing Strategy
 
-The modular architecture enables comprehensive testing:
+The modular architecture enables comprehensive testing across multiple layers:
 
-- **Unit Tests**: Each utility function tested in isolation
-- **Integration Tests**: Command and tool functionality
-- **End-to-End Tests**: Full extension workflow
+### Test Organization
 
-Current test coverage: **20 tests covering all 8 tools and commands**
+- **Utils Tests**: Core business logic functions tested in isolation
+- **Command Tests**: VS Code command implementations and integration 
+- **Tool Tests**: Language Model Tool functionality and validation
+- **Integration Tests**: End-to-end extension workflow testing
+
+### Test Coverage
+
+Comprehensive test suite covering all layers:
+
+- **Utility Layer**: 
+  - `dateUtils.test.ts` - Date parsing, formatting, and calculations
+  - `businessDayUtils.test.ts` - Business day logic and exclusions
+  - `durationUtils.test.ts` - Duration formatting and verbosity
+  - `dateQueryUtils.test.ts` - Advanced date queries and period calculations
+  - `timezoneUtils.test.ts` - Timezone conversions and DST handling
+  - `index.test.ts` - Barrel export validation
+
+- **Command Layer**:
+  - `getCurrentDate.test.ts` - Current date command with timezone support
+  - `addTime.test.ts` - Time addition with multiple units
+  - `allCommands.test.ts` - All command implementations and edge cases
+
+- **Integration Layer**:
+  - `integration.test.ts` - End-to-end VS Code command testing
+  - `extension.test.ts` - Extension activation and tool registration
+
+### Test Quality Standards
+
+- **Documented Behavior**: Tests validate documented API behavior, not implementation details
+- **Timezone Independence**: UTC-based assertions prevent environment-specific failures  
+- **Error Coverage**: Comprehensive validation of error conditions and edge cases
+- **Format Validation**: Strict checking of output formats and data structures
 
 ## Performance Considerations
 
