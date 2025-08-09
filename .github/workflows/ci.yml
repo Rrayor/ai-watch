@@ -47,6 +47,6 @@ jobs:
         # Install deepsource CLI
         curl https://deepsource.io/cli | sh
         # Upload coverage report
-        ./bin/deepsource report --analyzer test-coverage --key javascript:true --value-file ./coverage/lcov.info
+        ./bin/deepsource report --analyzer test-coverage --key javascript --value-file ./coverage/lcov.info
       env:
         DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
