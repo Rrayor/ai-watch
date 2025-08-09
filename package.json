@@ -11,21 +11,415 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "commands": [
+      {
+        "command": "copilot-watch.getCurrentDate",
+        "title": "Get Current Date and Time"
+      },
+      {
+        "command": "copilot-watch.calculateDifference",
+        "title": "Calculate Time Difference"
+      },
+      {
+        "command": "copilot-watch.convertTimezone",
+        "title": "Convert Timezone"
+      },
+      {
+        "command": "copilot-watch.addTime",
+        "title": "Add Time Duration"
+      },
+      {
+        "command": "copilot-watch.subtractTime",
+        "title": "Subtract Time Duration"
+      },
+      {
+        "command": "copilot-watch.formatDuration",
+        "title": "Format Duration"
+      },
+      {
+        "command": "copilot-watch.businessDay",
+        "title": "Business Day Operations"
+      },
+      {
+        "command": "copilot-watch.dateQuery",
+        "title": "Date Query Operations"
+      }
+    ],
     "languageModelTools": [
-			{
-				"name": "copilot-watch_getCurrentDate",
-				"tags": [
-					"date",
+      {
+        "name": "copilot-watch_getCurrentDate",
+        "tags": [
+          "date",
           "time",
           "iso",
-          "utc"
-				],
-				"toolReferenceName": "getCurrentDate",
-				"displayName": "Get Current Date",
-				"modelDescription": "Returns the current date and time in ISO and UTC formats.",
-				"canBeReferencedInPrompt": true,
-				"icon": "$(clock)"
-			}
+          "utc",
+          "timezone",
+          "format"
+        ],
+        "toolReferenceName": "getCurrentDate",
+        "displayName": "Get Current Date",
+        "modelDescription": "Returns the current date and time. Supports timezone and custom formatting parameters.",
+        "canBeReferencedInPrompt": true,
+        "icon": "$(clock)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "timezone": {
+              "type": "string",
+              "description": "IANA timezone (e.g., 'America/New_York', 'Europe/Berlin'). If not specified, returns ISO and UTC formats.",
+              "default": ""
+            },
+            "format": {
+              "type": "string",
+              "description": "Date format pattern. Defaults to 'YYYY-MM-DD HH:mm:ss' when timezone is specified.",
+              "default": "YYYY-MM-DD HH:mm:ss"
+            }
+          }
+        }
+      },
+      {
+        "name": "copilot-watch_calculateDifference",
+        "tags": [
+          "date",
+          "time",
+          "difference",
+          "duration",
+          "calculate"
+        ],
+        "toolReferenceName": "calculateDifference",
+        "displayName": "Calculate Time Difference",
+        "modelDescription": "Calculates the difference between two dates/times in days, hours, minutes, and seconds.",
+        "canBeReferencedInPrompt": true,
+        "icon": "$(diff)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "Starting date/time in ISO format (e.g., '2025-08-01T00:00:00Z')",
+              "default": "2025-08-01T00:00:00Z"
+            },
+            "to": {
+              "type": "string",
+              "description": "Ending date/time in ISO format (e.g., '2025-08-09T13:37:01Z')",
+              "default": "2025-08-09T13:37:01Z"
+            }
+          },
+          "required": [
+            "from",
+            "to"
+          ]
+        }
+      },
+      {
+        "name": "copilot-watch_convertTimezone",
+        "tags": [
+          "date",
+          "time",
+          "timezone",
+          "convert",
+          "iana"
+        ],
+        "toolReferenceName": "convertTimezone",
+        "displayName": "Convert Timezone",
+        "modelDescription": "Converts a date/time from one timezone to another using IANA timezone names.",
+        "canBeReferencedInPrompt": true,
+        "icon": "$(globe)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "date": {
+              "type": "string",
+              "description": "Date/time in ISO format (e.g., '2025-08-09T13:37:01Z')",
+              "default": "2025-08-09T13:37:01Z"
+            },
+            "fromTimezone": {
+              "type": "string",
+              "description": "Source IANA timezone (optional, defaults to UTC)",
+              "default": "UTC"
+            },
+            "toTimezone": {
+              "type": "string",
+              "description": "Target IANA timezone (e.g., 'Asia/Tokyo', 'America/New_York')",
+              "default": "America/New_York"
+            }
+          },
+          "required": [
+            "date",
+            "toTimezone"
+          ]
+        }
+      },
+      {
+        "name": "copilot-watch_addTime",
+        "tags": [
+          "date",
+          "time",
+          "add",
+          "duration",
+          "relative",
+          "future",
+          "calculate"
+        ],
+        "toolReferenceName": "addTime",
+        "displayName": "Add Time Duration",
+        "modelDescription": "Adds a specified duration (years, months, days, hours, minutes, seconds) to a base time (current time if not specified). Perfect for queries like 'what time will it be in 4 hours and 2 minutes?'",
+        "canBeReferencedInPrompt": true,
+        "icon": "$(add)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "baseTime": {
+              "type": "string",
+              "description": "Base time in ISO format (optional, defaults to current time)",
+              "default": ""
+            },
+            "years": {
+              "type": "number",
+              "description": "Years to add (can be negative for subtraction)",
+              "default": 0
+            },
+            "months": {
+              "type": "number",
+              "description": "Months to add (can be negative for subtraction)",
+              "default": 0
+            },
+            "weeks": {
+              "type": "number",
+              "description": "Weeks to add (can be negative for subtraction)",
+              "default": 0
+            },
+            "days": {
+              "type": "number",
+              "description": "Days to add (can be negative for subtraction)",
+              "default": 0
+            },
+            "hours": {
+              "type": "number",
+              "description": "Hours to add (can be negative for subtraction)",
+              "default": 0
+            },
+            "minutes": {
+              "type": "number",
+              "description": "Minutes to add (can be negative for subtraction)",
+              "default": 0
+            },
+            "seconds": {
+              "type": "number",
+              "description": "Seconds to add (can be negative for subtraction)",
+              "default": 0
+            },
+            "timezone": {
+              "type": "string",
+              "description": "Optional timezone to display result in (e.g., 'America/New_York')",
+              "default": ""
+            }
+          }
+        }
+      },
+      {
+        "name": "copilot-watch_subtractTime",
+        "tags": [
+          "date",
+          "time",
+          "subtract",
+          "duration",
+          "relative",
+          "past",
+          "calculate"
+        ],
+        "toolReferenceName": "subtractTime",
+        "displayName": "Subtract Time Duration",
+        "modelDescription": "Subtracts a specified duration (years, months, weeks, days, hours, minutes, seconds) from a base time (current time if not specified). Perfect for queries like 'what was the time 4 weeks 2 hours and 64 minutes before?'",
+        "canBeReferencedInPrompt": true,
+        "icon": "$(remove)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "baseTime": {
+              "type": "string",
+              "description": "Base time in ISO format (optional, defaults to current time)",
+              "default": ""
+            },
+            "years": {
+              "type": "number",
+              "description": "Years to subtract",
+              "default": 0
+            },
+            "months": {
+              "type": "number",
+              "description": "Months to subtract",
+              "default": 0
+            },
+            "weeks": {
+              "type": "number",
+              "description": "Weeks to subtract",
+              "default": 0
+            },
+            "days": {
+              "type": "number",
+              "description": "Days to subtract",
+              "default": 0
+            },
+            "hours": {
+              "type": "number",
+              "description": "Hours to subtract",
+              "default": 0
+            },
+            "minutes": {
+              "type": "number",
+              "description": "Minutes to subtract",
+              "default": 0
+            },
+            "seconds": {
+              "type": "number",
+              "description": "Seconds to subtract",
+              "default": 0
+            },
+            "timezone": {
+              "type": "string",
+              "description": "Optional timezone to display result in (e.g., 'America/New_York')",
+              "default": ""
+            }
+          }
+        }
+      },
+      {
+        "name": "copilot-watch_formatDuration",
+        "tags": [
+          "date",
+          "time",
+          "duration",
+          "format",
+          "human-readable",
+          "elapsed"
+        ],
+        "toolReferenceName": "formatDuration",
+        "displayName": "Format Duration",
+        "modelDescription": "Formats a time duration between two dates into human-readable text (e.g., '2 days, 3 hours, 45 minutes'). Supports various verbosity levels and unit preferences.",
+        "canBeReferencedInPrompt": true,
+        "icon": "$(symbol-string)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "Starting date/time in ISO format",
+              "default": "2025-08-01T00:00:00Z"
+            },
+            "to": {
+              "type": "string",
+              "description": "Ending date/time in ISO format",
+              "default": "2025-08-09T13:37:01Z"
+            },
+            "verbosity": {
+              "type": "string",
+              "description": "Level of detail: 'compact' (shortest), 'standard' (default), 'verbose' (most detailed)",
+              "enum": ["compact", "standard", "verbose"],
+              "default": "standard"
+            },
+            "maxUnits": {
+              "type": "number",
+              "description": "Maximum number of time units to show (e.g., 2 for '2 days, 3 hours')",
+              "default": 3
+            }
+          },
+          "required": ["from", "to"]
+        }
+      },
+      {
+        "name": "copilot-watch_businessDay",
+        "tags": [
+          "date",
+          "business",
+          "workday",
+          "weekday",
+          "holiday",
+          "calculate"
+        ],
+        "toolReferenceName": "businessDay",
+        "displayName": "Business Day Operations",
+        "modelDescription": "Performs business day calculations including checking if a date is a business day, adding/subtracting business days, and handling weekends. Useful for project planning and deadline calculations.",
+        "canBeReferencedInPrompt": true,
+        "icon": "$(briefcase)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "operation": {
+              "type": "string",
+              "description": "Operation to perform",
+              "enum": ["isBusinessDay", "addBusinessDays", "subtractBusinessDays"],
+              "default": "addBusinessDays"
+            },
+            "date": {
+              "type": "string",
+              "description": "Base date in ISO format",
+              "default": "2025-08-09T13:37:01Z"
+            },
+            "days": {
+              "type": "number",
+              "description": "Number of business days to add/subtract (for add/subtract operations)",
+              "default": 5
+            }
+          },
+          "required": ["operation", "date"]
+        }
+      },
+      {
+        "name": "copilot-watch_dateQuery",
+        "tags": [
+          "date",
+          "query",
+          "weekday",
+          "period",
+          "start",
+          "end",
+          "navigation"
+        ],
+        "toolReferenceName": "dateQuery",
+        "displayName": "Date Query Operations",
+        "modelDescription": "Performs advanced date queries like finding next/previous weekdays, getting start/end of periods (week, month, year), and date navigation. Supports chained operations for complex date calculations.",
+        "canBeReferencedInPrompt": true,
+        "icon": "$(search)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "baseDate": {
+              "type": "string",
+              "description": "Base date for calculations in ISO format",
+              "default": "2025-08-09T13:37:01Z"
+            },
+            "queries": {
+              "type": "array",
+              "description": "Array of query operations to perform in sequence",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["nextWeekday", "previousWeekday", "startOfPeriod", "endOfPeriod"]
+                  },
+                  "weekday": {
+                    "type": "string",
+                    "enum": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+                  },
+                  "period": {
+                    "type": "string",
+                    "enum": ["week", "month", "quarter", "year"]
+                  },
+                  "weekStart": {
+                    "type": "string",
+                    "enum": ["monday", "sunday"],
+                    "default": "monday"
+                  }
+                }
+              },
+              "default": [{"type": "nextWeekday", "weekday": "friday"}]
+            }
+          },
+          "required": ["baseDate", "queries"]
+        }
+      }
     ]
   },
   "activationEvents": [
@@ -40,14 +434,17 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.90.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
+    "@types/vscode": "^1.90.0",
     "@typescript-eslint/eslint-plugin": "^8.39.0",
     "@typescript-eslint/parser": "^8.39.0",
-    "eslint": "^9.32.0",
-    "typescript": "^5.9.2",
     "@vscode/test-cli": "^0.0.11",
-    "@vscode/test-electron": "^2.5.2"
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.32.0",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0"
   }
 }
