@@ -213,6 +213,95 @@ When adding new Language Model Tools:
 
 ## 📚 Documentation
 
+### Documentation Guidelines
+
+All contributors must follow these documentation update rules to maintain consistency and accuracy.
+
+#### When to Update Each Documentation File
+
+**Always Update:**
+- **API_REFERENCE.md** - When adding/modifying any command, parameter, return format, or tool
+- **TESTING.md** - When adding new test layers, changing test architecture, or updating testing guidelines
+- **CONTRIBUTING.md** - When changing development workflow, review process, or project guidelines
+
+**Update Based on Change Type:**
+
+**User-Facing Features:**
+- **USER_GUIDE.md** - New features, changed UI, modified workflows, examples updates
+- **README.md** - Major features, installation changes, quick start modifications
+- **CONFIGURATION.md** - New settings, changed defaults, configuration options
+
+**Developer APIs:**
+- **API_REFERENCE.md** - All parameter changes, return format updates, error condition changes
+- **ARCHITECTURE.md** - Architecture changes, new layers, component modifications
+
+**Project Changes:**
+- **CHANGELOG.md** - All user-visible changes (features, fixes, breaking changes)
+- **README.md** - Major version updates, significant architecture changes
+- **CONTRIBUTING.md** - Process changes, new tools, updated requirements
+
+#### Documentation Update Matrix
+
+| Change Type | README | USER_GUIDE | API_REF | ARCHITECTURE | CONFIG | TESTING | CONTRIBUTING |
+|-------------|---------|------------|---------|--------------|--------|---------|--------------|
+| New Command | ✅ Major | ✅ Always | ✅ Always | ⚠️ If new layer | ⚠️ If settings | ⚠️ If test change | ❌ Rarely |
+| UI Feature | ✅ Major | ✅ Always | ❌ Never | ❌ Never | ⚠️ If settings | ❌ Never | ❌ Never |
+| API Change | ⚠️ Breaking | ⚠️ If user-facing | ✅ Always | ❌ Never | ❌ Never | ⚠️ If test change | ❌ Never |
+| Architecture | ✅ Major | ❌ Never | ❌ Never | ✅ Always | ❌ Never | ⚠️ If test structure | ⚠️ If dev workflow |
+| Settings | ⚠️ Major | ✅ Always | ❌ Never | ❌ Never | ✅ Always | ❌ Never | ❌ Never |
+| Testing | ❌ Never | ❌ Never | ❌ Never | ⚠️ If strategy | ❌ Never | ✅ Always | ⚠️ If workflow |
+| Process | ❌ Never | ❌ Never | ❌ Never | ❌ Never | ❌ Never | ⚠️ If test process | ✅ Always |
+
+Legend: ✅ Always update | ⚠️ Update if applicable | ❌ Rarely/never update
+
+#### Documentation Validation Checklist
+
+Before submitting a PR, verify:
+
+- [ ] **All affected docs updated** according to the matrix above
+- [ ] **Examples tested** - All code examples work and match current API
+- [ ] **Cross-references updated** - Links between docs are current
+- [ ] **No hardcoded numbers** - Avoid specific test counts, line numbers, etc.
+- [ ] **Consistent terminology** - Use same terms across all documentation
+- [ ] **Complete coverage** - All new parameters/options are documented
+
+#### Specific File Guidelines
+
+**README.md**
+- Update for: Major features, installation changes, architecture overhauls
+- Keep concise: Focus on quick start and overview
+- Test examples: Ensure all code examples work
+
+**docs/USER_GUIDE.md**
+- Update for: Any user-visible feature, UI change, or workflow modification
+- Include examples: Provide practical, real-world use cases
+- Step-by-step: Use clear numbered steps for procedures
+
+**docs/API_REFERENCE.md**
+- Update for: ANY API change, no matter how small
+- Precision required: Exact parameter names, types, formats
+- Complete coverage: Document all parameters, return values, errors
+
+**docs/ARCHITECTURE.md**
+- Update for: Structural changes, new components, layer modifications
+- Technical focus: Detailed technical information for maintainers
+- Diagrams: Update visual representations when structure changes
+
+**docs/CONFIGURATION.md**
+- Update for: New settings, changed defaults, configuration workflows
+- Complete options: Document all possible values and effects
+- Examples: Show real configuration scenarios
+
+**docs/TESTING.md**
+- Update for: Test architecture changes, new testing guidelines, coverage changes
+- Process focus: How to run tests, add tests, debug issues
+- Maintainer info: Information for contributors about testing strategy
+
+**CONTRIBUTING.md**
+- Update for: Process changes, tool updates, workflow modifications
+- Contributor focus: Information needed by new and existing contributors
+- Clear procedures: Step-by-step development and contribution workflows
+
 ### Documentation Requirements
 
 - **User Guide**: Update for user-facing features
@@ -234,7 +323,9 @@ When adding new Language Model Tools:
 docs/
 ├── USER_GUIDE.md      # Comprehensive user documentation
 ├── API_REFERENCE.md   # Complete API documentation
-└── CONFIGURATION.md   # Settings and configuration guide
+├── ARCHITECTURE.md    # Technical architecture and design
+├── CONFIGURATION.md   # Settings and configuration guide
+└── TESTING.md         # Testing strategy and guidelines
 ```
 
 ## 🧪 Release Process
