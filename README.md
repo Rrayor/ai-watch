@@ -6,6 +6,9 @@ A VSCode extension that provides AI assistants and developers with comprehensive
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/visual-studio-marketplace/v/rrayor.ai-watch)](https://marketplace.visualstudio.com/items?itemName=rrayor.ai-watch)
+[![DeepSource](https://app.deepsource.com/gh/Rrayor/ai-watch.svg/?label=code+coverage&show_trend=true&token=O815bGyhxkzJ8iP3CzF__zVe)](https://app.deepsource.com/gh/Rrayor/ai-watch/)
+[![DeepSource](https://app.deepsource.com/gh/Rrayor/ai-watch.svg/?label=active+issues&show_trend=true&token=O815bGyhxkzJ8iP3CzF__zVe)](https://app.deepsource.com/gh/Rrayor/ai-watch/)
+[![DeepSource](https://app.deepsource.com/gh/Rrayor/ai-watch.svg/?label=resolved+issues&show_trend=true&token=O815bGyhxkzJ8iP3CzF__zVe)](https://app.deepsource.com/gh/Rrayor/ai-watch/)
 
 ## 🚀 Quick Start
 

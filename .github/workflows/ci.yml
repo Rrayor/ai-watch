@@ -36,8 +36,17 @@ jobs:
     - name: Build extension
       run: npm run compile
       
-    - name: Run tests
+    - name: Run tests with coverage
       run: |
         export DISPLAY=':99.0'
         Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-        npm test
+        npx vscode-test --coverage --coverage-output ./coverage --coverage-reporter lcov --coverage-reporter text
+        
+    - name: Upload coverage to DeepSource
+      run: |
+        # Install deepsource CLI
+        curl https://deepsource.io/cli | sh
+        # Upload coverage report
+        ./bin/deepsource report --analyzer javascript --key coverage --value-file ./coverage/lcov.info
+      env:
+        DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
