@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+
+npx lint-staged --config lint-staged.config.json
+
+# Validate branch name before commit
+branch_name=$(git symbolic-ref --short HEAD)
+
+# Allowed branch patterns: main, develop, feature/*, bugfix/*, hotfix/*
+if ! echo "$branch_name" | grep -Eq '^(main|develop|feature/.+|bugfix/.+|hotfix/.+)$'; then
+	echo "\033[0;31m[ERROR]\033[0m Branch name '$branch_name' does not follow the required naming convention."
+	echo "Allowed: main, develop, feature/*, bugfix/*, hotfix/*"
+	exit 1
+fi

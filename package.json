@@ -346,7 +346,11 @@
             "verbosity": {
               "type": "string",
               "description": "Level of detail: 'compact' (shortest), 'standard' (default), 'verbose' (most detailed)",
-              "enum": ["compact", "standard", "verbose"],
+              "enum": [
+                "compact",
+                "standard",
+                "verbose"
+              ],
               "default": "standard"
             },
             "maxUnits": {
@@ -355,7 +359,10 @@
               "default": 3
             }
           },
-          "required": ["from", "to"]
+          "required": [
+            "from",
+            "to"
+          ]
         }
       },
       {
@@ -379,7 +386,11 @@
             "operation": {
               "type": "string",
               "description": "Operation to perform",
-              "enum": ["isBusinessDay", "addBusinessDays", "subtractBusinessDays"],
+              "enum": [
+                "isBusinessDay",
+                "addBusinessDays",
+                "subtractBusinessDays"
+              ],
               "default": "addBusinessDays"
             },
             "date": {
@@ -393,7 +404,10 @@
               "default": 5
             }
           },
-          "required": ["operation", "date"]
+          "required": [
+            "operation",
+            "date"
+          ]
         }
       },
       {
@@ -428,27 +442,56 @@
                 "properties": {
                   "type": {
                     "type": "string",
-                    "enum": ["nextWeekday", "previousWeekday", "startOfPeriod", "endOfPeriod"]
+                    "enum": [
+                      "nextWeekday",
+                      "previousWeekday",
+                      "startOfPeriod",
+                      "endOfPeriod"
+                    ]
                   },
                   "weekday": {
                     "type": "string",
-                    "enum": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+                    "enum": [
+                      "monday",
+                      "tuesday",
+                      "wednesday",
+                      "thursday",
+                      "friday",
+                      "saturday",
+                      "sunday"
+                    ]
                   },
                   "period": {
                     "type": "string",
-                    "enum": ["week", "month", "quarter", "year"]
+                    "enum": [
+                      "week",
+                      "month",
+                      "quarter",
+                      "year"
+                    ]
                   },
                   "weekStart": {
                     "type": "string",
-                    "enum": ["monday", "sunday"],
+                    "enum": [
+                      "monday",
+                      "sunday"
+                    ],
                     "default": "monday"
                   }
                 }
               },
-              "default": [{"type": "nextWeekday", "weekday": "friday"}]
+              "default": [
+                {
+                  "type": "nextWeekday",
+                  "weekday": "friday"
+                }
+              ]
             }
           },
-          "required": ["baseDate", "queries"]
+          "required": [
+            "baseDate",
+            "queries"
+          ]
         }
       }
     ],
@@ -485,14 +528,21 @@
         },
         "aiWatch.weekStart": {
           "type": "string",
-          "enum": ["monday", "sunday"],
+          "enum": [
+            "monday",
+            "sunday"
+          ],
           "default": "monday",
           "description": "First day of the week for period calculations",
           "scope": "window"
         },
         "aiWatch.durationFormat": {
           "type": "string",
-          "enum": ["compact", "standard", "verbose"],
+          "enum": [
+            "compact",
+            "standard",
+            "verbose"
+          ],
           "default": "standard",
           "description": "Default verbosity level for duration formatting",
           "scope": "window"
@@ -517,7 +567,10 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "prepare": "husky install",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint src --fix"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
@@ -527,7 +580,12 @@
     "@typescript-eslint/parser": "^8.39.0",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
-    "eslint": "^9.32.0",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^8.0.0",
+    "lint-staged": "^16.1.5",
+    "prettier": "^3.6.2",
     "typescript": "^5.9.2"
   },
   "dependencies": {

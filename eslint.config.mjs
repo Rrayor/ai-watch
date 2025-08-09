@@ -1,28 +1,47 @@
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 
-export default [{
-    files: ["**/*.ts"],
-}, {
-    plugins: {
-        "@typescript-eslint": typescriptEslint,
+export default [
+    {
+        files: ["src/**/*.ts"],
+        ignores: ["src/test/**"],
     },
-
-    languageOptions: {
-        parser: tsParser,
-        ecmaVersion: 2022,
-        sourceType: "module",
+    {
+        plugins: {
+            "@typescript-eslint": typescriptEslint,
+            prettier: (await import("eslint-plugin-prettier")).default,
+        },
+        languageOptions: {
+            parser: tsParser,
+            ecmaVersion: 2022,
+            sourceType: "module",
+        },
+        rules: {
+            // Naming convention for imports
+            "@typescript-eslint/naming-convention": [
+                "warn",
+                {
+                    selector: "import",
+                    format: ["camelCase", "PascalCase"],
+                },
+            ],
+            // General code style
+            curly: "warn",
+            eqeqeq: "warn",
+            "no-throw-literal": "warn",
+            semi: "warn",
+            // Prettier integration
+            ...((await import("eslint-config-prettier")).default?.rules || {}),
+            "prettier/prettier": [
+                "error",
+                {
+                    singleQuote: true,
+                    trailingComma: "all",
+                    printWidth: 100,
+                    tabWidth: 2,
+                    semi: true,
+                },
+            ],
+        },
     },
-
-    rules: {
-        "@typescript-eslint/naming-convention": ["warn", {
-            selector: "import",
-            format: ["camelCase", "PascalCase"],
-        }],
-
-        curly: "warn",
-        eqeqeq: "warn",
-        "no-throw-literal": "warn",
-        semi: "warn",
-    },
-}];
+];

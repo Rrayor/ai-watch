@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Check commit message format (Conventional Commits)
+commit_msg_file=$1
+if [ -z "$commit_msg_file" ]; then
+  commit_msg_file="$(git rev-parse --git-dir)/COMMIT_EDITMSG"
+fi
+
+commit_msg=$(head -n1 "$commit_msg_file")
+
+
+
+# POSIX-compatible: allow multiple emojis after colon, and use [A-Za-z0-9_-] instead of \w
+conventional_regex='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([A-Za-z0-9_-]+\))?: ?(:[A-Za-z0-9_+\.-]+: )*.+$'
+
+if ! echo "$commit_msg" | grep -Eq "$conventional_regex"; then
+  echo "\033[0;31m[ERROR]\033[0m Commit message does not follow Conventional Commits format."
+  echo "Example: feat(tools): add new timezone conversion tool"
+  exit 1
+fi
