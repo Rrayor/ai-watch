@@ -11,8 +11,8 @@
  * @returns Formatted date string
  */
 export function formatInTimezone(date: Date, timezone?: string, customFormat?: string): string {
-  // If custom format is provided, we need to get the date parts in the target timezone
-  if (customFormat) {
+  // If custom format is provided (including empty string), we need to handle it
+  if (customFormat !== undefined) {
     if (timezone) {
       try {
         // Get date parts in the target timezone using Intl.DateTimeFormat

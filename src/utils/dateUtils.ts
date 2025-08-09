@@ -27,6 +27,17 @@ export function parseISOString(dateString: string): Date {
   if (isNaN(date.getTime())) {
     throw new Error(`Invalid date format: ${dateString}`);
   }
+
+  // Check if the parsed date matches the input (detect auto-correction)
+  // This catches cases like Feb 29 in non-leap years where JS auto-corrects to March 1
+  if (date.toISOString() !== dateString && !dateString.endsWith('.000Z')) {
+    // If input doesn't have milliseconds but result does, check without milliseconds
+    const expectedWithMs = dateString.replace('Z', '.000Z');
+    if (date.toISOString() !== expectedWithMs) {
+      throw new Error(`Invalid date format: ${dateString}`);
+    }
+  }
+
   return date;
 }
 
@@ -41,23 +52,20 @@ export function calculateDateDifference(from: Date, to: Date) {
   const diffMs = to.getTime() - from.getTime();
   const absDiffMs = Math.abs(diffMs);
 
-  // Calculate breakdown (remaining after higher units)
-  const totalDays = Math.floor(absDiffMs / (1000 * 60 * 60 * 24));
-  const remainingMs = absDiffMs % (1000 * 60 * 60 * 24);
-  const totalHours = Math.floor(remainingMs / (1000 * 60 * 60));
-  const remainingAfterHours = remainingMs % (1000 * 60 * 60);
-  const totalMinutes = Math.floor(remainingAfterHours / (1000 * 60));
-  const remainingAfterMinutes = remainingAfterHours % (1000 * 60);
-  const totalSeconds = Math.floor(remainingAfterMinutes / 1000);
+  // Calculate cumulative totals (each represents the entire difference in that unit)
+  const cumulativeDays = Math.floor(absDiffMs / (1000 * 60 * 60 * 24));
+  const cumulativeHours = Math.floor(absDiffMs / (1000 * 60 * 60));
+  const cumulativeMinutes = Math.floor(absDiffMs / (1000 * 60));
+  const cumulativeSeconds = Math.floor(absDiffMs / 1000);
 
   // Apply sign to all components
   const sign = diffMs < 0 ? -1 : 1;
 
   return {
-    days: sign * totalDays,
-    hours: sign * totalHours,
-    minutes: sign * totalMinutes,
-    seconds: sign * totalSeconds,
+    days: sign * cumulativeDays,
+    hours: sign * cumulativeHours,
+    minutes: sign * cumulativeMinutes,
+    seconds: sign * cumulativeSeconds,
   };
 }
 
