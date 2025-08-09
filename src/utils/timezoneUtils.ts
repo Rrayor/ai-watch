@@ -58,8 +58,25 @@ export function formatInTimezone(date: Date, timezone?: string, customFormat?: s
       throw new Error(`Invalid timezone: ${timezone}`);
     }
   } else {
-    // Default to standard ISO format without timezone info
-    return date.toISOString().slice(0, 19).replace('T', ' ');
+    // Default to user's timezone when no timezone specified
+    const userTimezone = getUserTimezone();
+    try {
+      const formatted = new Intl.DateTimeFormat('en-CA', {
+        timeZone: userTimezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      }).format(date);
+
+      return formatted.replace(', ', ' ');
+    } catch (tzError) {
+      // Fallback to ISO format if user timezone fails
+      return date.toISOString().slice(0, 19).replace('T', ' ');
+    }
   }
 }
 
@@ -107,10 +124,11 @@ function applyCustomFormatFromParts(parts: Intl.DateTimeFormatPart[], format: st
 
   let result = format;
   // Replace tokens in order of length (longest first) to avoid partial replacements
+  // Use word boundaries to avoid replacing tokens within words
   Object.keys(tokens)
     .sort((a, b) => b.length - a.length)
     .forEach((token) => {
-      result = result.replace(new RegExp(token, 'g'), tokens[token]);
+      result = result.replace(new RegExp(`\\b${token}\\b`, 'g'), tokens[token]);
     });
 
   return result;
@@ -141,10 +159,11 @@ function applyCustomFormat(date: Date, format: string): string {
 
   let result = format;
   // Replace tokens in order of length (longest first) to avoid partial replacements
+  // Use word boundaries to avoid replacing tokens within words
   Object.keys(tokens)
     .sort((a, b) => b.length - a.length)
     .forEach((token) => {
-      result = result.replace(new RegExp(token, 'g'), tokens[token]);
+      result = result.replace(new RegExp(`\\b${token}\\b`, 'g'), tokens[token]);
     });
 
   return result;

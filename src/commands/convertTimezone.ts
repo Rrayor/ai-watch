@@ -23,6 +23,7 @@ export function convertTimezoneCommand(options: ConvertTimezoneOptions) {
       fromTimezone: fromTz,
       toTimezone: options.toTimezone,
       iso: date.toISOString(),
+      originalISO: options.date, // Keep original input for reference
     };
   } catch (error) {
     return {

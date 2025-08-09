@@ -39,11 +39,25 @@ export function parseISOString(dateString: string): Date {
  */
 export function calculateDateDifference(from: Date, to: Date) {
   const diffMs = to.getTime() - from.getTime();
+  const absDiffMs = Math.abs(diffMs);
+
+  // Calculate breakdown (remaining after higher units)
+  const totalDays = Math.floor(absDiffMs / (1000 * 60 * 60 * 24));
+  const remainingMs = absDiffMs % (1000 * 60 * 60 * 24);
+  const totalHours = Math.floor(remainingMs / (1000 * 60 * 60));
+  const remainingAfterHours = remainingMs % (1000 * 60 * 60);
+  const totalMinutes = Math.floor(remainingAfterHours / (1000 * 60));
+  const remainingAfterMinutes = remainingAfterHours % (1000 * 60);
+  const totalSeconds = Math.floor(remainingAfterMinutes / 1000);
+
+  // Apply sign to all components
+  const sign = diffMs < 0 ? -1 : 1;
+
   return {
-    days: Math.floor(diffMs / (1000 * 60 * 60 * 24)),
-    hours: Math.floor(diffMs / (1000 * 60 * 60)),
-    minutes: Math.floor(diffMs / (1000 * 60)),
-    seconds: Math.floor(diffMs / 1000),
+    days: sign * totalDays,
+    hours: sign * totalHours,
+    minutes: sign * totalMinutes,
+    seconds: sign * totalSeconds,
   };
 }
 

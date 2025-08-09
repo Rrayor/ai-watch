@@ -20,6 +20,7 @@ export function businessDayCommand(options: BusinessDayOptions) {
         const isBusinessDay = date.getDay() >= 1 && date.getDay() <= 5;
         return {
           date: options.date,
+          operation: options.operation,
           isBusinessDay,
           weekday: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][
             date.getDay()
