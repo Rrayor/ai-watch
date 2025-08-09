@@ -44,7 +44,7 @@ We welcome contributions to AI Watch! This document provides guidelines for cont
 2. **Start Watch Mode**: Run `npm run watch` to automatically compile changes
 3. **Launch Extension Host**: Press `F5` to open a new VS Code window with your extension loaded
 4. **Test Changes**: Use the Command Palette (`Ctrl+Shift+P`) to test your changes
-5. **Debug**: Set breakpoints in `src/extension.ts` for debugging
+5. **Debug**: Set breakpoints in source files (commands, tools, utils) for debugging
 
 ## 📝 How to Contribute
 
@@ -182,11 +182,13 @@ When adding functionality:
 When adding new Language Model Tools:
 
 1. **Update package.json**: Add the tool definition
-2. **Implement Handler**: Create the command handler in `src/extension.ts`
-3. **Add Validation**: Validate all input parameters
-4. **Error Handling**: Provide clear error messages
-5. **Documentation**: Update API documentation and examples
-6. **Testing**: Add comprehensive tests
+2. **Implement Handler**: Create the command handler in the appropriate `src/commands/` file
+3. **Create Tool**: Implement the Language Model Tool in the appropriate `src/tools/` file
+4. **Register Tool**: Add registration calls in `src/registration/` files
+5. **Add Validation**: Validate all input parameters
+6. **Error Handling**: Provide clear error messages
+7. **Documentation**: Update API documentation and examples
+8. **Testing**: Add comprehensive tests
 
 **Example Tool Definition:**
 ```json
