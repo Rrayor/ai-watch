@@ -2,6 +2,10 @@
  * Timezone utility functions for AI Watch extension.
  */
 
+// Constants for string operations
+const ISO_TIMESTAMP_LENGTH = 19;
+const YEAR_SLICE_LENGTH = -2;
+
 /**
  * Formats a date in a specific timezone.
  *
@@ -79,10 +83,6 @@ export function formatInTimezone(date: Date, timezone?: string, customFormat?: s
     }
   }
 }
-
-// Constants for string operations
-const ISO_TIMESTAMP_LENGTH = 19;
-const YEAR_SLICE_LENGTH = -2;
 
 /**
  * Creates a map of date parts from formatToParts result

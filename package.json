@@ -27,7 +27,9 @@
     "productivity",
     "automation",
     "business-days",
-    "formatting"
+    "formatting",
+    "type-safety",
+    "typescript"
   ],
   "engines": {
     "vscode": "^1.103.0"

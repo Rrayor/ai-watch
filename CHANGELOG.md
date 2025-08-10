@@ -8,16 +8,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Type Safety Improvements** - Union types for `VerbosityLevel` and `DurationUnit` with compile-time validation
+- **Comprehensive Edge Case Testing** - 6 new test cases covering negative durations, zero handling, and complex scenarios
+- **Namespace Exports** - Organized exports to prevent naming conflicts (`Types`, `Tools`, `Commands`, `Utils`)
+- **Enhanced DeepSource Configuration** - Improved test pattern detection and TypeScript support
 - **Custom Format Support** - Token-based date formatting (YYYY, MM, DD, HH, mm, ss)
 - **Enhanced Error Handling** - Improved timezone validation with user-friendly messages
 - **Business Day Wrap-around** - Support for date boundaries in business day calculations
 - **Architecture Documentation** - Comprehensive documentation with Mermaid diagrams
 
 ### Changed
+- **Negative Duration Handling** - Fixed bug where negative durations weren't properly signed
+- **Zero Duration Edge Cases** - Prevents nonsensical "-0s" outputs in all verbosity modes
+- **Export Structure** - Namespace-based exports prevent Node.js syntax errors from conflicting names
+- **Type Interfaces** - Updated to use centralized union types for better maintainability
 - **Modular Architecture** - Organized code into 6-layer module system with 23+ focused files
 - **Zero Code Duplication** - Eliminated redundancy through centralized utilities
 - **Performance Optimizations** - Enhanced string operations and timezone formatting
 - **Duration Logic** - Removed confusing "ago" suffix from positive durations
+
+### Fixed
+- **Negative Sign Preservation** - Duration formatting now properly handles negative values as documented
+- **Type Safety** - Compile-time prevention of invalid verbosity and unit values
+- **Export Conflicts** - Eliminated potential Node.js naming conflicts through namespace organization
 
 ### Fixed
 - **Timezone Validation** - Proper error handling for invalid timezone inputs

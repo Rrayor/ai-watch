@@ -18,17 +18,17 @@ graph TB
         D --> E
         E --> F[Types Layer]
     end
-    
+
     subgraph "VS Code APIs"
         G[Language Model Tools API]
         H[Commands API]
         I[Configuration API]
     end
-    
+
     D --> G
     C --> H
     E --> I
-    
+
     style A fill:#e1f5fe
     style B fill:#f3e5f5
     style C fill:#e8f5e8
@@ -42,26 +42,48 @@ graph TB
 The extension is organized into 6 main layers:
 
 ### 1. Entry Point (`src/extension.ts`)
-- **Purpose**: VS Code extension activation/deactivation
-- **Responsibilities**: Delegate to registration modules
-- **Size**: ~50 lines (reduced from 1,800+ lines)
+- **Purpose**: VS Code extension activation/deactivation with namespace exports
+- **Responsibilities**: Delegate to registration modules and provide organized exports
+- **Size**: ~40 lines (reduced from 1,800+ lines)
+- **Export Structure**: Namespace-based exports prevent naming conflicts
+
+```typescript
+// Organized namespace exports
+export * as Types from './types';
+export * as Tools from './tools';
+export * as Commands from './commands';
+export * as Utils from './utils';
+```
 
 ### 2. Types Layer (`src/types/`)
-- **Purpose**: TypeScript interfaces and type definitions
+- **Purpose**: TypeScript interfaces and type definitions with compile-time safety
 - **Modules**:
-  - `options.ts` - Command option interfaces
+  - `options.ts` - Command option interfaces with union types
   - `parameters.ts` - Language Model Tool parameter interfaces
+  - `results.ts` - Return type interfaces
   - `index.ts` - Barrel export
 
+**Type Safety Features:**
+- Union types for `VerbosityLevel`: `'compact' | 'standard' | 'verbose'`
+- Union types for `DurationUnit`: `'milliseconds' | 'seconds' | 'minutes' | 'hours' | 'days'`
+- Compile-time validation prevents runtime errors
+- Exported types enable type-safe integration
+
 ### 3. Utils Layer (`src/utils/`)
-- **Purpose**: Core business logic and utility functions
+- **Purpose**: Core business logic and utility functions with robust error handling
 - **Modules**:
   - `dateUtils.ts` - Date/time operations and weekday parsing
   - `timezoneUtils.ts` - Timezone formatting with custom format support
-  - `durationUtils.ts` - Duration formatting in multiple verbosity levels
+  - `durationUtils.ts` - Duration formatting with negative sign preservation and type safety
   - `dateQueryUtils.ts` - Date queries (next/previous weekday, periods)
   - `businessDayUtils.ts` - Business day calculations with wrap-around support
   - `index.ts` - Barrel export
+
+**Enhanced Features:**
+- Negative duration handling with proper sign preservation
+- Zero duration edge case handling (prevents "-0s" outputs)
+- Type-safe function signatures with union types
+- Comprehensive error handling and validation
 
 ### 4. Commands Layer (`src/commands/`)
 - **Purpose**: VS Code command implementations
@@ -87,13 +109,13 @@ graph TD
     subgraph "Entry Point"
         EXT[extension.ts]
     end
-    
+
     subgraph "Registration"
         REG_CMD[commands.ts]
         REG_TOOLS[tools.ts]
         REG_IDX[index.ts]
     end
-    
+
     subgraph "Commands"
         CMD_GET[getCurrentDate.ts]
         CMD_CALC[calculateDifference.ts]
@@ -105,7 +127,7 @@ graph TD
         CMD_QRY[dateQuery.ts]
         CMD_IDX[index.ts]
     end
-    
+
     subgraph "Tools"
         TOOL_GET[getCurrentDateTool.ts]
         TOOL_CALC[calculateDifferenceTool.ts]
@@ -117,7 +139,7 @@ graph TD
         TOOL_QRY[dateQueryTool.ts]
         TOOL_IDX[index.ts]
     end
-    
+
     subgraph "Utils"
         UTIL_DATE[dateUtils.ts]
         UTIL_TZ[timezoneUtils.ts]
@@ -126,20 +148,20 @@ graph TD
         UTIL_BIZ[businessDayUtils.ts]
         UTIL_IDX[index.ts]
     end
-    
+
     subgraph "Types"
         TYPE_OPT[options.ts]
         TYPE_PAR[parameters.ts]
         TYPE_IDX[index.ts]
     end
-    
+
     EXT --> REG_IDX
     REG_IDX --> REG_CMD
     REG_IDX --> REG_TOOLS
-    
+
     REG_CMD --> CMD_IDX
     REG_TOOLS --> TOOL_IDX
-    
+
     CMD_IDX --> CMD_GET
     CMD_IDX --> CMD_CALC
     CMD_IDX --> CMD_CONV
@@ -148,7 +170,7 @@ graph TD
     CMD_IDX --> CMD_FMT
     CMD_IDX --> CMD_BIZ
     CMD_IDX --> CMD_QRY
-    
+
     TOOL_IDX --> TOOL_GET
     TOOL_IDX --> TOOL_CALC
     TOOL_IDX --> TOOL_CONV
@@ -157,7 +179,7 @@ graph TD
     TOOL_IDX --> TOOL_FMT
     TOOL_IDX --> TOOL_BIZ
     TOOL_IDX --> TOOL_QRY
-    
+
     CMD_GET --> UTIL_IDX
     CMD_CALC --> UTIL_IDX
     CMD_CONV --> UTIL_IDX
@@ -166,7 +188,7 @@ graph TD
     CMD_FMT --> UTIL_IDX
     CMD_BIZ --> UTIL_IDX
     CMD_QRY --> UTIL_IDX
-    
+
     TOOL_GET --> UTIL_IDX
     TOOL_CALC --> UTIL_IDX
     TOOL_CONV --> UTIL_IDX
@@ -175,16 +197,16 @@ graph TD
     TOOL_FMT --> UTIL_IDX
     TOOL_BIZ --> UTIL_IDX
     TOOL_QRY --> UTIL_IDX
-    
+
     UTIL_IDX --> UTIL_DATE
     UTIL_IDX --> UTIL_TZ
     UTIL_IDX --> UTIL_DUR
     UTIL_IDX --> UTIL_QRY
     UTIL_IDX --> UTIL_BIZ
-    
+
     UTIL_BIZ --> UTIL_DATE
     UTIL_QRY --> UTIL_DATE
-    
+
     CMD_GET --> TYPE_IDX
     CMD_CALC --> TYPE_IDX
     CMD_CONV --> TYPE_IDX
@@ -193,7 +215,7 @@ graph TD
     CMD_FMT --> TYPE_IDX
     CMD_BIZ --> TYPE_IDX
     CMD_QRY --> TYPE_IDX
-    
+
     TOOL_GET --> TYPE_IDX
     TOOL_CALC --> TYPE_IDX
     TOOL_CONV --> TYPE_IDX
@@ -202,7 +224,7 @@ graph TD
     TOOL_FMT --> TYPE_IDX
     TOOL_BIZ --> TYPE_IDX
     TOOL_QRY --> TYPE_IDX
-    
+
     TYPE_IDX --> TYPE_OPT
     TYPE_IDX --> TYPE_PAR
 ```
@@ -216,7 +238,7 @@ sequenceDigram
     participant Tool as Language Model Tool
     participant Command as Command
     participant Utils as Utils Layer
-    
+
     User->>VSCode: Request date operation
     VSCode->>Tool: invoke(parameters)
     Tool->>Command: Call command function
@@ -243,7 +265,7 @@ export * from './businessDayUtils';
 
 ### 2. Separation of Concerns
 - **Commands**: Handle VS Code command API integration
-- **Tools**: Handle AI Language Model Tool API integration  
+- **Tools**: Handle AI Language Model Tool API integration
 - **Utils**: Pure business logic, no VS Code dependencies
 - **Types**: Shared interfaces across layers
 
@@ -269,7 +291,7 @@ graph LR
     F -->|No| G[Catch & Transform Error]
     F -->|Yes| H[Return Success Object]
     G --> D
-    
+
     style D fill:#ffcdd2
     style H fill:#c8e6c9
 ```
@@ -287,7 +309,7 @@ The modular architecture enables comprehensive testing across multiple layers:
 ### Test Organization
 
 - **Utils Tests**: Core business logic functions tested in isolation
-- **Command Tests**: VS Code command implementations and integration 
+- **Command Tests**: VS Code command implementations and integration
 - **Tool Tests**: Language Model Tool functionality and validation
 - **Integration Tests**: End-to-end extension workflow testing
 
@@ -295,7 +317,7 @@ The modular architecture enables comprehensive testing across multiple layers:
 
 Comprehensive test suite covering all layers:
 
-- **Utility Layer**: 
+- **Utility Layer**:
   - `dateUtils.test.ts` - Date parsing, formatting, and calculations
   - `businessDayUtils.test.ts` - Business day logic and exclusions
   - `durationUtils.test.ts` - Duration formatting and verbosity
@@ -315,7 +337,7 @@ Comprehensive test suite covering all layers:
 ### Test Quality Standards
 
 - **Documented Behavior**: Tests validate documented API behavior, not implementation details
-- **Timezone Independence**: UTC-based assertions prevent environment-specific failures  
+- **Timezone Independence**: UTC-based assertions prevent environment-specific failures
 - **Error Coverage**: Comprehensive validation of error conditions and edge cases
 - **Format Validation**: Strict checking of output formats and data structures
 
@@ -371,14 +393,14 @@ graph TB
     C --> D[Business Day Utils]
     C --> E[Timezone Utils]
     C --> F[Duration Utils]
-    
+
     subgraph "User Configurable"
         G[aiWatch.businessDays]
         H[aiWatch.defaultTimezone]
         I[aiWatch.defaultDateFormat]
         J[aiWatch.excludedDates]
     end
-    
+
     G --> D
     H --> E
     I --> E

@@ -99,7 +99,7 @@ All 8 tools are automatically available: `getCurrentDate`, `addTime`, `subtractT
 
 ## 🧪 Testing
 
-AI Watch features a comprehensive test suite with **155 tests across 22 test files** covering all functionality layers. The modular architecture enables isolated testing of utilities, command integration, and end-to-end workflows.
+AI Watch features a comprehensive test suite with **161 tests across 22 test files** covering all functionality layers. The modular architecture enables isolated testing of utilities, command integration, and end-to-end workflows.
 
 ```bash
 # Run all tests
@@ -107,7 +107,17 @@ npm test
 
 # Run tests in watch mode
 npm run test:watch
+
+# Run specific test suite
+npm test -- --grep "Duration Utils Tests"
 ```
+
+### Test Coverage Highlights
+
+- **✅ 19 Duration Utils Tests** - Including comprehensive negative sign handling and edge case coverage
+- **✅ Type Safety Tests** - Union types prevent invalid verbosity/unit values at compile time
+- **✅ Integration Tests** - End-to-end VS Code command and Language Model Tool testing
+- **✅ Edge Case Coverage** - Zero durations, negative values, timezone boundaries, and business day calculations
 
 See the [Testing Guide](docs/TESTING.md) for detailed information about the testing strategy and contributing test cases.
 

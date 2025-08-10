@@ -194,21 +194,26 @@ await vscode.commands.executeCommand('ai-watch.subtractTime', {
 
 ### formatDuration
 
-Converts time duration between two dates into human-readable format.
+Converts time duration between two dates into human-readable format with type-safe parameters.
 
 **Parameters:**
 - `from` (required, string): Starting date/time in ISO format
 - `to` (required, string): Ending date/time in ISO format
-- `verbosity` (optional, string): Format verbosity level
+- `verbosity` (optional, VerbosityLevel): Format verbosity level with compile-time type safety
   - `'compact'`: "2d 3h 45m" (shortest)
   - `'standard'`: "2 days, 3 hours, 45 minutes" (default)
   - `'verbose'`: "2 days, 3 hours and 45 minutes" (most detailed)
 - `maxUnits` (optional, number): Maximum number of time units to display, defaults to 3
 
+**Type Safety:**
+- TypeScript union types prevent invalid verbosity values at compile time
+- Negative durations are properly handled with sign preservation
+- Zero durations return unsigned results (prevents "-0s" outputs)
+
 **Returns:**
 ```typescript
 {
-  formatted: string;  // Human-readable duration
+  formatted: string;  // Human-readable duration with proper negative sign handling
 } | {
   error: string;     // Error message if invalid input
 }
@@ -357,7 +362,48 @@ await vscode.commands.executeCommand('ai-watch.dateQuery', {
 });
 ```
 
-## VS Code Commands
+## Extension Integration
+
+For VS Code extension developers wanting to integrate AI Watch functionality:
+
+### Namespace Exports
+
+AI Watch uses organized namespace exports to prevent naming conflicts:
+
+```typescript
+import * as AIWatch from 'ai-watch-extension';
+
+// Access utilities with type safety
+const duration = AIWatch.Utils.formatDuration(3600, 'seconds', 'standard');
+
+// Access tools for Language Model integration
+const tool = new AIWatch.Tools.FormatDurationTool();
+
+// Access commands for direct invocation
+const result = AIWatch.Commands.formatDurationCommand(options);
+
+// Access types for TypeScript development
+const options: AIWatch.Types.FormatDurationOptions = {
+  from: '2025-08-09T12:00:00Z',
+  to: '2025-08-09T14:30:00Z',
+  verbosity: 'compact'  // Type-safe: only 'compact' | 'standard' | 'verbose' allowed
+};
+```
+
+### Type Safety Benefits
+
+```typescript
+// Compile-time type checking prevents runtime errors
+import { VerbosityLevel, DurationUnit } from 'ai-watch-extension';
+
+// TypeScript will catch invalid values:
+const verbosity: VerbosityLevel = 'detailed'; // ❌ Type error
+const unit: DurationUnit = 'millisec';        // ❌ Type error
+
+// Only valid values are accepted:
+const verbosity: VerbosityLevel = 'verbose';  // ✅ Valid
+const unit: DurationUnit = 'milliseconds';    // ✅ Valid
+```
 
 All functionality is available through direct VS Code commands for programmatic access.
 
@@ -422,12 +468,12 @@ try {
   const result = await vscode.commands.executeCommand('ai-watch.getCurrentDate', {
     timezone: userTimezone
   });
-  
+
   if (result.error) {
     console.error('AI Watch error:', result.error);
     return;
   }
-  
+
   // Use result.iso, result.utc, etc.
 } catch (error) {
   console.error('Command execution failed:', error);
@@ -468,10 +514,10 @@ export function activate(context: vscode.ExtensionContext) {
       date: new Date().toISOString(),
       days: 5
     });
-    
+
     vscode.window.showInformationMessage(`Task deadline: ${deadline.result}`);
   });
-  
+
   context.subscriptions.push(disposable);
 }
 ```
@@ -489,7 +535,7 @@ class TimeAwareAssistant {
       formatted: now.local
     };
   }
-  
+
   async calculateProjectDeadline(startDate: string, businessDays: number) {
     return await vscode.commands.executeCommand('ai-watch.businessDay', {
       operation: 'addBusinessDays',
@@ -514,23 +560,23 @@ import * as vscode from 'vscode';
 suite('AI Watch Integration Tests', () => {
   test('getCurrentDate command returns valid formats', async () => {
     const result = await vscode.commands.executeCommand('ai-watch.getCurrentDate');
-    
+
     // Validate required fields
     assert.ok(result.iso);
     assert.ok(result.utc);
     assert.ok(result.local);
-    
+
     // Validate specific formats
     assert.ok(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(result.iso));
     assert.ok(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC$/.test(result.utc));
   });
-  
+
   test('calculateDifference returns cumulative totals', async () => {
     const result = await vscode.commands.executeCommand('ai-watch.calculateDifference', {
       from: '2025-08-01T00:00:00Z',
       to: '2025-08-09T13:37:01Z'
     });
-    
+
     // Validate cumulative behavior as documented
     assert.strictEqual(result.days, 8);
     assert.strictEqual(result.hours, 205); // 8*24 + 13
@@ -550,16 +596,16 @@ suite('Date Utils Tests', () => {
   test('formatUTC includes UTC suffix', () => {
     const testDate = new Date('2025-08-10T12:30:45Z');
     const result = formatUTC(testDate);
-    
+
     assert.strictEqual(result, '2025-08-10 12:30:45 UTC');
   });
-  
+
   test('calculateDateDifference returns cumulative totals', () => {
     const from = new Date('2025-08-01T00:00:00Z');
     const to = new Date('2025-08-09T13:37:01Z');
-    
+
     const result = calculateDateDifference(from, to);
-    
+
     // Cumulative totals as documented
     assert.strictEqual(result.days, 8);
     assert.strictEqual(result.hours, 205);
@@ -582,7 +628,7 @@ suite('Business Day Command Tests', () => {
       operation: 'isBusinessDay',
       date: '2025-08-15T10:00:00Z'
     });
-    
+
     // Validate complete return structure matches docs
     assert.strictEqual(result.date, '2025-08-15T10:00:00Z');
     assert.strictEqual(result.operation, 'isBusinessDay');
@@ -597,7 +643,7 @@ suite('Business Day Command Tests', () => {
 The test suite consists of multiple test files organized by layer:
 
 - **Utils Layer**: Multiple test files covering core business logic
-- **Command Layer**: Test files covering VS Code command implementations  
+- **Command Layer**: Test files covering VS Code command implementations
 - **Integration Layer**: Test files covering end-to-end functionality
 - **Extension Layer**: Test files covering tool registration and lifecycle
 
