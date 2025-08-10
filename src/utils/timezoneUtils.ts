@@ -163,9 +163,9 @@ function getTokenRegexSource(token: string): string {
   if (!regexSource) {
     // Escape the token to prevent injection
     const escapedToken = escapeRegexToken(token);
-    // Use a simple pattern that matches the token as a whole word
-    // This avoids complex alternation patterns that could cause ReDoS
-    regexSource = `\\b${escapedToken}\\b`;
+    // Use negative lookbehind and lookahead to ensure exact token matching
+    // This prevents partial matches while avoiding word boundary issues with date tokens
+    regexSource = `(?<!\\w)${escapedToken}(?!\\w)`;
     tokenRegexSourceCache.set(token, regexSource);
   }
   return regexSource;
