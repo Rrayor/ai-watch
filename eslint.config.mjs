@@ -2,9 +2,10 @@ import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 
 export default [
+    // Main production code configuration
     {
         files: ["src/**/*.ts"],
-        ignores: ["src/test/**", "out/**", "dist/**", "node_modules/**"],
+        ignores: ["src/**/*.test.ts", "src/test/**/*.ts", "out/**", "dist/**", "node_modules/**"],
         plugins: {
             "@typescript-eslint": typescriptEslint,
             prettier: (await import("eslint-plugin-prettier")).default,
@@ -60,16 +61,12 @@ export default [
             "no-unused-vars": "off", // Turn off base rule
 
             // JS-C1003: Avoid using wildcard imports - MINOR
-            "no-restricted-imports": [
+            // Use custom rule to specifically target wildcard import syntax: import * as name from 'module'
+            "no-restricted-syntax": [
                 "error",
                 {
-                    "patterns": [
-                        {
-                            "group": ["*"],
-                            "importNames": ["*"],
-                            "message": "Wildcard imports are not allowed. Use named imports instead."
-                        }
-                    ]
+                    "selector": "ImportNamespaceSpecifier",
+                    "message": "Wildcard imports (import * as name from 'module') are not allowed. Use named imports instead."
                 }
             ],
 
@@ -137,13 +134,14 @@ export default [
         files: ["src/**/*.test.ts", "src/test/**/*.ts"],
         plugins: {
             "@typescript-eslint": typescriptEslint,
+            prettier: (await import("eslint-plugin-prettier")).default,
         },
         languageOptions: {
             parser: tsParser,
             ecmaVersion: 2022,
             sourceType: "module",
             parserOptions: {
-                project: "./tsconfig.json",
+                project: "./tsconfig.test.json",
                 tsconfigRootDir: process.cwd(),
             },
         },
@@ -155,6 +153,19 @@ export default [
             "@typescript-eslint/explicit-module-boundary-types": "off",
             "no-magic-numbers": "off",
             "complexity": "off",
+            // Allow wildcard imports in tests for convenience
+            "no-restricted-syntax": "off",
+            // Prettier integration for test files
+            "prettier/prettier": [
+                "error",
+                {
+                    singleQuote: true,
+                    trailingComma: "all",
+                    printWidth: 100,
+                    tabWidth: 2,
+                    semi: true,
+                },
+            ],
         },
     },
 ];
