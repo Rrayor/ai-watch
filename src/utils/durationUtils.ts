@@ -2,6 +2,10 @@
  * Duration formatting utility functions for AI Watch extension.
  */
 
+// Type definitions
+export type VerbosityLevel = 'compact' | 'standard' | 'verbose';
+export type DurationUnit = 'milliseconds' | 'seconds' | 'minutes' | 'hours' | 'days';
+
 // Constants for time conversions
 const SECONDS_PER_MINUTE = 60;
 const SECONDS_PER_HOUR = 3600;
@@ -18,7 +22,7 @@ const DEFAULT_MAX_UNITS = 3;
  * @param unit - Unit of the duration (milliseconds, minutes, hours, days, seconds)
  * @returns Duration value converted to seconds
  */
-function convertToSeconds(value: number, unit: string): number {
+function convertToSeconds(value: number, unit: DurationUnit): number {
   switch (unit) {
     case 'milliseconds':
       return value / MILLISECONDS_PER_SECOND;
@@ -148,7 +152,7 @@ function formatStandardComponents(components: {
  */
 function formatTimeComponents(
   components: { years: number; days: number; hours: number; minutes: number; seconds: number },
-  verbosity: string,
+  verbosity: VerbosityLevel,
 ): string[] {
   if (verbosity === 'compact') {
     return formatCompactComponents(components);
@@ -164,11 +168,38 @@ function formatTimeComponents(
  * @param verbosity - Format verbosity level (compact, standard, verbose)
  * @returns Joined string formatted according to verbosity level
  */
-function joinFormattedParts(parts: string[], verbosity: string): string {
+function joinFormattedParts(parts: string[], verbosity: VerbosityLevel): string {
   if (verbosity === 'verbose' && parts.length > 1) {
     return `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`;
   }
   return parts.join(verbosity === 'compact' ? ' ' : ', ');
+}
+
+/**
+ * Handles zero duration formatting and negative sign application
+ * @param result - Formatted duration string
+ * @param isNegative - Whether the original duration was negative
+ * @param verbosity - Format verbosity level
+ * @returns Final formatted duration string with proper sign handling
+ */
+function applySignAndHandleZero(
+  result: string,
+  isNegative: boolean,
+  verbosity: VerbosityLevel,
+): string {
+  // Handle edge case where result is empty (shouldn't happen but safety check)
+  if (!result) {
+    return verbosity === 'compact' ? '0s' : '0 seconds';
+  }
+
+  // If result represents zero duration, return it unsigned regardless of isNegative
+  // This prevents nonsensical results like '-0s' or '-0 seconds'
+  if (result === '0s' || result === '0 seconds') {
+    return result;
+  }
+
+  // Apply negative sign for non-zero durations when original value was negative
+  return isNegative ? `-${result}` : result;
 }
 
 /**
@@ -185,12 +216,13 @@ function joinFormattedParts(parts: string[], verbosity: string): string {
  */
 export function formatDuration(
   value: number,
-  unit: string,
-  verbosity = 'standard',
+  unit: DurationUnit,
+  verbosity: VerbosityLevel = 'standard',
   maxUnits = DEFAULT_MAX_UNITS,
 ): string {
   const totalSeconds = convertToSeconds(value, unit);
   const absSeconds = Math.abs(totalSeconds);
+  const isNegative = totalSeconds < 0;
 
   if (absSeconds === 0) {
     return verbosity === 'compact' ? '0s' : '0 seconds';
@@ -204,5 +236,6 @@ export function formatDuration(
     return verbosity === 'compact' ? '0s' : '0 seconds';
   }
 
-  return joinFormattedParts(limitedParts, verbosity);
+  const result = joinFormattedParts(limitedParts, verbosity);
+  return applySignAndHandleZero(result, isNegative, verbosity);
 }

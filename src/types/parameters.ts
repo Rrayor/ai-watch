@@ -3,8 +3,10 @@
  * These interfaces define the input parameters for AI Language Model Tools.
  */
 
+import { VerbosityLevel } from '../utils/durationUtils';
+
 /**
- * Language Model Tool parameters for getting current date and time.
+ * Language Model Tool parameters for getting current date/time.
  */
 export interface IGetCurrentDateParameters {
   timezone?: string;
@@ -90,7 +92,7 @@ export interface IFormatDurationParameters {
   /** Ending date/time in ISO format */
   to: string;
   /** Format verbosity: 'compact', 'standard', or 'verbose' */
-  verbosity?: 'compact' | 'standard' | 'verbose';
+  verbosity?: VerbosityLevel;
   /** Maximum number of time units to display */
   maxUnits?: number;
 }

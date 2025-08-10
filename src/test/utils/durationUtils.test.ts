@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { formatDuration } from '../../utils/durationUtils';
+import { formatDuration, VerbosityLevel, DurationUnit } from '../../utils/durationUtils';
 
 suite('Duration Utils Tests', () => {
   test('formatDuration should format simple durations correctly', () => {
@@ -171,5 +171,107 @@ suite('Duration Utils Tests', () => {
     assert.ok(manyUnits.includes('1 hours'));
     assert.ok(manyUnits.includes('1 minutes'));
     assert.ok(manyUnits.includes('1 seconds'));
+  });
+
+  test('formatDuration should handle negative durations with precise sign application', () => {
+    // Test negative durations in different verbosity modes
+    const negativeHour = formatDuration(-1, 'hours', 'standard');
+    assert.strictEqual(negativeHour, '-1 hours');
+
+    const negativeMinutes = formatDuration(-30, 'minutes', 'standard');
+    assert.strictEqual(negativeMinutes, '-30 minutes');
+
+    const negativeSeconds = formatDuration(-45, 'seconds', 'standard');
+    assert.strictEqual(negativeSeconds, '-45 seconds');
+
+    // Test negative in compact mode
+    const negativeCompact = formatDuration(-2, 'hours', 'compact');
+    assert.strictEqual(negativeCompact, '-2h');
+
+    // Test negative in verbose mode
+    const negativeVerbose = formatDuration(-1, 'hours', 'verbose');
+    assert.strictEqual(negativeVerbose, '-1 hour');
+  });
+
+  test('formatDuration should handle zero durations without negative sign', () => {
+    // Zero should never have a negative sign, even if we somehow pass negative zero
+    assert.strictEqual(formatDuration(0, 'seconds', 'standard'), '0 seconds');
+    assert.strictEqual(formatDuration(0, 'seconds', 'compact'), '0s');
+    assert.strictEqual(formatDuration(0, 'seconds', 'verbose'), '0 seconds');
+
+    // Test -0 (should still be treated as zero)
+    assert.strictEqual(formatDuration(-0, 'seconds', 'standard'), '0 seconds');
+    assert.strictEqual(formatDuration(-0, 'seconds', 'compact'), '0s');
+
+    // Test very small negative values that round to zero
+    assert.strictEqual(formatDuration(-0.1, 'seconds', 'standard'), '0 seconds');
+    assert.strictEqual(formatDuration(-0.9, 'seconds', 'standard'), '0 seconds');
+  });
+
+  test('formatDuration should handle compound negative durations correctly', () => {
+    // Test negative compound duration: -1 hour, 30 minutes, 45 seconds = -5445 seconds
+    const negativeCompound = formatDuration(-5445, 'seconds', 'standard');
+    assert.ok(negativeCompound.startsWith('-'));
+    assert.ok(negativeCompound.includes('1 hours'));
+    assert.ok(negativeCompound.includes('30 minutes'));
+    assert.ok(negativeCompound.includes('45 seconds'));
+
+    // Test with maxUnits limitation
+    const limitedNegative = formatDuration(-5445, 'seconds', 'standard', 2);
+    assert.ok(limitedNegative.startsWith('-'));
+    assert.ok(limitedNegative.includes('1 hours'));
+    assert.ok(limitedNegative.includes('30 minutes'));
+    assert.ok(!limitedNegative.includes('45 seconds')); // Should be truncated
+  });
+
+  test('formatDuration should handle edge cases in maxUnits with zero results', () => {
+    // When maxUnits filters out everything, should return appropriate zero
+    const duration = 45; // 45 seconds
+
+    // If we only show hours/days but duration is only seconds, should return zero
+    const filteredResult = formatDuration(duration, 'seconds', 'standard', 0);
+    assert.ok(filteredResult === '0 seconds' || filteredResult.includes('45 seconds'));
+
+    // Test negative duration that gets filtered to nothing
+    const negativeFiltered = formatDuration(-45, 'seconds', 'standard', 0);
+    assert.ok(negativeFiltered === '0 seconds' || negativeFiltered.includes('45 seconds'));
+  });
+
+  test('formatDuration should preserve sign consistency across all verbosity levels', () => {
+    const testCases: Array<{ value: number; unit: DurationUnit }> = [
+      { value: -1, unit: 'hours' },
+      { value: -30, unit: 'minutes' },
+      { value: -45, unit: 'seconds' },
+      { value: -1, unit: 'days' },
+      { value: -5000, unit: 'milliseconds' }, // -5 seconds
+    ];
+
+    const verbosityLevels: VerbosityLevel[] = ['compact', 'standard', 'verbose'];
+
+    testCases.forEach(({ value, unit }) => {
+      verbosityLevels.forEach((verbosity) => {
+        const result = formatDuration(value, unit, verbosity);
+        // All negative durations should start with minus sign
+        assert.ok(
+          result.startsWith('-'),
+          `Expected negative sign for ${value} ${unit} in ${verbosity} mode, got: ${result}`,
+        );
+        // Should not be just a negative sign
+        assert.ok(
+          result.length > 1,
+          `Result should not be just a negative sign for ${value} ${unit} in ${verbosity} mode`,
+        );
+      });
+    });
+  });
+
+  test('formatDuration should handle millisecond edge cases correctly', () => {
+    // Test sub-second negative values
+    assert.strictEqual(formatDuration(-500, 'milliseconds', 'compact'), '0s');
+    assert.strictEqual(formatDuration(-999, 'milliseconds', 'standard'), '0 seconds');
+
+    // Test exactly 1 second in milliseconds (should not be zero)
+    assert.strictEqual(formatDuration(-1000, 'milliseconds', 'compact'), '-1s');
+    assert.strictEqual(formatDuration(-1000, 'milliseconds', 'standard'), '-1 seconds');
   });
 });

@@ -3,8 +3,10 @@
  * These interfaces define the input parameters for VS Code commands.
  */
 
+import { VerbosityLevel } from '../utils/durationUtils';
+
 /**
- * Options for getting current date and time with optional timezone and formatting.
+ * Options for getting current date/time.
  */
 export interface GetCurrentDateOptions {
   /** IANA timezone identifier (e.g., 'America/New_York', 'Europe/Berlin') */
@@ -92,7 +94,7 @@ export interface FormatDurationOptions {
   /** Ending date/time in ISO format */
   to: string;
   /** Format verbosity: 'compact', 'standard', or 'verbose' */
-  verbosity?: 'compact' | 'standard' | 'verbose';
+  verbosity?: VerbosityLevel;
   /** Maximum number of time units to display */
   maxUnits?: number;
 }
