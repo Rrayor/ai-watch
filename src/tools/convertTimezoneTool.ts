@@ -45,7 +45,8 @@ export class ConvertTimezoneTool implements LanguageModelTool<IConvertTimezonePa
 
       return new LanguageModelToolResult([new LanguageModelTextPart(message)]);
     } catch {
-      const errorMessage = `Error converting timezone: Invalid date format or timezone. Please use ISO format for date and valid IANA timezone.`;
+      const errorMessage =
+        'Error converting timezone: Invalid date format or timezone. Please use ISO format for date and valid IANA timezone.';
       return new LanguageModelToolResult([new LanguageModelTextPart(errorMessage)]);
     }
   }

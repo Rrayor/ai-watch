@@ -146,7 +146,8 @@ export class AddTimeTool implements LanguageModelTool<IAddTimeParameters> {
 
       return new LanguageModelToolResult([new LanguageModelTextPart(message)]);
     } catch {
-      const errorMessage = `Error adding time: Invalid base time format. Please use ISO format (e.g., 2025-08-09T13:37:01Z) or omit for current time.`;
+      const errorMessage =
+        'Error adding time: Invalid base time format. Please use ISO format (e.g., 2025-08-09T13:37:01Z) or omit for current time.';
       return new LanguageModelToolResult([new LanguageModelTextPart(errorMessage)]);
     }
   }

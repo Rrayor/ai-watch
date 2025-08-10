@@ -452,7 +452,7 @@ suite('All Command Functions Tests', () => {
       } else if (!isDateQuerySuccess(result)) {
         assert.fail('Expected date query to return date or dates');
       } else {
-        const firstDate = result.date || (result.dates && result.dates[0]);
+        const firstDate = result.date ?? result.dates?.[0];
         if (!firstDate) {
           assert.fail('Expected at least one date result');
         }
@@ -476,7 +476,7 @@ suite('All Command Functions Tests', () => {
       } else if (!isDateQuerySuccess(result)) {
         assert.fail('Expected date query to return date or dates');
       } else {
-        const firstDate = result.date || (result.dates && result.dates[0]);
+        const firstDate = result.date ?? result.dates?.[0];
         if (!firstDate) {
           assert.fail('Expected at least one date result');
         }
@@ -500,7 +500,7 @@ suite('All Command Functions Tests', () => {
       } else if (!isDateQuerySuccess(result)) {
         assert.fail('Expected date query to return date or dates');
       } else {
-        const firstDate = result.date || (result.dates && result.dates[0]);
+        const firstDate = result.date ?? result.dates?.[0];
         if (!firstDate) {
           assert.fail('Expected at least one date result');
         }
@@ -524,7 +524,7 @@ suite('All Command Functions Tests', () => {
       } else if (!isDateQuerySuccess(result)) {
         assert.fail('Expected date query to return date or dates');
       } else {
-        const firstDate = result.date || (result.dates && result.dates[0]);
+        const firstDate = result.date ?? result.dates?.[0];
         if (!firstDate) {
           assert.fail('Expected at least one date result');
         }

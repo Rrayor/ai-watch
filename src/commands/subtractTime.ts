@@ -76,7 +76,8 @@ export function subtractTimeCommand(options: SubtractTimeOptions): SubtractTimeR
     return result;
   } catch {
     return {
-      error: `Invalid base time format. Please use ISO format (e.g., 2025-08-09T13:37:01Z) or omit for current time.`,
+      error:
+        'Invalid base time format. Please use ISO format (e.g., 2025-08-09T13:37:01Z) or omit for current time.',
     };
   }
 }

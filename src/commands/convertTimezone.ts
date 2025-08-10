@@ -26,7 +26,8 @@ export function convertTimezoneCommand(options: ConvertTimezoneOptions): Convert
     };
   } catch {
     return {
-      error: `Invalid date format or timezone. Please use ISO format for date and valid IANA timezone.`,
+      error:
+        'Invalid date format or timezone. Please use ISO format for date and valid IANA timezone.',
     };
   }
 }
