@@ -10,6 +10,8 @@ const DAYS_PER_WEEK = 7;
 
 /**
  * Adds time units to a date
+ * @param date - Date object to modify (modified in place)
+ * @param options - Configuration with time durations to add
  */
 function addTimeUnits(date: Date, options: AddTimeOptions): void {
   if (options.years) {

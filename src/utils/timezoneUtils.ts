@@ -86,6 +86,8 @@ const YEAR_SLICE_LENGTH = -2;
 
 /**
  * Creates a map of date parts from formatToParts result
+ * @param parts - Array of date time format parts from Intl.DateTimeFormat.formatToParts()
+ * @returns Object mapping part type to value
  */
 function createPartMap(parts: Intl.DateTimeFormatPart[]): { [key: string]: string } {
   const partMap: { [key: string]: string } = {};
@@ -97,6 +99,8 @@ function createPartMap(parts: Intl.DateTimeFormatPart[]): { [key: string]: strin
 
 /**
  * Creates year and month format tokens
+ * @param partMap - Object mapping part types to values
+ * @returns Object containing YYYY, YY, MM, M tokens
  */
 function createYearMonthTokens(partMap: { [key: string]: string }): { [key: string]: string } {
   return {
@@ -109,6 +113,8 @@ function createYearMonthTokens(partMap: { [key: string]: string }): { [key: stri
 
 /**
  * Creates day and hour format tokens
+ * @param partMap - Object mapping part types to values
+ * @returns Object containing DD, D, HH, H tokens
  */
 function createDayHourTokens(partMap: { [key: string]: string }): { [key: string]: string } {
   return {
@@ -121,6 +127,8 @@ function createDayHourTokens(partMap: { [key: string]: string }): { [key: string
 
 /**
  * Creates minute and second format tokens
+ * @param partMap - Object mapping part types to values
+ * @returns Object containing mm, m, ss, s tokens
  */
 function createMinuteSecondTokens(partMap: { [key: string]: string }): { [key: string]: string } {
   return {
@@ -133,6 +141,8 @@ function createMinuteSecondTokens(partMap: { [key: string]: string }): { [key: s
 
 /**
  * Creates format tokens from part map
+ * @param partMap - Object mapping part types to values
+ * @returns Combined object containing all format tokens
  */
 function createFormatTokens(partMap: { [key: string]: string }): { [key: string]: string } {
   return {
@@ -149,6 +159,8 @@ const tokenRegexSourceCache = new Map<string, string>();
 
 /**
  * Escapes special regex characters in a string
+ * @param token - String to escape for regex pattern
+ * @returns Escaped string safe for regex use
  */
 function escapeRegexToken(token: string): string {
   return token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -157,6 +169,8 @@ function escapeRegexToken(token: string): string {
 /**
  * Gets or creates a regex source pattern for token replacement.
  * Uses a simple, secure pattern that avoids ReDoS vulnerabilities.
+ * @param token - Token to create regex pattern for
+ * @returns Regex source pattern string
  */
 function getTokenRegexSource(token: string): string {
   let regexSource = tokenRegexSourceCache.get(token);
@@ -175,6 +189,9 @@ function getTokenRegexSource(token: string): string {
  * Efficiently replaces format tokens in a string using cached regex sources.
  * Creates fresh regex instances for each replacement to ensure thread safety
  * while still benefiting from cached pattern compilation.
+ * @param format - Format string containing tokens to replace
+ * @param tokens - Object mapping token names to replacement values
+ * @returns String with tokens replaced by their values
  */
 function replaceTokensInString(format: string, tokens: { [key: string]: string }): string {
   let result = format;
@@ -199,6 +216,9 @@ function replaceTokensInString(format: string, tokens: { [key: string]: string }
 
 /**
  * Replaces format tokens in the format string
+ * @param format - Format string containing tokens to replace
+ * @param tokens - Object mapping token names to replacement values
+ * @returns String with tokens replaced by their values
  */
 function replaceFormatTokens(format: string, tokens: { [key: string]: string }): string {
   return replaceTokensInString(format, tokens);

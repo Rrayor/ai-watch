@@ -10,6 +10,8 @@ const DAYS_PER_WEEK = 7;
 
 /**
  * Subtracts time units from a date
+ * @param date - Date object to modify (modified in place)
+ * @param options - Configuration with time durations to subtract
  */
 function subtractTimeUnits(date: Date, options: SubtractTimeOptions): void {
   if (options.years) {

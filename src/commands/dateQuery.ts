@@ -13,6 +13,11 @@ import {
 
 /**
  * Gets the base date for a query (either original base date or previous result)
+ * @param baseDate - Original base date
+ * @param results - Array of previous query results
+ * @param index - Current query index
+ * @returns Base date to use for the query
+ * @throws Error if base date is invalid
  */
 function getQueryBaseDate(baseDate: Date, results: Date[], index: number): Date {
   const result = index === 0 ? baseDate : results[index - 1];
@@ -24,6 +29,12 @@ function getQueryBaseDate(baseDate: Date, results: Date[], index: number): Date 
 
 /**
  * Processes a nextWeekday query
+ * @param query - Query object containing weekday to find
+ * @param baseDate - Original base date
+ * @param results - Array of previous query results
+ * @param index - Current query index
+ * @returns Date of next occurrence of the specified weekday
+ * @throws Error if weekday is missing
  */
 function processNextWeekdayQuery(
   query: DateQueryOptions['queries'][0],
@@ -40,6 +51,12 @@ function processNextWeekdayQuery(
 
 /**
  * Processes a previousWeekday query
+ * @param query - Query object containing weekday to find
+ * @param baseDate - Original base date
+ * @param results - Array of previous query results
+ * @param index - Current query index
+ * @returns Date of previous occurrence of the specified weekday
+ * @throws Error if weekday is missing
  */
 function processPreviousWeekdayQuery(
   query: DateQueryOptions['queries'][0],
@@ -56,6 +73,10 @@ function processPreviousWeekdayQuery(
 
 /**
  * Processes a startOfPeriod query
+ * @param query - Query object containing period information
+ * @param baseDate - Base date for the query
+ * @returns Date representing the start of the specified period
+ * @throws Error if period is missing
  */
 function processStartOfPeriodQuery(query: DateQueryOptions['queries'][0], baseDate: Date): Date {
   if (!query.period) {
@@ -66,6 +87,10 @@ function processStartOfPeriodQuery(query: DateQueryOptions['queries'][0], baseDa
 
 /**
  * Processes an endOfPeriod query
+ * @param query - Query object containing period information
+ * @param baseDate - Base date for the query
+ * @returns Date representing the end of the specified period
+ * @throws Error if period is missing
  */
 function processEndOfPeriodQuery(query: DateQueryOptions['queries'][0], baseDate: Date): Date {
   if (!query.period) {
@@ -76,6 +101,12 @@ function processEndOfPeriodQuery(query: DateQueryOptions['queries'][0], baseDate
 
 /**
  * Processes a single query operation
+ * @param query - Query object containing operation type and parameters
+ * @param baseDate - Original base date
+ * @param results - Array of previous query results
+ * @param index - Current query index
+ * @returns Date result of the query operation
+ * @throws Error if query type is unsupported
  */
 function processQuery(
   query: DateQueryOptions['queries'][0],

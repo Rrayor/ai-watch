@@ -18,6 +18,8 @@ import { parseISOString, formatUTC, formatInTimezone, getUserTimezone } from '..
 export class AddTimeTool implements LanguageModelTool<IAddTimeParameters> {
   /**
    * Adds time units to a date
+   * @param date - Date object to modify (modified in place)
+   * @param params - Parameters containing time durations to add
    */
   private static addTimeUnits(date: Date, params: IAddTimeParameters): void {
     if (params.years) {
@@ -46,6 +48,8 @@ export class AddTimeTool implements LanguageModelTool<IAddTimeParameters> {
 
   /**
    * Builds duration description from parameters
+   * @param params - Parameters containing time durations
+   * @returns Array of formatted duration parts (e.g., ["2 years", "3 months"])
    */
   private static buildDurationParts(params: IAddTimeParameters): string[] {
     const parts: string[] = [];
@@ -70,6 +74,12 @@ export class AddTimeTool implements LanguageModelTool<IAddTimeParameters> {
 
   /**
    * Builds result message with timezone information
+   * @param newDate - Calculated result date
+   * @param params - Input parameters
+   * @param durationParts - Array of formatted duration parts
+   * @param userTimezone - User's local timezone
+   * @param localFormatted - Formatted date in user's timezone
+   * @returns Formatted result message string
    */
   private static buildResultMessage(
     newDate: Date,

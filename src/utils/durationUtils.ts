@@ -14,6 +14,9 @@ const DEFAULT_MAX_UNITS = 3;
 
 /**
  * Converts duration value to seconds based on unit
+ * @param value - Duration value to convert
+ * @param unit - Unit of the duration (milliseconds, minutes, hours, days, seconds)
+ * @returns Duration value converted to seconds
  */
 function convertToSeconds(value: number, unit: string): number {
   switch (unit) {
@@ -33,6 +36,8 @@ function convertToSeconds(value: number, unit: string): number {
 
 /**
  * Calculates time components from total seconds
+ * @param absSeconds - Absolute number of seconds to break down
+ * @returns Object containing years, days, hours, minutes, and seconds components
  */
 function calculateTimeComponents(absSeconds: number): {
   years: number;
@@ -52,6 +57,8 @@ function calculateTimeComponents(absSeconds: number): {
 
 /**
  * Formats time components for compact display
+ * @param components - Object containing time components (years, days, hours, minutes, seconds)
+ * @returns Array of formatted strings in compact format (e.g., ["2y", "3d", "4h"])
  */
 function formatCompactComponents(components: {
   years: number;
@@ -74,6 +81,8 @@ function formatCompactComponents(components: {
 
 /**
  * Formats time components for verbose display
+ * @param components - Object containing time components (years, days, hours, minutes, seconds)
+ * @returns Array of formatted strings in verbose format (e.g., ["2 years", "3 days", "4 hours"])
  */
 function formatVerboseComponents(components: {
   years: number;
@@ -94,6 +103,9 @@ function formatVerboseComponents(components: {
 
 /**
  * Helper function for formatting minutes and seconds in verbose mode
+ * @param minutes - Number of minutes
+ * @param seconds - Number of seconds
+ * @returns Array of formatted strings for minutes and seconds
  */
 function formatVerboseTimeMinutes(minutes: number, seconds: number): string[] {
   const parts = [];
@@ -106,6 +118,8 @@ function formatVerboseTimeMinutes(minutes: number, seconds: number): string[] {
 
 /**
  * Formats time components for standard display
+ * @param components - Object containing time components (years, days, hours, minutes, seconds)
+ * @returns Array of formatted strings in standard format (e.g., ["2 years", "3 days", "4 hours"])
  */
 function formatStandardComponents(components: {
   years: number;
@@ -128,6 +142,9 @@ function formatStandardComponents(components: {
 
 /**
  * Formats time components based on verbosity
+ * @param components - Object containing time components (years, days, hours, minutes, seconds)
+ * @param verbosity - Format verbosity level (compact, standard, verbose)
+ * @returns Array of formatted strings based on verbosity level
  */
 function formatTimeComponents(
   components: { years: number; days: number; hours: number; minutes: number; seconds: number },
@@ -143,6 +160,9 @@ function formatTimeComponents(
 
 /**
  * Joins formatted parts based on verbosity
+ * @param parts - Array of formatted time part strings
+ * @param verbosity - Format verbosity level (compact, standard, verbose)
+ * @returns Joined string formatted according to verbosity level
  */
 function joinFormattedParts(parts: string[], verbosity: string): string {
   if (verbosity === 'verbose' && parts.length > 1) {

@@ -19,6 +19,8 @@ import { subtractTimeCommand } from '../commands';
 export class SubtractTimeTool implements LanguageModelTool<ISubtractTimeParameters> {
   /**
    * Builds duration description from parameters
+   * @param params - Parameters containing time durations to subtract
+   * @returns Array of formatted duration parts (e.g., ["2 years", "3 months"])
    */
   private static buildDurationParts(params: ISubtractTimeParameters): string[] {
     const parts: string[] = [];
