@@ -23,19 +23,29 @@ We welcome contributions to AI Watch! This document provides guidelines for cont
    npm install
    ```
 
-3. **Build the Extension**
+3. **Setup Git Hooks**
+   ```bash
+   npm run prepare         # Installs Husky git hooks
+   ```
+
+4. **Verify Quality Setup**
+   ```bash
+   npm run quality         # Runs all quality checks
+   ```
+
+5. **Build the Extension**
    ```bash
    npm run compile
    ```
 
-4. **Run Tests**
+6. **Run Tests**
    ```bash
    npm test
    ```
 
-5. **Start Development**
+7. **Start Development**
    ```bash
-   npm run watch
+   npm run watch           # Auto-compile on changes
    ```
 
 ### Development Workflow
@@ -45,6 +55,8 @@ We welcome contributions to AI Watch! This document provides guidelines for cont
 3. **Launch Extension Host**: Press `F5` to open a new VS Code window with your extension loaded
 4. **Test Changes**: Use the Command Palette (`Ctrl+Shift+P`) to test your changes
 5. **Debug**: Set breakpoints in source files (commands, tools, utils) for debugging
+6. **Quality Check**: Run `npm run quality` before committing
+7. **Commit**: Pre-commit hooks automatically validate and fix code quality
 
 ## 📝 How to Contribute
 
@@ -79,10 +91,11 @@ Feature requests are welcome! Please:
    ```
 
 2. **Make Your Changes**
-   - Follow the existing code style
+   - Follow the existing code style (enforced via ESLint + Prettier)
    - Add tests for new functionality
    - Update documentation if needed
-   - Ensure all tests pass
+   - Run `npm run quality` to ensure code quality
+   - Ensure all tests pass with `npm test`
 
 3. **Commit Your Changes**
    ```bash
@@ -97,17 +110,122 @@ Feature requests are welcome! Please:
 5. **PR Requirements**
    - Clear description of changes
    - Link to related issues
+   - All automated quality checks passing
    - All tests passing
    - Documentation updated
+   - Pre-commit hooks configured and working
 
 ## 🏗️ Development Guidelines
 
 ### Code Style
 
 - **TypeScript**: Use TypeScript for all new code
-- **Formatting**: Follow existing formatting (we recommend Prettier)
+- **Formatting**: Follow existing formatting (enforced via Prettier)
 - **Naming**: Use descriptive names for functions and variables
 - **Comments**: Add JSDoc comments for public APIs
+
+## 🔧 Code Quality Tools
+
+AI Watch uses a comprehensive code quality pipeline to ensure consistent, maintainable code:
+
+### ESLint Configuration
+
+- **Version**: ESLint 9.33.0 with flat configuration (`eslint.config.mjs`)
+- **Target**: Prevents common issues flagged by DeepSource analysis
+- **Dual Configuration**:
+  - **Production Code**: Strict rules with type checking
+  - **Test Code**: Relaxed rules for testing convenience
+
+**Key Rules Enforced:**
+- No `any` types (`@typescript-eslint/no-explicit-any`)
+- No non-null assertions (`@typescript-eslint/no-non-null-assertion`)
+- Mandatory template literals over string concatenation
+- Complexity limits (max 10 cyclomatic complexity)
+- Wildcard import restrictions
+
+### TypeScript Configuration
+
+**Dual Configuration Strategy:**
+- `tsconfig.json`: Production code with strict type checking
+- `tsconfig.test.json`: Test code with relaxed settings for convenience
+
+**Strict Mode Features:**
+- `noUncheckedIndexedAccess`: Include undefined in index signatures
+- `exactOptionalPropertyTypes`: Differentiate undefined vs missing properties
+- `noImplicitReturns`: Require explicit returns in all code paths
+- `noUnusedLocals` & `noUnusedParameters`: Prevent dead code
+
+### Prettier Configuration
+
+**Formatting Standards** (`.prettierrc`):
+```json
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "semi": true,
+  "endOfLine": "lf"
+}
+```
+
+### Quality Scripts
+
+```bash
+# Run all quality checks (type checking + linting + formatting)
+npm run quality
+
+# Run quality checks with automatic fixes
+npm run quality:fix
+
+# Individual quality checks
+npm run typecheck          # Type check production code
+npm run typecheck:test     # Type check test code
+npm run typecheck:all      # Type check everything
+npm run lint               # Run ESLint
+npm run lint:fix           # Run ESLint with auto-fix
+npm run format:check       # Check Prettier formatting
+npm run format             # Apply Prettier formatting
+
+# Development compilation
+npm run compile            # Compile production code
+npm run compile:test       # Compile test code
+npm run watch              # Watch production code
+npm run watch:test         # Watch test code
+```
+
+### Pre-commit Automation
+
+**Husky + lint-staged Integration:**
+- **Trigger**: Every `git commit`
+- **Validation**: Branch naming convention enforcement
+- **Quality Gates**: TypeScript compilation, ESLint validation, Prettier formatting
+- **Auto-fix**: Automatically fixes linting and formatting issues
+
+**Branch Naming Convention:**
+- `main`, `develop`: Primary branches
+- `feature/*`: New features (e.g., `feature/new-timezone-tool`)
+- `bugfix/*`: Bug fixes (e.g., `bugfix/timezone-calculation`)
+- `hotfix/*`: Critical production fixes
+
+**Pre-commit Process:**
+1. Validates branch name matches convention
+2. Runs `lint-staged` on changed files:
+   - TypeScript files: ESLint fix + Prettier format
+   - Other files: Prettier format only
+3. Blocks commit if any step fails
+
+### Development Configuration Files
+
+| File | Purpose | Notes |
+|------|---------|-------|
+| `eslint.config.mjs` | ESLint 9.x flat configuration | Targets DeepSource issues |
+| `.prettierrc` | Code formatting standards | Enforced in pre-commit |
+| `lint-staged.config.json` | Pre-commit file processing | Auto-fixes on commit |
+| `.editorconfig` | Cross-editor consistency | UTF-8, LF, 2-space indent |
+| `tsconfig.json` | Production TypeScript config | Strict mode enabled |
+| `tsconfig.test.json` | Test TypeScript config | Relaxed for test convenience |
+| `.husky/pre-commit` | Git hook automation | Branch + quality validation |
 
 ### Architecture
 
@@ -127,7 +245,7 @@ The modular architecture requires comprehensive testing across multiple layers:
   - Focus: Core calculations, parsing, formatting
   - Example: `dateUtils.test.ts`, `businessDayUtils.test.ts`
 
-- **Command Tests**: Test VS Code command implementations  
+- **Command Tests**: Test VS Code command implementations
   - Location: `src/test/commands/`
   - Focus: Command integration, parameter validation, return formats
   - Example: `getCurrentDate.test.ts`, `addTime.test.ts`
@@ -173,7 +291,7 @@ npm test src/test/integration/  # Integration tests only
 When adding functionality:
 
 1. **Utils Layer**: Add unit tests in appropriate `utils/*.test.ts` file
-2. **Command Layer**: Add command tests in `commands/*.test.ts` file  
+2. **Command Layer**: Add command tests in `commands/*.test.ts` file
 3. **Documentation**: Ensure test examples match API documentation
 4. **Coverage**: Aim for 100% coverage of new functionality including error cases
 
@@ -330,6 +448,47 @@ docs/
 └── TESTING.md         # Testing strategy and guidelines
 ```
 
+## 🧪 Continuous Integration
+
+### GitHub Actions Pipeline
+
+**CI Workflow** (`.github/workflows/ci.yml`):
+- **Triggers**: Push to `main`/`develop`, all pull requests
+- **Matrix Testing**: Node.js 20.x and 22.x on Ubuntu
+- **Quality Gates**: Linting, compilation, full test suite
+- **Coverage**: Automated coverage reporting to DeepSource
+
+**Release Workflow** (`.github/workflows/release.yml`):
+- **Trigger**: Version tags (`v*`)
+- **Process**: Build → Test → Package → GitHub Release → VS Code Marketplace
+- **Automation**: Full release pipeline with artifact publishing
+
+**Quality Integration:**
+```bash
+# CI runs these commands in sequence:
+npm ci                    # Clean dependency install
+npm run lint             # ESLint validation
+npm run compile          # TypeScript compilation
+npm test                 # Full test suite with coverage
+```
+
+### Pre-commit Quality Gates
+
+**Automated via Husky + lint-staged:**
+1. **Branch Validation**: Enforces naming convention
+2. **TypeScript**: Compilation check for both production and test code
+3. **ESLint**: Code quality validation with auto-fix
+4. **Prettier**: Formatting consistency with auto-fix
+5. **Tests**: Optional test run on commit (configurable)
+
+**Failed Commit Recovery:**
+```bash
+# If pre-commit fails:
+npm run quality:fix      # Fix most issues automatically
+git add .               # Stage the fixes
+git commit              # Retry commit
+```
+
 ## 🧪 Release Process
 
 ### Version Management
@@ -415,11 +574,15 @@ test(unit): add tests for date calculations
 
 ### Review Process
 
-1. **Automated Checks**: CI runs tests and linting
-2. **Manual Review**: Maintainers review code and design
-3. **Testing**: Verify functionality works as expected
-4. **Documentation**: Ensure documentation is updated
-5. **Merge**: Maintainer merges after approval
+1. **Automated Checks**: CI runs comprehensive quality validation
+   - **TypeScript Compilation**: Both production and test code
+   - **ESLint Validation**: Code quality and style enforcement
+   - **Test Suite**: Full test coverage with multiple Node.js versions
+   - **Coverage Reporting**: Automated coverage analysis
+2. **Manual Review**: Maintainers review code, design, and documentation
+3. **Testing**: Verify functionality works as expected in VS Code
+4. **Documentation**: Ensure all affected documentation is updated
+5. **Merge**: Maintainer merges after approval and quality gate passage
 
 ## 🙋‍♂️ Getting Help
 
@@ -427,7 +590,50 @@ If you need help:
 
 1. **Check Documentation**: Review the user guide and API reference
 2. **Search Issues**: Look for similar questions or problems
-3. **Create Issue**: Ask specific questions with context
-4. **Be Patient**: Maintainers will respond as soon as possible
+3. **Development Issues**: Check the troubleshooting section below
+4. **Create Issue**: Ask specific questions with context
+5. **Be Patient**: Maintainers will respond as soon as possible
+
+### Development Troubleshooting
+
+**Common Setup Issues:**
+
+**ESLint Errors After Setup:**
+```bash
+# Fix: Ensure proper TypeScript configuration
+npm run typecheck:all       # Verify TypeScript setup
+npm run lint:fix           # Auto-fix ESLint issues
+```
+
+**Pre-commit Hook Failures:**
+```bash
+# Fix: Install hooks and validate setup
+npm run prepare            # Reinstall Husky hooks
+npm run quality:fix        # Fix quality issues
+git add .                  # Stage fixes
+git commit                 # Retry commit
+```
+
+**Test Compilation Errors:**
+```bash
+# Fix: Separate test compilation
+npm run compile:test       # Check test TypeScript config
+npm run typecheck:test     # Verify test types
+```
+
+**Extension Not Loading in Debug:**
+```bash
+# Fix: Ensure clean build
+npm run compile            # Rebuild extension
+# Press F5 in VS Code to launch debug session
+```
+
+**Coverage Reporting Issues:**
+```bash
+# Fix: Clean rebuild with coverage
+rm -rf out/ coverage/      # Clean previous builds
+npm run compile && npm run compile:test
+npm test                   # Regenerate coverage
+```
 
 Thank you for contributing to AI Watch! 🕐

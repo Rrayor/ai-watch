@@ -2,7 +2,7 @@
  * Command implementation for getting the current date and time.
  */
 
-import { GetCurrentDateOptions } from '../types';
+import { GetCurrentDateOptions, GetCurrentDateResult } from '../types';
 import { formatUTC, formatInTimezone, getUserTimezone } from '../utils';
 
 /**
@@ -11,9 +11,9 @@ import { formatUTC, formatInTimezone, getUserTimezone } from '../utils';
  * @param options - Optional configuration for timezone and format
  * @returns Object with current date/time information
  */
-export function getCurrentDateCommand(options?: GetCurrentDateOptions) {
+export function getCurrentDateCommand(options?: GetCurrentDateOptions): GetCurrentDateResult {
   const now = new Date();
-  const result: any = {
+  const result: GetCurrentDateResult = {
     iso: now.toISOString(),
     utc: formatUTC(now),
   };
@@ -29,13 +29,13 @@ export function getCurrentDateCommand(options?: GetCurrentDateOptions) {
     try {
       result.formatted = formatInTimezone(now, options.timezone, options.format);
       result.timezone = options.timezone;
-    } catch (error) {
+    } catch {
       result.error = `Invalid timezone: ${options.timezone}`;
     }
   } else if (options?.format) {
     try {
       result.formatted = formatInTimezone(now, undefined, options.format);
-    } catch (error) {
+    } catch {
       result.error = `Invalid format: ${options.format}`;
     }
   }

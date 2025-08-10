@@ -4,11 +4,17 @@
  * calculating start/end of periods, and chaining multiple date operations.
  */
 
-import * as vscode from 'vscode';
+import {
+  LanguageModelTool,
+  LanguageModelToolInvocationOptions,
+  CancellationToken,
+  LanguageModelToolResult,
+  LanguageModelTextPart,
+} from 'vscode';
 import { IDateQueryParameters } from '../types';
 import { dateQueryCommand } from '../commands';
 
-export class DateQueryTool implements vscode.LanguageModelTool<IDateQueryParameters> {
+export class DateQueryTool implements LanguageModelTool<IDateQueryParameters> {
   /**
    * Invokes the date query tool.
    *
@@ -17,19 +23,16 @@ export class DateQueryTool implements vscode.LanguageModelTool<IDateQueryParamet
    * @returns Language model tool result with date query operation results
    */
   async invoke(
-    options: vscode.LanguageModelToolInvocationOptions<IDateQueryParameters>,
-    _token: vscode.CancellationToken,
-  ) {
+    options: LanguageModelToolInvocationOptions<IDateQueryParameters>,
+    _token: CancellationToken,
+  ): Promise<LanguageModelToolResult> {
     try {
       const params = options.input;
       const result = dateQueryCommand(params);
-      return new vscode.LanguageModelToolResult([
-        new vscode.LanguageModelTextPart(JSON.stringify(result)),
-      ]);
-    } catch (error) {
-      return new vscode.LanguageModelToolResult([
-        new vscode.LanguageModelTextPart(`Error: ${error}`),
-      ]);
+      return new LanguageModelToolResult([new LanguageModelTextPart(JSON.stringify(result))]);
+    } catch (_error) {
+      void this.constructor.name;
+      return new LanguageModelToolResult([new LanguageModelTextPart(`Error: ${_error}`)]);
     }
   }
 }

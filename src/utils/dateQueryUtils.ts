@@ -54,33 +54,37 @@ export function getPreviousWeekday(startDate: Date, targetWeekday: string): Date
  * @param weekStart - Week start day (Monday or Sunday)
  * @returns Date representing the start of the period
  */
-export function getStartOfPeriod(date: Date, period: string, weekStart: string = 'Monday'): Date {
+export function getStartOfPeriod(date: Date, period: string, weekStart = 'Monday'): Date {
   const result = new Date(date);
 
   switch (period) {
     case 'day':
       result.setHours(0, 0, 0, 0);
       break;
-    case 'week':
+    case 'week': {
       const startDay = weekStart === 'Sunday' ? 0 : 1;
       const currentDay = result.getDay();
-      let daysToSubtract = (currentDay - startDay + 7) % 7;
+      const daysToSubtract = (currentDay - startDay + 7) % 7;
       result.setDate(result.getDate() - daysToSubtract);
       result.setHours(0, 0, 0, 0);
       break;
+    }
     case 'month':
       result.setDate(1);
       result.setHours(0, 0, 0, 0);
       break;
-    case 'quarter':
+    case 'quarter': {
       const quarterStartMonth = Math.floor(result.getMonth() / 3) * 3;
       result.setMonth(quarterStartMonth, 1);
       result.setHours(0, 0, 0, 0);
       break;
+    }
     case 'year':
       result.setMonth(0, 1);
       result.setHours(0, 0, 0, 0);
       break;
+    default:
+      throw new Error(`getEndOfPeriod: Unsupported period: ${period}`);
   }
 
   return result;
@@ -94,32 +98,36 @@ export function getStartOfPeriod(date: Date, period: string, weekStart: string =
  * @param weekStart - Week start day (Monday or Sunday)
  * @returns Date representing the end of the period
  */
-export function getEndOfPeriod(date: Date, period: string, weekStart: string = 'Monday'): Date {
+export function getEndOfPeriod(date: Date, period: string, weekStart = 'Monday'): Date {
   const result = new Date(date);
 
   switch (period) {
     case 'day':
       result.setHours(23, 59, 59, 999);
       break;
-    case 'week':
+    case 'week': {
       const startOfWeek = getStartOfPeriod(date, 'week', weekStart);
       result.setTime(startOfWeek.getTime());
       result.setDate(result.getDate() + 6);
       result.setHours(23, 59, 59, 999);
       break;
+    }
     case 'month':
       result.setMonth(result.getMonth() + 1, 0);
       result.setHours(23, 59, 59, 999);
       break;
-    case 'quarter':
+    case 'quarter': {
       const quarterStartMonth = Math.floor(result.getMonth() / 3) * 3;
       result.setMonth(quarterStartMonth + 3, 0);
       result.setHours(23, 59, 59, 999);
       break;
+    }
     case 'year':
       result.setMonth(11, 31);
       result.setHours(23, 59, 59, 999);
       break;
+    default:
+      throw new Error(`Unsupported period: ${period}`);
   }
 
   return result;

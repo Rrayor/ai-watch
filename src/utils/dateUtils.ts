@@ -9,12 +9,10 @@
  * @returns Formatted UTC string in 'YYYY-MM-DD HH:mm:ss UTC' format
  */
 export function formatUTC(date: Date): string {
-  return (
-    date
-      .toISOString()
-      .replace('T', ' ')
-      .replace(/\.\d{3}Z$/, '') + ' UTC'
-  );
+  return `${date
+    .toISOString()
+    .replace('T', ' ')
+    .replace(/\.\d{3}Z$/, '')} UTC`;
 }
 
 /**
@@ -52,7 +50,15 @@ export function parseISOString(dateString: string): Date {
  * @param to - End date
  * @returns Object containing the difference in days, hours, minutes, and seconds
  */
-export function calculateDateDifference(from: Date, to: Date) {
+export function calculateDateDifference(
+  from: Date,
+  to: Date,
+): {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+} {
   const diffMs = to.getTime() - from.getTime();
   const absDiffMs = Math.abs(diffMs);
 

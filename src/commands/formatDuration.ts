@@ -2,7 +2,7 @@
  * Command implementation for formatting duration values.
  */
 
-import { FormatDurationOptions } from '../types';
+import { FormatDurationOptions, FormatDurationResult } from '../types';
 import { formatDuration } from '../utils';
 
 /**
@@ -11,7 +11,7 @@ import { formatDuration } from '../utils';
  * @param options - Configuration with duration parameters
  * @returns Object with formatted duration string
  */
-export function formatDurationCommand(options: FormatDurationOptions) {
+export function formatDurationCommand(options: FormatDurationOptions): FormatDurationResult {
   try {
     const fromDate = new Date(options.from);
     const toDate = new Date(options.to);
@@ -26,12 +26,12 @@ export function formatDurationCommand(options: FormatDurationOptions) {
     const formatted = formatDuration(
       diffMs,
       'milliseconds',
-      options.verbosity || 'standard',
-      options.maxUnits || 3,
+      options.verbosity ?? 'standard',
+      options.maxUnits ?? 3,
     );
 
     return { formatted };
-  } catch (error) {
-    return { error: String(error) };
+  } catch (_error) {
+    return { error: String(_error) };
   }
 }

@@ -2,7 +2,7 @@
  * Language Model Tools registration for AI Watch extension.
  */
 
-import * as vscode from 'vscode';
+import { ExtensionContext, lm } from 'vscode';
 import {
   GetCurrentDateTool,
   CalculateDifferenceTool,
@@ -20,23 +20,17 @@ import {
  *
  * @param context - VS Code extension context for managing subscriptions
  */
-export function registerChatTools(context: vscode.ExtensionContext) {
+export function registerChatTools(context: ExtensionContext): void {
+  context.subscriptions.push(lm.registerTool('ai-watch_getCurrentDate', new GetCurrentDateTool()));
   context.subscriptions.push(
-    vscode.lm.registerTool('ai-watch_getCurrentDate', new GetCurrentDateTool()),
+    lm.registerTool('ai-watch_calculateDifference', new CalculateDifferenceTool()),
   );
   context.subscriptions.push(
-    vscode.lm.registerTool('ai-watch_calculateDifference', new CalculateDifferenceTool()),
+    lm.registerTool('ai-watch_convertTimezone', new ConvertTimezoneTool()),
   );
-  context.subscriptions.push(
-    vscode.lm.registerTool('ai-watch_convertTimezone', new ConvertTimezoneTool()),
-  );
-  context.subscriptions.push(vscode.lm.registerTool('ai-watch_addTime', new AddTimeTool()));
-  context.subscriptions.push(
-    vscode.lm.registerTool('ai-watch_subtractTime', new SubtractTimeTool()),
-  );
-  context.subscriptions.push(
-    vscode.lm.registerTool('ai-watch_formatDuration', new FormatDurationTool()),
-  );
-  context.subscriptions.push(vscode.lm.registerTool('ai-watch_businessDay', new BusinessDayTool()));
-  context.subscriptions.push(vscode.lm.registerTool('ai-watch_dateQuery', new DateQueryTool()));
+  context.subscriptions.push(lm.registerTool('ai-watch_addTime', new AddTimeTool()));
+  context.subscriptions.push(lm.registerTool('ai-watch_subtractTime', new SubtractTimeTool()));
+  context.subscriptions.push(lm.registerTool('ai-watch_formatDuration', new FormatDurationTool()));
+  context.subscriptions.push(lm.registerTool('ai-watch_businessDay', new BusinessDayTool()));
+  context.subscriptions.push(lm.registerTool('ai-watch_dateQuery', new DateQueryTool()));
 }

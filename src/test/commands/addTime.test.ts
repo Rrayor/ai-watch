@@ -9,6 +9,18 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { addTimeCommand } from '../../commands/addTime';
+import { AddTimeResult } from '../../types';
+
+/**
+ * Type guard to check if AddTimeResult is successful (not an error)
+ */
+function isSuccessResult(result: AddTimeResult): result is AddTimeResult & {
+  iso: string;
+  utc: string;
+  baseTime: string;
+} {
+  return !('error' in result) && !!result.iso && !!result.utc && !!result.baseTime;
+}
 
 suite('addTime Command Tests', () => {
   test('should add hours and minutes correctly', async () => {
@@ -50,6 +62,8 @@ suite('addTime Command Tests', () => {
     assert.ok(result.utc);
 
     // Verify dates are valid
+    assert.ok(result.baseTime, 'baseTime should be defined');
+    assert.ok(result.iso, 'iso should be defined');
     const originalDate = new Date(result.baseTime);
     const resultDate = new Date(result.iso);
 
@@ -73,9 +87,14 @@ suite('addTime Command Tests', () => {
     const result = addTimeCommand(options);
 
     assert.ok(result);
+    if (!isSuccessResult(result)) {
+      assert.fail(`Unexpected error: ${result.error || 'Unknown error'}`);
+    }
+
     assert.ok(result.iso);
     assert.ok(result.local);
     assert.ok(result.utc);
+    assert.ok(result.baseTime);
 
     // Verify all time units are included in calculation
     const originalDate = new Date(result.baseTime);
@@ -99,7 +118,9 @@ suite('addTime Command Tests', () => {
     const result = addTimeCommand(options);
 
     assert.ok(result);
-    assert.ok(result.iso);
+    if (!isSuccessResult(result)) {
+      assert.fail(`Unexpected error: ${result.error || 'Unknown error'}`);
+    }
 
     // Result should be the same as original time
     const originalDate = new Date(result.baseTime);
@@ -119,7 +140,9 @@ suite('addTime Command Tests', () => {
     const result = addTimeCommand(options);
 
     assert.ok(result);
-    assert.ok(result.iso);
+    if (!isSuccessResult(result)) {
+      assert.fail(`Unexpected error: ${result.error || 'Unknown error'}`);
+    }
 
     // Result should be earlier than original
     const originalDate = new Date(result.baseTime);
@@ -142,10 +165,14 @@ suite('addTime Command Tests', () => {
     const result = await vscode.commands.executeCommand('ai-watch.addTime', options);
 
     assert.ok(result);
-    assert.ok((result as any).iso);
-    assert.ok((result as any).local);
-    assert.ok((result as any).utc);
-    assert.ok((result as any).baseTime);
+    const typedResult = result as AddTimeResult;
+    if (!isSuccessResult(typedResult)) {
+      assert.fail(`Unexpected error: ${typedResult.error || 'Unknown error'}`);
+    }
+    assert.ok(typedResult.iso);
+    assert.ok(typedResult.local);
+    assert.ok(typedResult.utc);
+    assert.ok(typedResult.baseTime);
   });
 
   test('should include proper metadata in result', async () => {
@@ -157,6 +184,7 @@ suite('addTime Command Tests', () => {
     const result = addTimeCommand(options);
 
     assert.ok(result);
+    assert.ok(isSuccessResult(result), 'Result should be successful');
 
     // Should include all required fields
     assert.ok('iso' in result);
@@ -184,7 +212,9 @@ suite('addTime Command Tests', () => {
     const result = addTimeCommand(options);
 
     assert.ok(result);
-    assert.ok(result.iso);
+    if (!isSuccessResult(result)) {
+      assert.fail(`Unexpected error: ${result.error || 'Unknown error'}`);
+    }
 
     // Should handle large values without error
     const originalDate = new Date(result.baseTime);
@@ -203,6 +233,9 @@ suite('addTime Command Tests', () => {
     const result = addTimeCommand(options);
 
     assert.ok(result);
+    if (!isSuccessResult(result)) {
+      assert.fail(`Unexpected error: ${result.error || 'Unknown error'}`);
+    }
 
     // ISO should always be in UTC (end with Z)
     assert.ok(result.iso.endsWith('Z'));

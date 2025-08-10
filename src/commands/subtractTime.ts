@@ -2,8 +2,38 @@
  * Command implementation for subtracting time durations from dates.
  */
 
-import { SubtractTimeOptions } from '../types';
+import { SubtractTimeOptions, SubtractTimeResult } from '../types';
 import { parseISOString, formatUTC, formatInTimezone, getUserTimezone } from '../utils';
+
+// Constant for time calculations
+const DAYS_PER_WEEK = 7;
+
+/**
+ * Subtracts time units from a date
+ */
+function subtractTimeUnits(date: Date, options: SubtractTimeOptions): void {
+  if (options.years) {
+    date.setFullYear(date.getFullYear() - options.years);
+  }
+  if (options.months) {
+    date.setMonth(date.getMonth() - options.months);
+  }
+  if (options.weeks) {
+    date.setDate(date.getDate() - options.weeks * DAYS_PER_WEEK);
+  }
+  if (options.days) {
+    date.setDate(date.getDate() - options.days);
+  }
+  if (options.hours) {
+    date.setHours(date.getHours() - options.hours);
+  }
+  if (options.minutes) {
+    date.setMinutes(date.getMinutes() - options.minutes);
+  }
+  if (options.seconds) {
+    date.setSeconds(date.getSeconds() - options.seconds);
+  }
+}
 
 /**
  * Command function for subtracting time durations from dates.
@@ -11,37 +41,16 @@ import { parseISOString, formatUTC, formatInTimezone, getUserTimezone } from '..
  * @param options - Configuration with time durations to subtract
  * @returns Object with the calculated past date
  */
-export function subtractTimeCommand(options: SubtractTimeOptions) {
+export function subtractTimeCommand(options: SubtractTimeOptions): SubtractTimeResult {
   try {
     // Use provided base time or current time
     const baseDate = options.baseTime ? parseISOString(options.baseTime) : new Date();
 
     // Calculate the new date by subtracting the specified time units
     const newDate = new Date(baseDate);
+    subtractTimeUnits(newDate, options);
 
-    if (options.years) {
-      newDate.setFullYear(newDate.getFullYear() - options.years);
-    }
-    if (options.months) {
-      newDate.setMonth(newDate.getMonth() - options.months);
-    }
-    if (options.weeks) {
-      newDate.setDate(newDate.getDate() - options.weeks * 7);
-    }
-    if (options.days) {
-      newDate.setDate(newDate.getDate() - options.days);
-    }
-    if (options.hours) {
-      newDate.setHours(newDate.getHours() - options.hours);
-    }
-    if (options.minutes) {
-      newDate.setMinutes(newDate.getMinutes() - options.minutes);
-    }
-    if (options.seconds) {
-      newDate.setSeconds(newDate.getSeconds() - options.seconds);
-    }
-
-    const result: any = {
+    const result: SubtractTimeResult = {
       iso: newDate.toISOString(),
       utc: formatUTC(newDate),
       baseTime: baseDate.toISOString(),
@@ -57,13 +66,13 @@ export function subtractTimeCommand(options: SubtractTimeOptions) {
       try {
         result.formatted = formatInTimezone(newDate, options.timezone);
         result.timezone = options.timezone;
-      } catch (error) {
+      } catch {
         result.error = `Invalid timezone: ${options.timezone}`;
       }
     }
 
     return result;
-  } catch (error) {
+  } catch {
     return {
       error: `Invalid base time format. Please use ISO format (e.g., 2025-08-09T13:37:01Z) or omit for current time.`,
     };

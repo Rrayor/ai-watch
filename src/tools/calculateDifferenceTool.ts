@@ -1,15 +1,21 @@
 /**
- * Language Model Tool for calculating differences between two dates.
- * Computes time differences in various units (days, hours, minutes, etc.).
+ * Language Model Tool for calculating time differences between two dates.
+ * Provides detailed breakdown of the time difference in various units.
  */
 
-import * as vscode from 'vscode';
+import {
+  LanguageModelTool,
+  LanguageModelToolInvocationOptions,
+  CancellationToken,
+  LanguageModelToolResult,
+  LanguageModelTextPart,
+  LanguageModelToolInvocationPrepareOptions,
+  MarkdownString,
+} from 'vscode';
 import { ICalculateDifferenceParameters } from '../types';
 import { parseISOString, calculateDateDifference } from '../utils';
 
-export class CalculateDifferenceTool
-  implements vscode.LanguageModelTool<ICalculateDifferenceParameters>
-{
+export class CalculateDifferenceTool implements LanguageModelTool<ICalculateDifferenceParameters> {
   /**
    * Invokes the calculate difference tool.
    *
@@ -18,9 +24,9 @@ export class CalculateDifferenceTool
    * @returns Language model tool result with date difference information
    */
   async invoke(
-    options: vscode.LanguageModelToolInvocationOptions<ICalculateDifferenceParameters>,
-    _token: vscode.CancellationToken,
-  ) {
+    options: LanguageModelToolInvocationOptions<ICalculateDifferenceParameters>,
+    _token: CancellationToken,
+  ): Promise<LanguageModelToolResult> {
     const params = options.input;
 
     try {
@@ -36,21 +42,25 @@ export class CalculateDifferenceTool
         `- Minutes: ${result.minutes}\n` +
         `- Seconds: ${result.seconds}`;
 
-      return new vscode.LanguageModelToolResult([new vscode.LanguageModelTextPart(message)]);
-    } catch (error) {
-      const errorMessage = `Error calculating difference: Invalid date format. Please use ISO format (e.g., 2025-08-09T13:37:01Z)`;
-      return new vscode.LanguageModelToolResult([new vscode.LanguageModelTextPart(errorMessage)]);
+      return new LanguageModelToolResult([new LanguageModelTextPart(message)]);
+    } catch (_error) {
+      void this.constructor.name;
+      return new LanguageModelToolResult([new LanguageModelTextPart(`Error: ${_error}`)]);
     }
   }
 
   async prepareInvocation(
-    options: vscode.LanguageModelToolInvocationPrepareOptions<ICalculateDifferenceParameters>,
-    _token: vscode.CancellationToken,
-  ) {
+    options: LanguageModelToolInvocationPrepareOptions<ICalculateDifferenceParameters>,
+    _token: CancellationToken,
+  ): Promise<{
+    invocationMessage: string;
+    confirmationMessages: { title: string; message: MarkdownString };
+  }> {
     const params = options.input;
+    void this.constructor.name;
     const confirmationMessages = {
       title: 'Calculate time difference',
-      message: new vscode.MarkdownString(
+      message: new MarkdownString(
         `Calculate the time difference between ${params.from} and ${params.to}?`,
       ),
     };

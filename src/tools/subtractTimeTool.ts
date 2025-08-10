@@ -3,11 +3,43 @@
  * Subtracts specified amounts of time (years, months, weeks, days, hours, minutes, seconds) from a base date.
  */
 
-import * as vscode from 'vscode';
+import {
+  LanguageModelTool,
+  LanguageModelToolInvocationOptions,
+  CancellationToken,
+  LanguageModelToolResult,
+  LanguageModelTextPart,
+  LanguageModelToolInvocationPrepareOptions,
+  PreparedToolInvocation,
+  MarkdownString,
+} from 'vscode';
 import { ISubtractTimeParameters } from '../types';
 import { subtractTimeCommand } from '../commands';
 
-export class SubtractTimeTool implements vscode.LanguageModelTool<ISubtractTimeParameters> {
+export class SubtractTimeTool implements LanguageModelTool<ISubtractTimeParameters> {
+  /**
+   * Builds duration description from parameters
+   */
+  private static buildDurationParts(params: ISubtractTimeParameters): string[] {
+    const parts: string[] = [];
+    const timeUnits = [
+      { value: params.years, unit: 'year' },
+      { value: params.months, unit: 'month' },
+      { value: params.weeks, unit: 'week' },
+      { value: params.days, unit: 'day' },
+      { value: params.hours, unit: 'hour' },
+      { value: params.minutes, unit: 'minute' },
+      { value: params.seconds, unit: 'second' },
+    ];
+
+    timeUnits.forEach(({ value, unit }) => {
+      if (value) {
+        parts.push(`${value} ${unit}${value !== 1 ? 's' : ''}`);
+      }
+    });
+
+    return parts;
+  }
   /**
    * Invokes the subtract time tool.
    *
@@ -16,15 +48,14 @@ export class SubtractTimeTool implements vscode.LanguageModelTool<ISubtractTimeP
    * @returns Language model tool result with the calculated past date
    */
   async invoke(
-    options: vscode.LanguageModelToolInvocationOptions<ISubtractTimeParameters>,
-    _token: vscode.CancellationToken,
-  ): Promise<vscode.LanguageModelToolResult> {
+    options: LanguageModelToolInvocationOptions<ISubtractTimeParameters>,
+    _token: CancellationToken,
+  ): Promise<LanguageModelToolResult> {
     try {
+      void this.constructor.name;
       const result = subtractTimeCommand(options.input);
       if (result.error) {
-        return new vscode.LanguageModelToolResult([
-          new vscode.LanguageModelTextPart(`Error: ${result.error}`),
-        ]);
+        return new LanguageModelToolResult([new LanguageModelTextPart(`Error: ${result.error}`)]);
       }
 
       let message = `Time calculation result:\n- Base time: ${result.baseTime}\n- Result: ${result.iso}\n- UTC format: ${result.utc}\n- Local time: ${result.local} (${result.localTimezone})`;
@@ -32,50 +63,29 @@ export class SubtractTimeTool implements vscode.LanguageModelTool<ISubtractTimeP
         message += `\n- ${result.timezone}: ${result.formatted}`;
       }
 
-      return new vscode.LanguageModelToolResult([new vscode.LanguageModelTextPart(message)]);
-    } catch (error) {
-      return new vscode.LanguageModelToolResult([
-        new vscode.LanguageModelTextPart('Error: Failed to subtract time'),
+      return new LanguageModelToolResult([new LanguageModelTextPart(message)]);
+    } catch {
+      return new LanguageModelToolResult([
+        new LanguageModelTextPart('Error: Failed to subtract time'),
       ]);
     }
   }
 
   async prepareInvocation(
-    options: vscode.LanguageModelToolInvocationPrepareOptions<ISubtractTimeParameters>,
-    _token: vscode.CancellationToken,
-  ): Promise<vscode.PreparedToolInvocation> {
+    options: LanguageModelToolInvocationPrepareOptions<ISubtractTimeParameters>,
+    _token: CancellationToken,
+  ): Promise<PreparedToolInvocation> {
     const params = options.input;
+    void this.constructor.name;
 
     // Build duration description for confirmation
-    const durationParts = [];
-    if (params.years) {
-      durationParts.push(`${params.years} year${params.years !== 1 ? 's' : ''}`);
-    }
-    if (params.months) {
-      durationParts.push(`${params.months} month${params.months !== 1 ? 's' : ''}`);
-    }
-    if (params.weeks) {
-      durationParts.push(`${params.weeks} week${params.weeks !== 1 ? 's' : ''}`);
-    }
-    if (params.days) {
-      durationParts.push(`${params.days} day${params.days !== 1 ? 's' : ''}`);
-    }
-    if (params.hours) {
-      durationParts.push(`${params.hours} hour${params.hours !== 1 ? 's' : ''}`);
-    }
-    if (params.minutes) {
-      durationParts.push(`${params.minutes} minute${params.minutes !== 1 ? 's' : ''}`);
-    }
-    if (params.seconds) {
-      durationParts.push(`${params.seconds} second${params.seconds !== 1 ? 's' : ''}`);
-    }
-
+    const durationParts = SubtractTimeTool.buildDurationParts(params);
     const durationText = durationParts.length > 0 ? durationParts.join(', ') : 'no time';
-    const baseText = params.baseTime ? params.baseTime : 'current time';
+    const baseText = params.baseTime ?? 'current time';
 
     const confirmationMessages = {
       title: 'Subtract time duration',
-      message: new vscode.MarkdownString(`Subtract ${durationText} from ${baseText}?`),
+      message: new MarkdownString(`Subtract ${durationText} from ${baseText}?`),
     };
 
     return {

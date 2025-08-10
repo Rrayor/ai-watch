@@ -15,6 +15,28 @@ import { formatDurationCommand } from '../../commands/formatDuration';
 import { businessDayCommand } from '../../commands/businessDay';
 import { dateQueryCommand } from '../../commands/dateQuery';
 
+// Type guard functions for better TypeScript checking
+function isSubtractTimeSuccess(result: unknown): result is {
+  iso: string;
+  utc: string;
+  local: string;
+  baseTime: string;
+} {
+  return (
+    result !== null &&
+    typeof result === 'object' &&
+    'iso' in result &&
+    typeof result.iso === 'string' &&
+    'utc' in result &&
+    'local' in result &&
+    'baseTime' in result
+  );
+}
+
+function isDateQuerySuccess(result: unknown): result is { date?: string; dates?: string[] } {
+  return result !== null && typeof result === 'object' && ('date' in result || 'dates' in result);
+}
+
 suite('All Command Functions Tests', () => {
   // Subtract Time Command Tests
   suite('subtractTime Command', () => {
@@ -54,14 +76,20 @@ suite('All Command Functions Tests', () => {
       const result = subtractTimeCommand(options);
 
       assert.ok(result);
-      assert.ok(result.iso);
+      if ('error' in result) {
+        assert.fail(`Command returned error: ${result.error}`);
+      } else if (!isSubtractTimeSuccess(result)) {
+        assert.fail('Expected subtract time to return valid result');
+      } else {
+        assert.ok(result.iso);
 
-      // Should be 10 days, 4.5 hours earlier
-      const baseDate = new Date(result.baseTime);
-      const resultDate = new Date(result.iso);
-      const diffMs = baseDate.getTime() - resultDate.getTime();
-      const diffDays = diffMs / (1000 * 60 * 60 * 24);
-      assert.ok(Math.abs(diffDays - 10.1875) < 0.1); // 10 days + 4.5 hours
+        // Should be 10 days, 4.5 hours earlier
+        const baseDate = new Date(result.baseTime);
+        const resultDate = new Date(result.iso);
+        const diffMs = baseDate.getTime() - resultDate.getTime();
+        const diffDays = diffMs / (1000 * 60 * 60 * 24);
+        assert.ok(Math.abs(diffDays - 10.1875) < 0.1); // 10 days + 4.5 hours
+      }
     });
 
     test('should work with custom base time', () => {
@@ -74,12 +102,18 @@ suite('All Command Functions Tests', () => {
       const result = subtractTimeCommand(options);
 
       assert.ok(result);
-      // baseTime gets normalized to include milliseconds
-      assert.strictEqual(result.baseTime, '2025-08-15T12:00:00.000Z');
+      if ('error' in result) {
+        assert.fail(`Command returned error: ${result.error}`);
+      } else if (!isSubtractTimeSuccess(result)) {
+        assert.fail('Expected subtract time to return valid result');
+      } else {
+        // baseTime gets normalized to include milliseconds
+        assert.strictEqual(result.baseTime, '2025-08-15T12:00:00.000Z');
 
-      const expectedDate = new Date('2025-08-15T06:00:00Z');
-      const resultDate = new Date(result.iso);
-      assert.strictEqual(resultDate.getTime(), expectedDate.getTime());
+        const expectedDate = new Date('2025-08-15T06:00:00Z');
+        const resultDate = new Date(result.iso);
+        assert.strictEqual(resultDate.getTime(), expectedDate.getTime());
+      }
     });
   });
 
@@ -415,8 +449,14 @@ suite('All Command Functions Tests', () => {
 
       if ('error' in result) {
         assert.fail(`Command returned error: ${result.error}`);
+      } else if (!isDateQuerySuccess(result)) {
+        assert.fail('Expected date query to return date or dates');
       } else {
-        const resultDate = result.date ? new Date(result.date) : new Date(result.dates![0]);
+        const firstDate = result.date || (result.dates && result.dates[0]);
+        if (!firstDate) {
+          assert.fail('Expected at least one date result');
+        }
+        const resultDate = new Date(firstDate);
         assert.strictEqual(resultDate.getDay(), 5); // Friday
       }
     });
@@ -433,8 +473,14 @@ suite('All Command Functions Tests', () => {
 
       if ('error' in result) {
         assert.fail(`Command returned error: ${result.error}`);
+      } else if (!isDateQuerySuccess(result)) {
+        assert.fail('Expected date query to return date or dates');
       } else {
-        const resultDate = result.date ? new Date(result.date) : new Date(result.dates![0]);
+        const firstDate = result.date || (result.dates && result.dates[0]);
+        if (!firstDate) {
+          assert.fail('Expected at least one date result');
+        }
+        const resultDate = new Date(firstDate);
         assert.strictEqual(resultDate.getDay(), 1); // Monday
       }
     });
@@ -451,8 +497,14 @@ suite('All Command Functions Tests', () => {
 
       if ('error' in result) {
         assert.fail(`Command returned error: ${result.error}`);
+      } else if (!isDateQuerySuccess(result)) {
+        assert.fail('Expected date query to return date or dates');
       } else {
-        const resultDate = result.date ? new Date(result.date) : new Date(result.dates![0]);
+        const firstDate = result.date || (result.dates && result.dates[0]);
+        if (!firstDate) {
+          assert.fail('Expected at least one date result');
+        }
+        const resultDate = new Date(firstDate);
         assert.strictEqual(resultDate.getDay(), 1); // Monday (start of week)
       }
     });
@@ -469,8 +521,14 @@ suite('All Command Functions Tests', () => {
 
       if ('error' in result) {
         assert.fail(`Command returned error: ${result.error}`);
+      } else if (!isDateQuerySuccess(result)) {
+        assert.fail('Expected date query to return date or dates');
       } else {
-        const resultDate = result.date ? new Date(result.date) : new Date(result.dates![0]);
+        const firstDate = result.date || (result.dates && result.dates[0]);
+        if (!firstDate) {
+          assert.fail('Expected at least one date result');
+        }
+        const resultDate = new Date(firstDate);
         assert.strictEqual(resultDate.getDate(), 31); // End of August
         assert.strictEqual(resultDate.getMonth(), 7); // August (0-indexed)
       }
@@ -491,9 +549,15 @@ suite('All Command Functions Tests', () => {
 
       if ('error' in result) {
         assert.fail(`Command returned error: ${result.error}`);
+      } else if (!isDateQuerySuccess(result)) {
+        assert.fail('Expected date query to return date or dates');
       } else {
         assert.ok(result.dates);
         assert.strictEqual(result.dates.length, 2);
+
+        if (!result.dates[0] || !result.dates[1]) {
+          assert.fail('Expected both date results to be present');
+        }
 
         const firstDate = new Date(result.dates[0]);
         const secondDate = new Date(result.dates[1]);
@@ -511,7 +575,7 @@ suite('All Command Functions Tests', () => {
         hours: 2,
       });
       assert.ok(subtractResult);
-      assert.ok((subtractResult as any).iso);
+      assert.ok((subtractResult as { iso: string }).iso);
 
       // Test calculate difference command
       const diffResult = await vscode.commands.executeCommand('ai-watch.calculateDifference', {
@@ -519,7 +583,7 @@ suite('All Command Functions Tests', () => {
         to: '2025-08-09T12:00:00Z',
       });
       assert.ok(diffResult);
-      assert.ok(typeof (diffResult as any).days === 'number');
+      assert.ok(typeof (diffResult as { days: number }).days === 'number');
 
       // Test convert timezone command
       const timezoneResult = await vscode.commands.executeCommand('ai-watch.convertTimezone', {
@@ -527,7 +591,7 @@ suite('All Command Functions Tests', () => {
         toTimezone: 'Asia/Tokyo',
       });
       assert.ok(timezoneResult);
-      assert.ok((timezoneResult as any).formatted);
+      assert.ok((timezoneResult as { formatted: string }).formatted);
 
       // Test format duration command
       const durationResult = await vscode.commands.executeCommand('ai-watch.formatDuration', {
@@ -535,7 +599,7 @@ suite('All Command Functions Tests', () => {
         to: '2025-08-01T04:30:00Z',
       });
       assert.ok(durationResult);
-      assert.ok((durationResult as any).formatted);
+      assert.ok((durationResult as { formatted: string }).formatted);
 
       // Test business day command
       const businessResult = await vscode.commands.executeCommand('ai-watch.businessDay', {
@@ -543,7 +607,7 @@ suite('All Command Functions Tests', () => {
         date: '2025-08-11T10:00:00Z',
       });
       assert.ok(businessResult);
-      assert.ok(typeof (businessResult as any).isBusinessDay === 'boolean');
+      assert.ok(typeof (businessResult as { isBusinessDay: boolean }).isBusinessDay === 'boolean');
 
       // Test date query command
       const queryResult = await vscode.commands.executeCommand('ai-watch.dateQuery', {
@@ -551,7 +615,8 @@ suite('All Command Functions Tests', () => {
         queries: [{ type: 'nextWeekday', weekday: 'friday' }],
       });
       assert.ok(queryResult);
-      assert.ok((queryResult as any).date || (queryResult as any).dates);
+      const queryResultTyped = queryResult as { date?: string; dates?: string[] };
+      assert.ok(queryResultTyped.date || queryResultTyped.dates);
     });
   });
 
@@ -576,7 +641,7 @@ suite('All Command Functions Tests', () => {
 
       // Invalid business day operation
       const invalidBusinessResult = businessDayCommand({
-        operation: 'invalidOperation' as any,
+        operation: 'invalidOperation' as 'isBusinessDay',
         date: '2025-08-11T10:00:00Z',
       });
       assert.ok(invalidBusinessResult);
@@ -586,7 +651,10 @@ suite('All Command Functions Tests', () => {
     test('commands should validate required parameters', () => {
       // Missing required parameters
       try {
-        calculateDifferenceCommand({ from: '2025-08-01T00:00:00Z' } as any);
+        calculateDifferenceCommand({ from: '2025-08-01T00:00:00Z' } as {
+          from: string;
+          to: string;
+        });
         assert.fail('Should have thrown for missing "to" parameter');
       } catch (error) {
         // Expected to throw or return error

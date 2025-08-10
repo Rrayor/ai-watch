@@ -9,7 +9,7 @@
  * @version 1.0.0
  */
 
-import * as vscode from 'vscode';
+import { ExtensionContext } from 'vscode';
 import { registerChatTools, registerCommands } from './registration';
 
 // Export all types for external use
@@ -30,7 +30,7 @@ export * from './utils';
  *
  * @param context - VS Code extension context
  */
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: ExtensionContext): void {
   registerChatTools(context);
   registerCommands(context);
 }
@@ -39,6 +39,6 @@ export function activate(context: vscode.ExtensionContext) {
  * Deactivates the AI Watch extension.
  * Cleanup is handled automatically by VS Code through the context subscriptions.
  */
-export function deactivate() {
+export function deactivate(): void {
   // Cleanup is handled automatically by VS Code through context subscriptions
 }

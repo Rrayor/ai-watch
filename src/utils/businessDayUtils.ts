@@ -4,6 +4,9 @@
 
 import { weekdayToNumber } from './dateUtils';
 
+const SATURDAY_DAY_NUMBER = 6;
+const INVALID_DAY = -1;
+
 /**
  * Parses a business days string and returns an array of day numbers.
  *
@@ -14,6 +17,9 @@ export function parseBusinessDays(businessDaysString: string): number[] {
   // Handle range format like "Mon-Fri"
   if (businessDaysString.includes('-')) {
     const [start, end] = businessDaysString.split('-');
+    if (!start || !end) {
+      throw new Error(`Invalid business days range format: ${businessDaysString}`);
+    }
     const startDay = weekdayToNumber(start.trim());
     const endDay = weekdayToNumber(end.trim());
 
@@ -24,8 +30,8 @@ export function parseBusinessDays(businessDaysString: string): number[] {
         days.push(i);
       }
     } else {
-      // Wrap-around range (e.g., Fri-Mon: 5-1 wraps to [5,6,0,1])
-      for (let i = startDay; i <= 6; i++) {
+      // Wrap around range (e.g., Fri-Mon: 5-1, includes Fri, Sat, Sun, Mon)
+      for (let i = startDay; i <= SATURDAY_DAY_NUMBER; i++) {
         days.push(i);
       }
       for (let i = 0; i <= endDay; i++) {
@@ -41,20 +47,20 @@ export function parseBusinessDays(businessDaysString: string): number[] {
     .map((day) => {
       try {
         return weekdayToNumber(day.trim());
-      } catch (error) {
-        console.warn(`Invalid weekday string "${day.trim()}":`, error);
-        return undefined;
+      } catch (_error) {
+        console.warn(`Invalid weekday string "${day.trim()}":`, _error);
+        return INVALID_DAY; // Invalid day marker
       }
     })
-    .filter((day): day is number => typeof day === 'number');
+    .filter((day) => day >= 0); // Remove invalid days
 }
 
 /**
- * Checks if a date is a business day and not in excluded dates.
+ * Checks if a given date is a business day.
  *
- * @param date - Date to check
- * @param businessDays - Array of business day numbers
- * @param excludedDates - Set of excluded date strings
+ * @param date - The date to check
+ * @param businessDays - Array of business day numbers (0=Sunday, 1=Monday, etc.)
+ * @param excludedDates - Set of excluded date strings in YYYY-MM-DD format
  * @returns True if the date is a business day and not excluded
  */
 export function isBusinessDay(
@@ -63,36 +69,87 @@ export function isBusinessDay(
   excludedDates: Set<string>,
 ): boolean {
   const dayOfWeek = date.getUTCDay();
-  const dateString = date.toISOString().split('T')[0];
+  const [dateString] = date.toISOString().split('T');
+
+  if (!dateString) {
+    throw new Error('Failed to extract date string from ISO format');
+  }
 
   return businessDays.includes(dayOfWeek) && !excludedDates.has(dateString);
 }
 
 /**
- * Adds a specified number of business days to a start date.
+ * Internal helper function to add or subtract business days.
  *
- * @param startDate - Starting date
- * @param days - Number of business days to add (can be negative)
- * @param businessDays - Array of business day numbers
- * @param excludedDates - Set of excluded date strings
- * @returns New date with business days added
+ * @param startDate - The starting date
+ * @param businessDaysToAdd - Number of business days to add (positive) or subtract (negative)
+ * @param businessDays - Array of business day numbers (0=Sunday, 1=Monday, etc.)
+ * @param excludedDates - Set of excluded date strings in YYYY-MM-DD format
+ * @returns The resulting date after adding/subtracting business days
  */
-export function addBusinessDays(
+function adjustBusinessDays(
   startDate: Date,
-  days: number,
+  businessDaysToAdd: number,
   businessDays: number[],
   excludedDates: Set<string>,
 ): Date {
-  const result = new Date(startDate);
-  let daysToAdd = Math.abs(days);
-  const direction = days >= 0 ? 1 : -1;
+  const resultDate = new Date(startDate);
+  const isAdding = businessDaysToAdd > 0;
+  const daysToProcess = Math.abs(businessDaysToAdd);
+  let processedDays = 0;
 
-  while (daysToAdd > 0) {
-    result.setDate(result.getDate() + direction);
-    if (isBusinessDay(result, businessDays, excludedDates)) {
-      daysToAdd--;
+  while (processedDays < daysToProcess) {
+    if (isAdding) {
+      resultDate.setUTCDate(resultDate.getUTCDate() + 1);
+    } else {
+      resultDate.setUTCDate(resultDate.getUTCDate() - 1);
+    }
+
+    if (isBusinessDay(resultDate, businessDays, excludedDates)) {
+      processedDays++;
     }
   }
 
-  return result;
+  return resultDate;
+}
+
+/**
+ * Adds a specified number of business days to a start date.
+ *
+ * @param startDate - The starting date
+ * @param businessDaysToAdd - Number of business days to add
+ * @param businessDays - Array of business day numbers (0=Sunday, 1=Monday, etc.)
+ * @param excludedDates - Set of excluded date strings in YYYY-MM-DD format
+ * @returns The resulting date after adding business days
+ */
+export function addBusinessDays(
+  startDate: Date,
+  businessDaysToAdd: number,
+  businessDays: number[],
+  excludedDates: Set<string>,
+): Date {
+  // Handle negative days by treating them as subtraction
+  if (businessDaysToAdd < 0) {
+    return adjustBusinessDays(startDate, businessDaysToAdd, businessDays, excludedDates);
+  }
+
+  return adjustBusinessDays(startDate, businessDaysToAdd, businessDays, excludedDates);
+}
+
+/**
+ * Subtracts a specified number of business days from a start date.
+ *
+ * @param startDate - The starting date
+ * @param businessDaysToSubtract - Number of business days to subtract
+ * @param businessDays - Array of business day numbers (0=Sunday, 1=Monday, etc.)
+ * @param excludedDates - Set of excluded date strings in YYYY-MM-DD format
+ * @returns The resulting date after subtracting business days
+ */
+export function subtractBusinessDays(
+  startDate: Date,
+  businessDaysToSubtract: number,
+  businessDays: number[],
+  excludedDates: Set<string>,
+): Date {
+  return adjustBusinessDays(startDate, -businessDaysToSubtract, businessDays, excludedDates);
 }

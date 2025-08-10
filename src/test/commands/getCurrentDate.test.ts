@@ -1,5 +1,22 @@
 import * as assert from 'assert';
 import { getCurrentDateCommand } from '../../commands/getCurrentDate';
+import { GetCurrentDateResult } from '../../types';
+
+// Type guard function for getCurrentDate results
+function isGetCurrentDateSuccess(
+  result: unknown,
+): result is GetCurrentDateResult & { iso: string; utc: string; local: string } {
+  return (
+    result !== null &&
+    typeof result === 'object' &&
+    'iso' in result &&
+    typeof result.iso === 'string' &&
+    'utc' in result &&
+    typeof result.utc === 'string' &&
+    'local' in result &&
+    typeof result.local === 'string'
+  );
+}
 
 suite('Get Current Date Command Tests', () => {
   test('getCurrentDateCommand should return basic date information without options', () => {
@@ -124,6 +141,11 @@ suite('Get Current Date Command Tests', () => {
     const result1 = getCurrentDateCommand();
     const result2 = getCurrentDateCommand();
 
+    // Check that both results are valid
+    if (!isGetCurrentDateSuccess(result1) || !isGetCurrentDateSuccess(result2)) {
+      assert.fail('Expected getCurrentDate to return valid date results');
+    }
+
     // Should be very close in time (within 1 second)
     const date1 = new Date(result1.iso);
     const date2 = new Date(result2.iso);
@@ -151,6 +173,10 @@ suite('Get Current Date Command Tests', () => {
 
   test('getCurrentDateCommand should preserve time precision', () => {
     const result = getCurrentDateCommand();
+
+    if (!isGetCurrentDateSuccess(result)) {
+      assert.fail('Expected getCurrentDate to return valid date result');
+    }
 
     // ISO format should include milliseconds
     const isoDate = new Date(result.iso);

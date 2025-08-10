@@ -3,11 +3,38 @@
  * Provides current date/time in various formats and timezones.
  */
 
-import * as vscode from 'vscode';
+import {
+  LanguageModelTool,
+  LanguageModelToolInvocationOptions,
+  CancellationToken,
+  LanguageModelToolResult,
+  LanguageModelTextPart,
+  LanguageModelToolInvocationPrepareOptions,
+  MarkdownString,
+} from 'vscode';
 import { IGetCurrentDateParameters } from '../types';
 import { formatUTC, formatInTimezone, getUserTimezone } from '../utils';
 
-export class GetCurrentDateTool implements vscode.LanguageModelTool<IGetCurrentDateParameters> {
+export class GetCurrentDateTool implements LanguageModelTool<IGetCurrentDateParameters> {
+  /**
+   * Builds the response message from result data
+   */
+  private static buildResponseMessage(
+    result: Record<string, string | undefined>,
+    params: IGetCurrentDateParameters,
+  ): string {
+    let message = `Current date and time:\n- ISO format: ${result['iso']}\n- UTC format: ${result['utc']}\n- Local time: ${result['local']} (${result['localTimezone']})`;
+    if (result['formatted'] && params?.timezone) {
+      message += `\n- ${params.timezone}: ${result['formatted']}`;
+    } else if (result['formatted']) {
+      message += `\n- Formatted: ${result['formatted']}`;
+    }
+    if (result['error']) {
+      message += `\n- Error: ${result['error']}`;
+    }
+    return message;
+  }
+
   /**
    * Invokes the get current date tool.
    *
@@ -16,54 +43,52 @@ export class GetCurrentDateTool implements vscode.LanguageModelTool<IGetCurrentD
    * @returns Language model tool result with current date/time information
    */
   async invoke(
-    options: vscode.LanguageModelToolInvocationOptions<IGetCurrentDateParameters>,
-    _token: vscode.CancellationToken,
-  ) {
+    options: LanguageModelToolInvocationOptions<IGetCurrentDateParameters>,
+    _token: CancellationToken,
+  ): Promise<LanguageModelToolResult> {
+    void this.constructor.name;
     const now = new Date();
     const params = options.input;
 
-    const result: any = {
+    // Build result with current date information
+    const result: Record<string, string | undefined> = {
       iso: now.toISOString(),
       utc: formatUTC(now),
     };
 
     // Always include local timezone info for better context
     const userTimezone = getUserTimezone();
-    result.local = formatInTimezone(now, userTimezone);
-    result.localTimezone = userTimezone;
+    result['local'] = formatInTimezone(now, userTimezone);
+    result['localTimezone'] = userTimezone;
 
+    // Handle timezone and format processing
     if (params?.timezone) {
       try {
-        result.formatted = formatInTimezone(now, params.timezone, params.format);
-        result.timezone = params.timezone;
-      } catch (error) {
-        result.error = `Invalid timezone: ${params.timezone}`;
+        result['formatted'] = formatInTimezone(now, params.timezone, params.format);
+        result['timezone'] = params.timezone;
+      } catch {
+        result['error'] = `Invalid timezone: ${params.timezone}`;
       }
     } else if (params?.format) {
       try {
-        result.formatted = formatInTimezone(now, undefined, params.format);
-      } catch (error) {
-        result.error = `Invalid format: ${params.format}`;
+        result['formatted'] = formatInTimezone(now, undefined, params.format);
+      } catch {
+        result['error'] = `Invalid format: ${params.format}`;
       }
     }
 
-    let message = `Current date and time:\n- ISO format: ${result.iso}\n- UTC format: ${result.utc}\n- Local time: ${result.local} (${result.localTimezone})`;
-    if (result.formatted && params?.timezone) {
-      message += `\n- ${params.timezone}: ${result.formatted}`;
-    } else if (result.formatted) {
-      message += `\n- Formatted: ${result.formatted}`;
-    }
-    if (result.error) {
-      message += `\n- Error: ${result.error}`;
-    }
-
-    return new vscode.LanguageModelToolResult([new vscode.LanguageModelTextPart(message)]);
+    const message = GetCurrentDateTool.buildResponseMessage(result, params);
+    return new LanguageModelToolResult([new LanguageModelTextPart(message)]);
   }
 
   async prepareInvocation(
-    options: vscode.LanguageModelToolInvocationPrepareOptions<IGetCurrentDateParameters>,
-    _token: vscode.CancellationToken,
-  ) {
+    options: LanguageModelToolInvocationPrepareOptions<IGetCurrentDateParameters>,
+    _token: CancellationToken,
+  ): Promise<{
+    invocationMessage: string;
+    confirmationMessages: { title: string; message: MarkdownString };
+  }> {
+    void this.constructor.name;
     const params = options.input;
     let title = 'Get current date and time';
     let message = 'Get the current date and time';
@@ -82,7 +107,7 @@ export class GetCurrentDateTool implements vscode.LanguageModelTool<IGetCurrentD
 
     const confirmationMessages = {
       title,
-      message: new vscode.MarkdownString(message + '?'),
+      message: new MarkdownString(`${message}?`),
     };
 
     return {

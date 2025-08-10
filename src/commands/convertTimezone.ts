@@ -2,7 +2,7 @@
  * Command implementation for converting times between timezones.
  */
 
-import { ConvertTimezoneOptions } from '../types';
+import { ConvertTimezoneOptions, ConvertTimezoneResult } from '../types';
 import { parseISOString, formatInTimezone } from '../utils';
 
 /**
@@ -11,21 +11,20 @@ import { parseISOString, formatInTimezone } from '../utils';
  * @param options - Configuration with date and target timezone
  * @returns Object with timezone conversion results
  */
-export function convertTimezoneCommand(options: ConvertTimezoneOptions) {
+export function convertTimezoneCommand(options: ConvertTimezoneOptions): ConvertTimezoneResult {
   try {
     const date = parseISOString(options.date);
     // Default fromTimezone to UTC if not specified
-    const fromTz = options.fromTimezone || 'UTC';
+    const fromTz = options.fromTimezone ?? 'UTC';
     const formatted = formatInTimezone(date, options.toTimezone);
 
     return {
-      formatted,
-      fromTimezone: fromTz,
-      toTimezone: options.toTimezone,
       iso: date.toISOString(),
-      originalISO: options.date, // Keep original input for reference
+      formatted,
+      toTimezone: options.toTimezone,
+      fromTimezone: fromTz,
     };
-  } catch (error) {
+  } catch {
     return {
       error: `Invalid date format or timezone. Please use ISO format for date and valid IANA timezone.`,
     };

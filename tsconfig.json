@@ -38,6 +38,8 @@
 	"exclude": [
 		"node_modules",
 		"out",
-		"dist"
+		"dist",
+		"src/test/**/*",
+		"src/**/*.test.ts"
 	]
 }

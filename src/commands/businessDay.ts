@@ -2,8 +2,25 @@
  * Command implementation for business day operations.
  */
 
-import { BusinessDayOptions } from '../types';
-import { parseISOString, addBusinessDays } from '../utils';
+import { BusinessDayOptions, BusinessDayResult } from '../types';
+import { parseISOString, addBusinessDays, subtractBusinessDays } from '../utils';
+
+// Constants for business day calculations
+const MONDAY = 1;
+const TUESDAY = 2;
+const WEDNESDAY = 3;
+const THURSDAY = 4;
+const FRIDAY = 5;
+const STANDARD_BUSINESS_DAYS = [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY];
+const WEEKDAY_NAMES = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
 
 /**
  * Command function for business day operations.
@@ -11,20 +28,22 @@ import { parseISOString, addBusinessDays } from '../utils';
  * @param options - Configuration with business day operation details
  * @returns Object with business day operation results
  */
-export function businessDayCommand(options: BusinessDayOptions) {
+export function businessDayCommand(options: BusinessDayOptions): BusinessDayResult {
   try {
     const date = parseISOString(options.date);
 
     switch (options.operation) {
       case 'isBusinessDay': {
-        const isBusinessDay = date.getDay() >= 1 && date.getDay() <= 5;
+        const isBusinessDay = date.getDay() >= MONDAY && date.getDay() <= FRIDAY;
+        const weekday = WEEKDAY_NAMES[date.getDay()];
+        if (!weekday) {
+          return { error: 'Invalid date: unable to determine weekday' };
+        }
         return {
           date: options.date,
-          operation: options.operation,
+          operation: 'isBusinessDay',
           isBusinessDay,
-          weekday: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][
-            date.getDay()
-          ],
+          weekday,
         };
       }
 
@@ -32,12 +51,13 @@ export function businessDayCommand(options: BusinessDayOptions) {
         if (!options.days) {
           return { error: 'Days parameter required for addBusinessDays operation' };
         }
-        const result = addBusinessDays(date, options.days, [1, 2, 3, 4, 5], new Set());
+        const result = addBusinessDays(date, options.days, STANDARD_BUSINESS_DAYS, new Set());
         return {
           date: options.date,
-          operation: options.operation,
-          days: options.days,
+          operation: 'addBusinessDays',
           result: result.toISOString(),
+          days: options.days,
+          businessDays: 'Monday to Friday',
         };
       }
 
@@ -45,12 +65,13 @@ export function businessDayCommand(options: BusinessDayOptions) {
         if (!options.days) {
           return { error: 'Days parameter required for subtractBusinessDays operation' };
         }
-        const result = addBusinessDays(date, -options.days, [1, 2, 3, 4, 5], new Set());
+        const result = subtractBusinessDays(date, options.days, STANDARD_BUSINESS_DAYS, new Set());
         return {
           date: options.date,
-          operation: options.operation,
-          days: options.days,
+          operation: 'subtractBusinessDays',
           result: result.toISOString(),
+          days: options.days,
+          businessDays: 'Monday to Friday',
         };
       }
 
@@ -59,7 +80,7 @@ export function businessDayCommand(options: BusinessDayOptions) {
           error: 'Invalid operation. Use isBusinessDay, addBusinessDays, or subtractBusinessDays',
         };
     }
-  } catch (error) {
-    return { error: String(error) };
+  } catch (_error) {
+    return { error: String(_error) };
   }
 }

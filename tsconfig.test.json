@@ -12,7 +12,6 @@
 		"noUncheckedIndexedAccess": false
 	},
 	"include": [
-		"src/**/*.test.ts",
 		"src/test/**/*"
 	],
 	"exclude": [

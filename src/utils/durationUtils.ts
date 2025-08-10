@@ -2,6 +2,155 @@
  * Duration formatting utility functions for AI Watch extension.
  */
 
+// Constants for time conversions
+const SECONDS_PER_MINUTE = 60;
+const SECONDS_PER_HOUR = 3600;
+const SECONDS_PER_DAY = 86400;
+const DAYS_PER_YEAR = 365;
+const HOURS_PER_DAY = 24;
+const SECONDS_PER_YEAR = DAYS_PER_YEAR * HOURS_PER_DAY * SECONDS_PER_HOUR;
+const MILLISECONDS_PER_SECOND = 1000;
+const DEFAULT_MAX_UNITS = 3;
+
+/**
+ * Converts duration value to seconds based on unit
+ */
+function convertToSeconds(value: number, unit: string): number {
+  switch (unit) {
+    case 'milliseconds':
+      return value / MILLISECONDS_PER_SECOND;
+    case 'minutes':
+      return value * SECONDS_PER_MINUTE;
+    case 'hours':
+      return value * SECONDS_PER_HOUR;
+    case 'days':
+      return value * SECONDS_PER_DAY;
+    case 'seconds':
+    default:
+      return value;
+  }
+}
+
+/**
+ * Calculates time components from total seconds
+ */
+function calculateTimeComponents(absSeconds: number): {
+  years: number;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+} {
+  const years = Math.floor(absSeconds / SECONDS_PER_YEAR);
+  const days = Math.floor((absSeconds % SECONDS_PER_YEAR) / SECONDS_PER_DAY);
+  const hours = Math.floor((absSeconds % SECONDS_PER_DAY) / SECONDS_PER_HOUR);
+  const minutes = Math.floor((absSeconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
+  const seconds = Math.floor(absSeconds % SECONDS_PER_MINUTE);
+
+  return { years, days, hours, minutes, seconds };
+}
+
+/**
+ * Formats time components for compact display
+ */
+function formatCompactComponents(components: {
+  years: number;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}): string[] {
+  const { years, days, hours, minutes, seconds } = components;
+  const parts = [];
+
+  if (years > 0) parts.push(`${years}y`);
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0) parts.push(`${hours}h`);
+  if (minutes > 0) parts.push(`${minutes}m`);
+  if (seconds > 0) parts.push(`${seconds}s`);
+
+  return parts;
+}
+
+/**
+ * Formats time components for verbose display
+ */
+function formatVerboseComponents(components: {
+  years: number;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}): string[] {
+  const { years, days, hours, minutes, seconds } = components;
+  const parts = [];
+
+  if (years > 0) parts.push(`${years} ${years === 1 ? 'year' : 'years'}`);
+  if (days > 0) parts.push(`${days} ${days === 1 ? 'day' : 'days'}`);
+  if (hours > 0) parts.push(`${hours} ${hours === 1 ? 'hour' : 'hours'}`);
+
+  return parts.concat(formatVerboseTimeMinutes(minutes, seconds));
+}
+
+/**
+ * Helper function for formatting minutes and seconds in verbose mode
+ */
+function formatVerboseTimeMinutes(minutes: number, seconds: number): string[] {
+  const parts = [];
+
+  if (minutes > 0) parts.push(`${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`);
+  if (seconds > 0) parts.push(`${seconds} ${seconds === 1 ? 'second' : 'seconds'}`);
+
+  return parts;
+}
+
+/**
+ * Formats time components for standard display
+ */
+function formatStandardComponents(components: {
+  years: number;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}): string[] {
+  const { years, days, hours, minutes, seconds } = components;
+  const parts = [];
+
+  if (years > 0) parts.push(`${years} years`);
+  if (days > 0) parts.push(`${days} days`);
+  if (hours > 0) parts.push(`${hours} hours`);
+  if (minutes > 0) parts.push(`${minutes} minutes`);
+  if (seconds > 0) parts.push(`${seconds} seconds`);
+
+  return parts;
+}
+
+/**
+ * Formats time components based on verbosity
+ */
+function formatTimeComponents(
+  components: { years: number; days: number; hours: number; minutes: number; seconds: number },
+  verbosity: string,
+): string[] {
+  if (verbosity === 'compact') {
+    return formatCompactComponents(components);
+  } else if (verbosity === 'verbose') {
+    return formatVerboseComponents(components);
+  }
+  return formatStandardComponents(components);
+}
+
+/**
+ * Joins formatted parts based on verbosity
+ */
+function joinFormattedParts(parts: string[], verbosity: string): string {
+  if (verbosity === 'verbose' && parts.length > 1) {
+    return `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`;
+  }
+  return parts.join(verbosity === 'compact' ? ' ' : ', ');
+}
+
 /**
  * Formats a duration value into a human-readable string.
  * Note: This function preserves the sign of the duration value.
@@ -17,107 +166,23 @@
 export function formatDuration(
   value: number,
   unit: string,
-  verbosity: string = 'standard',
-  maxUnits: number = 3,
+  verbosity = 'standard',
+  maxUnits = DEFAULT_MAX_UNITS,
 ): string {
-  // Convert everything to seconds first
-  let totalSeconds: number;
-
-  switch (unit) {
-    case 'milliseconds':
-      totalSeconds = value / 1000;
-      break;
-    case 'minutes':
-      totalSeconds = value * 60;
-      break;
-    case 'hours':
-      totalSeconds = value * 3600;
-      break;
-    case 'days':
-      totalSeconds = value * 86400;
-      break;
-    case 'seconds':
-    default:
-      totalSeconds = value;
-      break;
-  }
-
+  const totalSeconds = convertToSeconds(value, unit);
   const absSeconds = Math.abs(totalSeconds);
 
   if (absSeconds === 0) {
-    return '0 seconds';
+    return verbosity === 'compact' ? '0s' : '0 seconds';
   }
 
-  const years = Math.floor(absSeconds / (365 * 24 * 3600));
-  const days = Math.floor((absSeconds % (365 * 24 * 3600)) / (24 * 3600));
-  const hours = Math.floor((absSeconds % (24 * 3600)) / 3600);
-  const minutes = Math.floor((absSeconds % 3600) / 60);
-  const seconds = Math.floor(absSeconds % 60);
-
-  const parts = [];
-
-  if (verbosity === 'compact') {
-    if (years > 0) {
-      parts.push(`${years}y`);
-    }
-    if (days > 0) {
-      parts.push(`${days}d`);
-    }
-    if (hours > 0) {
-      parts.push(`${hours}h`);
-    }
-    if (minutes > 0) {
-      parts.push(`${minutes}m`);
-    }
-    if (seconds > 0) {
-      parts.push(`${seconds}s`);
-    }
-  } else if (verbosity === 'verbose') {
-    if (years > 0) {
-      parts.push(`${years} ${years === 1 ? 'year' : 'years'}`);
-    }
-    if (days > 0) {
-      parts.push(`${days} ${days === 1 ? 'day' : 'days'}`);
-    }
-    if (hours > 0) {
-      parts.push(`${hours} ${hours === 1 ? 'hour' : 'hours'}`);
-    }
-    if (minutes > 0) {
-      parts.push(`${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`);
-    }
-    if (seconds > 0) {
-      parts.push(`${seconds} ${seconds === 1 ? 'second' : 'seconds'}`);
-    }
-  } else {
-    // standard
-    if (years > 0) {
-      parts.push(`${years} years`);
-    }
-    if (days > 0) {
-      parts.push(`${days} days`);
-    }
-    if (hours > 0) {
-      parts.push(`${hours} hours`);
-    }
-    if (minutes > 0) {
-      parts.push(`${minutes} minutes`);
-    }
-    if (seconds > 0) {
-      parts.push(`${seconds} seconds`);
-    }
-  }
-
-  // Limit to maxUnits
+  const components = calculateTimeComponents(absSeconds);
+  const parts = formatTimeComponents(components, verbosity);
   const limitedParts = parts.slice(0, maxUnits);
 
   if (limitedParts.length === 0) {
     return verbosity === 'compact' ? '0s' : '0 seconds';
   }
 
-  const result =
-    verbosity === 'verbose' && limitedParts.length > 1
-      ? limitedParts.slice(0, -1).join(', ') + ' and ' + limitedParts[limitedParts.length - 1]
-      : limitedParts.join(verbosity === 'compact' ? ' ' : ', ');
-
-  return result;
+  return joinFormattedParts(limitedParts, verbosity);
 }

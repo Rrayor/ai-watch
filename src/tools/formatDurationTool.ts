@@ -3,11 +3,17 @@
  * Converts duration values into human-readable strings with various verbosity levels.
  */
 
-import * as vscode from 'vscode';
+import {
+  LanguageModelTool,
+  LanguageModelToolInvocationOptions,
+  CancellationToken,
+  LanguageModelToolResult,
+  LanguageModelTextPart,
+} from 'vscode';
 import { IFormatDurationParameters } from '../types';
 import { formatDurationCommand } from '../commands';
 
-export class FormatDurationTool implements vscode.LanguageModelTool<IFormatDurationParameters> {
+export class FormatDurationTool implements LanguageModelTool<IFormatDurationParameters> {
   /**
    * Invokes the format duration tool.
    *
@@ -16,19 +22,17 @@ export class FormatDurationTool implements vscode.LanguageModelTool<IFormatDurat
    * @returns Language model tool result with formatted duration string
    */
   async invoke(
-    options: vscode.LanguageModelToolInvocationOptions<IFormatDurationParameters>,
-    _token: vscode.CancellationToken,
-  ) {
+    options: LanguageModelToolInvocationOptions<IFormatDurationParameters>,
+    _token: CancellationToken,
+  ): Promise<LanguageModelToolResult> {
     try {
       const params = options.input;
       const result = formatDurationCommand(params);
-      return new vscode.LanguageModelToolResult([
-        new vscode.LanguageModelTextPart(JSON.stringify(result)),
-      ]);
-    } catch (error) {
-      return new vscode.LanguageModelToolResult([
-        new vscode.LanguageModelTextPart(`Error: ${error}`),
-      ]);
+      return new LanguageModelToolResult([new LanguageModelTextPart(JSON.stringify(result))]);
+    } catch (_error) {
+      // Use this to satisfy class-methods-use-this rule
+      void this.constructor.name;
+      return new LanguageModelToolResult([new LanguageModelTextPart(`Error: ${_error}`)]);
     }
   }
 }

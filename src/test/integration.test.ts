@@ -99,7 +99,7 @@ suite('AI Watch Integration Tests', () => {
     assert.ok(result);
     assert.ok((result as any).formatted);
     assert.strictEqual((result as any).toTimezone, 'America/New_York');
-    assert.ok((result as any).originalISO);
+    assert.ok((result as any).iso);
   });
 
   test('formatDuration command should work end-to-end', async () => {
