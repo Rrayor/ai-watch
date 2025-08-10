@@ -6,7 +6,6 @@ enabled = true
 
   [analyzers.meta]
   environment = ["nodejs"]
-  plugins = ["typescript"]
 
 [[analyzers]]
 name = "test-coverage"
