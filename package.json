@@ -21,7 +21,7 @@
     "date",
     "timezone",
     "copilot",
-    "assistant", 
+    "assistant",
     "development",
     "tools",
     "productivity",
@@ -568,11 +568,15 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
     "test": "vscode-test",
     "prepare": "husky install",
-    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
-    "lint:fix": "eslint src --fix"
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "typecheck": "tsc --noEmit",
+    "quality": "npm run typecheck && npm run lint && npm run format:check",
+    "quality:fix": "npm run typecheck && npm run lint:fix && npm run format"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
