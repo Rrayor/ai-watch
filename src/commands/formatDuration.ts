@@ -5,6 +5,9 @@
 import { FormatDurationOptions, FormatDurationResult } from '../types';
 import { formatDuration } from '../utils';
 
+// Constants
+const DEFAULT_MAX_UNITS = 3;
+
 /**
  * Command function for formatting duration values.
  *
@@ -27,7 +30,7 @@ export function formatDurationCommand(options: FormatDurationOptions): FormatDur
       diffMs,
       'milliseconds',
       options.verbosity ?? 'standard',
-      options.maxUnits ?? 3,
+      options.maxUnits ?? DEFAULT_MAX_UNITS,
     );
 
     return { formatted };
