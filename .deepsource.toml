@@ -1,6 +1,11 @@
 version = 1
 
-test_patterns = ["**/*.test.ts"]
+test_patterns = [
+  "**/*.test.ts",
+  "**/*.test.js",
+  "**/*.spec.ts",
+  "**/*.spec.js"
+]
 
 [[analyzers]]
 name = "javascript"
@@ -8,6 +13,8 @@ enabled = true
 
   [analyzers.meta]
   environment = ["nodejs"]
+  style_guide = "standard"
+  plugins = ["typescript"]
 
 [[analyzers]]
 name = "test-coverage"
