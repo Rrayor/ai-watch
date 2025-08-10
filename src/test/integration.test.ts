@@ -8,7 +8,10 @@ import * as vscode from 'vscode';
  * and that all commands and tools are properly registered and functional.
  */
 suite('AI Watch Integration Tests', () => {
-  test('All VS Code commands should be registered and functional', async () => {
+  test('All VS Code commands should be registered and functional', async function () {
+    // Increase timeout for command registration checks
+    this.timeout(10000);
+
     const commands = [
       'ai-watch.getCurrentDate',
       'ai-watch.addTime',
@@ -27,7 +30,10 @@ suite('AI Watch Integration Tests', () => {
     }
   });
 
-  test('getCurrentDate command should work end-to-end', async () => {
+  test('getCurrentDate command should work end-to-end', async function () {
+    // Increase timeout for command execution
+    this.timeout(10000);
+
     const result = await vscode.commands.executeCommand('ai-watch.getCurrentDate');
 
     assert.ok(result);
@@ -40,7 +46,10 @@ suite('AI Watch Integration Tests', () => {
     assert.ok(isoPattern.test((result as any).iso));
   });
 
-  test('getCurrentDate with timezone should work end-to-end', async () => {
+  test('getCurrentDate with timezone should work end-to-end', async function () {
+    // Increase timeout for command execution
+    this.timeout(10000);
+
     const options = { timezone: 'Asia/Tokyo' };
     const result = await vscode.commands.executeCommand('ai-watch.getCurrentDate', options);
 

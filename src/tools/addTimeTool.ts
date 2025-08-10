@@ -115,6 +115,7 @@ export class AddTimeTool implements LanguageModelTool<IAddTimeParameters> {
    * @param _token - Cancellation token (unused)
    * @returns Language model tool result with the calculated future date
    */
+  // eslint-disable-next-line class-methods-use-this
   async invoke(
     options: LanguageModelToolInvocationOptions<IAddTimeParameters>,
     _token: CancellationToken,
@@ -124,7 +125,6 @@ export class AddTimeTool implements LanguageModelTool<IAddTimeParameters> {
     try {
       // Use provided base time or current time
       const baseDate = params.baseTime ? parseISOString(params.baseTime) : new Date();
-      void this.constructor.name;
 
       // Calculate the new date by adding the specified time units
       const newDate = new Date(baseDate);
@@ -151,6 +151,7 @@ export class AddTimeTool implements LanguageModelTool<IAddTimeParameters> {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   async prepareInvocation(
     options: LanguageModelToolInvocationPrepareOptions<IAddTimeParameters>,
     _token: CancellationToken,
@@ -159,7 +160,6 @@ export class AddTimeTool implements LanguageModelTool<IAddTimeParameters> {
     confirmationMessages: { title: string; message: MarkdownString };
   }> {
     const params = options.input;
-    void this.constructor.name;
 
     // Build duration description for confirmation
     const durationParts = AddTimeTool.buildDurationParts(params);

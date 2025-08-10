@@ -23,6 +23,7 @@ export class CalculateDifferenceTool implements LanguageModelTool<ICalculateDiff
    * @param _token - Cancellation token (unused)
    * @returns Language model tool result with date difference information
    */
+  // eslint-disable-next-line class-methods-use-this
   async invoke(
     options: LanguageModelToolInvocationOptions<ICalculateDifferenceParameters>,
     _token: CancellationToken,
@@ -44,11 +45,11 @@ export class CalculateDifferenceTool implements LanguageModelTool<ICalculateDiff
 
       return new LanguageModelToolResult([new LanguageModelTextPart(message)]);
     } catch (_error) {
-      void this.constructor.name;
       return new LanguageModelToolResult([new LanguageModelTextPart(`Error: ${_error}`)]);
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   async prepareInvocation(
     options: LanguageModelToolInvocationPrepareOptions<ICalculateDifferenceParameters>,
     _token: CancellationToken,
@@ -57,7 +58,6 @@ export class CalculateDifferenceTool implements LanguageModelTool<ICalculateDiff
     confirmationMessages: { title: string; message: MarkdownString };
   }> {
     const params = options.input;
-    void this.constructor.name;
     const confirmationMessages = {
       title: 'Calculate time difference',
       message: new MarkdownString(

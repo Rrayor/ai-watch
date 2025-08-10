@@ -22,6 +22,7 @@ export class DateQueryTool implements LanguageModelTool<IDateQueryParameters> {
    * @param _token - Cancellation token (unused)
    * @returns Language model tool result with date query operation results
    */
+  // eslint-disable-next-line class-methods-use-this
   async invoke(
     options: LanguageModelToolInvocationOptions<IDateQueryParameters>,
     _token: CancellationToken,
@@ -31,7 +32,6 @@ export class DateQueryTool implements LanguageModelTool<IDateQueryParameters> {
       const result = dateQueryCommand(params);
       return new LanguageModelToolResult([new LanguageModelTextPart(JSON.stringify(result))]);
     } catch (_error) {
-      void this.constructor.name;
       return new LanguageModelToolResult([new LanguageModelTextPart(`Error: ${_error}`)]);
     }
   }

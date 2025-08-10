@@ -22,6 +22,7 @@ export class BusinessDayTool implements LanguageModelTool<IBusinessDayParameters
    * @param _token - Cancellation token (unused)
    * @returns Language model tool result with business day operation results
    */
+  // eslint-disable-next-line class-methods-use-this
   async invoke(
     options: LanguageModelToolInvocationOptions<IBusinessDayParameters>,
     _token: CancellationToken,
@@ -31,7 +32,6 @@ export class BusinessDayTool implements LanguageModelTool<IBusinessDayParameters
       const result = businessDayCommand(params);
       return new LanguageModelToolResult([new LanguageModelTextPart(JSON.stringify(result))]);
     } catch (_error) {
-      void this.constructor.name;
       return new LanguageModelToolResult([new LanguageModelTextPart(`Error: ${_error}`)]);
     }
   }

@@ -42,11 +42,11 @@ export class GetCurrentDateTool implements LanguageModelTool<IGetCurrentDatePara
    * @param _token - Cancellation token (unused)
    * @returns Language model tool result with current date/time information
    */
+  // eslint-disable-next-line class-methods-use-this
   async invoke(
     options: LanguageModelToolInvocationOptions<IGetCurrentDateParameters>,
     _token: CancellationToken,
   ): Promise<LanguageModelToolResult> {
-    void this.constructor.name;
     const now = new Date();
     const params = options.input;
 
@@ -81,6 +81,7 @@ export class GetCurrentDateTool implements LanguageModelTool<IGetCurrentDatePara
     return new LanguageModelToolResult([new LanguageModelTextPart(message)]);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   async prepareInvocation(
     options: LanguageModelToolInvocationPrepareOptions<IGetCurrentDateParameters>,
     _token: CancellationToken,
@@ -88,7 +89,6 @@ export class GetCurrentDateTool implements LanguageModelTool<IGetCurrentDatePara
     invocationMessage: string;
     confirmationMessages: { title: string; message: MarkdownString };
   }> {
-    void this.constructor.name;
     const params = options.input;
     let title = 'Get current date and time';
     let message = 'Get the current date and time';

@@ -23,11 +23,11 @@ export class ConvertTimezoneTool implements LanguageModelTool<IConvertTimezonePa
    * @param _token - Cancellation token (unused)
    * @returns Language model tool result with timezone conversion information
    */
+  // eslint-disable-next-line class-methods-use-this
   async invoke(
     options: LanguageModelToolInvocationOptions<IConvertTimezoneParameters>,
     _token: CancellationToken,
   ): Promise<LanguageModelToolResult> {
-    void this.constructor.name;
     const params = options.input;
 
     try {
@@ -50,6 +50,7 @@ export class ConvertTimezoneTool implements LanguageModelTool<IConvertTimezonePa
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   async prepareInvocation(
     options: LanguageModelToolInvocationPrepareOptions<IConvertTimezoneParameters>,
     _token: CancellationToken,
@@ -58,7 +59,6 @@ export class ConvertTimezoneTool implements LanguageModelTool<IConvertTimezonePa
     confirmationMessages: { title: string; message: MarkdownString };
   }> {
     const params = options.input;
-    void this.constructor.name;
     const confirmationMessages = {
       title: 'Convert timezone',
       message: new MarkdownString(`Convert ${params.date} to timezone ${params.toTimezone}?`),

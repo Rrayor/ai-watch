@@ -21,6 +21,7 @@ export class FormatDurationTool implements LanguageModelTool<IFormatDurationPara
    * @param _token - Cancellation token (unused)
    * @returns Language model tool result with formatted duration string
    */
+  // eslint-disable-next-line class-methods-use-this
   async invoke(
     options: LanguageModelToolInvocationOptions<IFormatDurationParameters>,
     _token: CancellationToken,
@@ -30,8 +31,6 @@ export class FormatDurationTool implements LanguageModelTool<IFormatDurationPara
       const result = formatDurationCommand(params);
       return new LanguageModelToolResult([new LanguageModelTextPart(JSON.stringify(result))]);
     } catch (_error) {
-      // Use this to satisfy class-methods-use-this rule
-      void this.constructor.name;
       return new LanguageModelToolResult([new LanguageModelTextPart(`Error: ${_error}`)]);
     }
   }

@@ -49,12 +49,12 @@ export class SubtractTimeTool implements LanguageModelTool<ISubtractTimeParamete
    * @param _token - Cancellation token (unused)
    * @returns Language model tool result with the calculated past date
    */
+  // eslint-disable-next-line class-methods-use-this
   async invoke(
     options: LanguageModelToolInvocationOptions<ISubtractTimeParameters>,
     _token: CancellationToken,
   ): Promise<LanguageModelToolResult> {
     try {
-      void this.constructor.name;
       const result = subtractTimeCommand(options.input);
       if (result.error) {
         return new LanguageModelToolResult([new LanguageModelTextPart(`Error: ${result.error}`)]);
@@ -73,12 +73,12 @@ export class SubtractTimeTool implements LanguageModelTool<ISubtractTimeParamete
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   async prepareInvocation(
     options: LanguageModelToolInvocationPrepareOptions<ISubtractTimeParameters>,
     _token: CancellationToken,
   ): Promise<PreparedToolInvocation> {
     const params = options.input;
-    void this.constructor.name;
 
     // Build duration description for confirmation
     const durationParts = SubtractTimeTool.buildDurationParts(params);
