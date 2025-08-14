@@ -30,4 +30,26 @@ suite('GetCurrentDateTimeTool', () => {
     assert.ok(invocationMessage.includes('Get current date and time'));
     assert.ok(confirmationMessages.message instanceof MarkdownString);
   });
+
+  test('prepareInvocation without params mentions ISO and UTC', async () => {
+    const tool = new GetCurrentDateTimeTool();
+    const prep = {
+      input: {},
+    } as unknown as LanguageModelToolInvocationPrepareOptions<GetCurrentDateTimeOptions>;
+    const { confirmationMessages } = await tool.prepareInvocation(
+      prep,
+      undefined as unknown as CancellationToken,
+    );
+    const msgStr = (confirmationMessages.message as MarkdownString).value;
+    assert.ok(/ISO and UTC/.test(msgStr));
+  });
+
+  test('invoke with explicit timezone returns a result', async () => {
+    const tool = new GetCurrentDateTimeTool();
+    const options = {
+      input: { timezone: 'UTC' },
+    } as unknown as LanguageModelToolInvocationOptions<GetCurrentDateTimeOptions>;
+    const res = await tool.invoke(options, undefined as unknown as CancellationToken);
+    assert.ok(res);
+  });
 });

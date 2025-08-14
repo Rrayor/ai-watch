@@ -32,4 +32,14 @@ suite('subtractTimeCommand', () => {
     assert.ok(typeof res.utc === 'string' && res.utc.endsWith(' UTC'));
     assert.ok(typeof res.local === 'string' && res.local.length > 0);
   });
+
+  test('when no timezone provided, resultTimezone equals user local timezone', () => {
+    const res = subtractTimeCommand({ hours: 2 });
+    assert.ok(res.resultTimezone && res.resultTimezone.length > 0);
+    assert.strictEqual(typeof res.formattedResult, 'string');
+  });
+
+  test('invalid baseTime throws InvalidDateError', () => {
+    assert.throws(() => subtractTimeCommand({ baseTime: 'invalid', minutes: 5 }));
+  });
 });
