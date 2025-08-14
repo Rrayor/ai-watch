@@ -453,6 +453,11 @@
               "description": "Base date for calculations in ISO format",
               "default": "2025-08-09T13:37:01Z"
             },
+            "timezone": {
+              "type": "string",
+              "description": "Optional IANA timezone for calculations; defaults to the local timezone when omitted",
+              "default": ""
+            },
             "queries": {
               "type": "array",
               "description": "Array of query operations to perform in sequence",
@@ -629,6 +634,7 @@
   },
   "dependencies": {
     "@types/vscode": "^1.102.0",
-    "date-fns": "^2.30.0"
+  "date-fns": "^2.30.0",
+  "date-fns-tz": "^2.0.0"
   }
 }

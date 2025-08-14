@@ -26,6 +26,20 @@ suite('formatDurationCommand', () => {
     assert.strictEqual(zero.formatted, '0s');
   });
 
+  test('maxUnits negative or zero yields default behavior (top units fallback)', () => {
+    const negUnits = formatDurationCommand({ from, to, verbosity: 'standard', maxUnits: 0 });
+    // With zero maxUnits, date-fns falls back to default non-zero units rendering
+    assert.strictEqual(negUnits.formatted, '1 day, 1 hour, 2 minutes');
+
+    const veryNeg = formatDurationCommand({ from, to, verbosity: 'compact', maxUnits: -10 });
+    assert.strictEqual(veryNeg.formatted, '0s');
+  });
+
+  test('maxUnits larger than available units includes all present units', () => {
+    const { formatted } = formatDurationCommand({ from, to, verbosity: 'standard', maxUnits: 10 });
+    assert.strictEqual(formatted, '1 day, 1 hour, 2 minutes, 3 seconds');
+  });
+
   test('respects configuration defaults for verbosity and maxUnits', async () => {
     const cfg = workspace.getConfiguration('aiWatch');
     const prevVerbosity = cfg.get('durationFormat');

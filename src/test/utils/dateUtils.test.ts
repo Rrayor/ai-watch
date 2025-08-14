@@ -43,6 +43,14 @@ suite('dateUtils', () => {
       assert.strictEqual(weekdayToNumber('Wednesday', 3), 0);
       assert.strictEqual(weekdayToNumber('Thursday', 3), 1);
     });
+
+    test('throws on invalid weekday', () => {
+      assert.throws(() => weekdayToNumber('Funday'));
+    });
+
+    test('throws on invalid weekStart string', () => {
+      assert.throws(() => weekdayToNumber('Monday', 'Someday'));
+    });
   });
 
   suite('buildDurationParts', () => {

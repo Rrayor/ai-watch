@@ -48,6 +48,60 @@ suite('businessDayCommand', () => {
     assert.strictEqual(res.result?.startsWith('2025-08-15'), true);
   });
 
+  test('addBusinessDays with zero days throws MissingDaysError', () => {
+    const opts = {
+      operation: 'addBusinessDays',
+      date: '2025-08-13T10:00:00Z',
+      days: 0,
+    } as unknown as BusinessDayOptions;
+    assert.throws(() => businessDayCommand(opts));
+  });
+
+  test('unsupported operation throws', () => {
+    // Cast to bypass type system intentionally to test runtime behavior
+    const badOp = {
+      operation: 'notSupported',
+      date: '2025-08-12T10:00:00Z',
+    } as unknown as BusinessDayOptions;
+    assert.throws(() => businessDayCommand(badOp));
+  });
+
+  test('invalid custom businessDays throws', () => {
+    const badDays = {
+      operation: 'addBusinessDays',
+      date: '2025-08-12T10:00:00Z',
+      days: 1,
+      businessDays: ['InvalidDay'], // intentionally invalid value
+    } as unknown as BusinessDayOptions;
+    assert.throws(() => businessDayCommand(badDays));
+  });
+
+  test('subtractBusinessDays with zero days throws MissingDaysError', () => {
+    const opts = {
+      operation: 'subtractBusinessDays',
+      date: '2025-08-13T10:00:00Z',
+      days: 0,
+    } as unknown as BusinessDayOptions;
+    assert.throws(() => businessDayCommand(opts));
+  });
+
+  test('uses configuration excludedDates when not provided', async () => {
+    const cfg = workspace.getConfiguration('aiWatch');
+    const prevExcluded = cfg.get('excludedDates');
+    try {
+      await cfg.update('excludedDates', ['2025-08-19'], true);
+      // Start Monday 2025-08-18, add 1 business day; Tuesday 19th excluded -> expect Wednesday 20th
+      const res = businessDayCommand({
+        operation: 'addBusinessDays',
+        date: '2025-08-18T10:00:00Z',
+        days: 1,
+      });
+      assert.strictEqual(res.result?.startsWith('2025-08-20'), true);
+    } finally {
+      await cfg.update('excludedDates', prevExcluded, true);
+    }
+  });
+
   test('uses configuration businessDays when not provided', async () => {
     const cfg = workspace.getConfiguration('aiWatch');
     const prev = cfg.get('businessDays');

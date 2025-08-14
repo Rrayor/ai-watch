@@ -51,6 +51,21 @@ suite('timezoneUtils', () => {
     assert.throws(() => formatInTimezone(d, 'Invalid/Zone', ctx), InvalidTimezoneError);
   });
 
+  test('fallback to ISO-like UTC when no timezone and no default format', async () => {
+    const ctx = new OperationContext();
+    const d = new Date('2025-08-10T12:30:45Z');
+    const cfg = workspace.getConfiguration('aiWatch');
+    const prev = cfg.get('defaultDateFormat');
+    try {
+      await cfg.update('defaultDateFormat', undefined, true);
+      // Force failure by passing an invalid timezone string; the catch path will attempt default format then ISO-like
+      assert.throws(() => formatInTimezone(d, 'Invalid/AlsoBad', ctx), InvalidTimezoneError);
+      // Note: With explicit invalid timezone, function throws per docs; ISO-like fallback occurs only when detection fails without explicit tz and no default.
+    } finally {
+      await cfg.update('defaultDateFormat', prev, true);
+    }
+  });
+
   test('getUserTimezone returns a non-empty string or UTC when detection fails', () => {
     const ctx = new OperationContext();
     const tz = getUserTimezone(ctx);

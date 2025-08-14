@@ -1,21 +1,8 @@
 /**
  * Command implementation for date query operations.
  */
-import {
-  addDays,
-  subDays,
-  getDay,
-  startOfDay,
-  startOfWeek,
-  startOfMonth,
-  startOfQuarter,
-  startOfYear,
-  endOfDay,
-  endOfWeek,
-  endOfMonth,
-  endOfQuarter,
-  endOfYear,
-} from 'date-fns';
+import { addDays } from 'date-fns';
+import { formatInTimeZone, zonedTimeToUtc } from 'date-fns-tz';
 import { InvalidDateError, parseISOString, weekdayToNumber } from '../../shared';
 import { InvalidQueryError } from '../error/InvalidQueryError';
 import { InvalidWeekDayQueryError } from '../error/InvalidWeekDayQueryError';
@@ -27,6 +14,12 @@ import { workspace } from 'vscode';
 
 // Calendar constants
 const DAYS_IN_WEEK = 7;
+const ISO_SUN = 7;
+const TWO_DIGIT_PAD = 2;
+const THREE_DIGIT_PAD = 3;
+const ONE_MS = 1;
+const MONTHS_IN_YEAR = 12;
+const MONTHS_PER_QUARTER = 3;
 
 /**
  * Command function for date query operations.
@@ -42,6 +35,7 @@ const DAYS_IN_WEEK = 7;
 export function dateQueryCommand(options: DateQueryOptions): DateQueryResult {
   const baseDate = parseISOString(options.baseDate);
   const results: Date[] = [];
+  const tz = getEffectiveTimezone(options.timezone);
 
   const weekStartsOnConfig = workspace
     .getConfiguration('aiWatch')
@@ -57,7 +51,7 @@ export function dateQueryCommand(options: DateQueryOptions): DateQueryResult {
       query.weekStart = weekStartsOnConfig;
     }
 
-    const result = processQuery(query, baseDate, results, i);
+    const result = processQuery(query, baseDate, results, i, tz);
     results.push(result);
   }
 
@@ -97,12 +91,13 @@ function processNextWeekdayQuery(
   baseDate: Date,
   results: Date[],
   index: number,
+  timezone: string,
 ): Date {
   if (!query.weekday) {
     throw new InvalidWeekDayQueryError('Weekday required for nextWeekday query');
   }
   const queryBase = getQueryBaseDate(baseDate, results, index);
-  return getNextOccurenceOfWeekday(queryBase, query.weekday, query.weekStart);
+  return getNextOccurenceOfWeekday(queryBase, query.weekday, query.weekStart, timezone);
 }
 
 /**
@@ -120,12 +115,13 @@ function processPreviousWeekdayQuery(
   baseDate: Date,
   results: Date[],
   index: number,
+  timezone: string,
 ): Date {
   if (!query.weekday) {
     throw new InvalidWeekDayQueryError('Weekday required for previousWeekday query');
   }
   const queryBase = getQueryBaseDate(baseDate, results, index);
-  return getPreviousWeekday(queryBase, query.weekday, query.weekStart);
+  return getPreviousWeekday(queryBase, query.weekday, query.weekStart, timezone);
 }
 
 /**
@@ -136,11 +132,15 @@ function processPreviousWeekdayQuery(
  * @throws {MissingPeriodQueryError} if period is missing
  * @throws {InvalidPeriodQueryError} if period is invalid
  */
-function processStartOfPeriodQuery(query: DateQueryOptions['queries'][0], baseDate: Date): Date {
+function processStartOfPeriodQuery(
+  query: DateQueryOptions['queries'][0],
+  baseDate: Date,
+  timezone: string,
+): Date {
   if (!query.period) {
     throw new MissingPeriodQueryError('Period required for startOfPeriod query');
   }
-  return getStartOfPeriod(baseDate, query.period, query.weekStart);
+  return getStartOfPeriod(baseDate, query.period, query.weekStart, timezone);
 }
 
 /**
@@ -151,11 +151,15 @@ function processStartOfPeriodQuery(query: DateQueryOptions['queries'][0], baseDa
  * @throws {MissingPeriodQueryError} if period is missing
  * @throws {InvalidPeriodQueryError} if period is invalid
  */
-function processEndOfPeriodQuery(query: DateQueryOptions['queries'][0], baseDate: Date): Date {
+function processEndOfPeriodQuery(
+  query: DateQueryOptions['queries'][0],
+  baseDate: Date,
+  timezone: string,
+): Date {
   if (!query.period) {
     throw new MissingPeriodQueryError('Period required for endOfPeriod query');
   }
-  return getEndOfPeriod(baseDate, query.period, query.weekStart);
+  return getEndOfPeriod(baseDate, query.period, query.weekStart, timezone);
 }
 
 /**
@@ -176,16 +180,17 @@ function processQuery(
   baseDate: Date,
   results: Date[],
   index: number,
+  timezone: string,
 ): Date {
   switch (query.type) {
     case 'nextWeekday':
-      return processNextWeekdayQuery(query, baseDate, results, index);
+      return processNextWeekdayQuery(query, baseDate, results, index, timezone);
     case 'previousWeekday':
-      return processPreviousWeekdayQuery(query, baseDate, results, index);
+      return processPreviousWeekdayQuery(query, baseDate, results, index, timezone);
     case 'startOfPeriod':
-      return processStartOfPeriodQuery(query, baseDate);
+      return processStartOfPeriodQuery(query, baseDate, timezone);
     case 'endOfPeriod':
-      return processEndOfPeriodQuery(query, baseDate);
+      return processEndOfPeriodQuery(query, baseDate, timezone);
     default:
       throw new InvalidQueryError(`Unsupported query type: ${(query as { type: string }).type}`);
   }
@@ -203,11 +208,17 @@ function getNextOccurenceOfWeekday(
   startDate: Date,
   targetWeekday: string,
   startOfWeek: string | number | undefined,
+  timezone: string,
 ): Date {
   const targetDay = weekdayToNumber(targetWeekday, startOfWeek);
-  const currentDay = getDay(startDate);
-  const daysToAdd = (targetDay - currentDay + DAYS_IN_WEEK) % DAYS_IN_WEEK || DAYS_IN_WEEK;
-  return addDays(startDate, daysToAdd);
+  const currentNormalized = getWeekdayIndexInTz(startDate, timezone, startOfWeek);
+  const daysToAdd = (targetDay - currentNormalized + DAYS_IN_WEEK) % DAYS_IN_WEEK || DAYS_IN_WEEK;
+  const { year, month, day, hour, minute, second, ms } = getLocalDateTimeParts(startDate, timezone);
+  const newYmd = addDaysToCalendar({ year, month, day }, daysToAdd);
+  return zonedTimeToUtc(
+    buildLocalDateTimeISO(newYmd.year, newYmd.month, newYmd.day, hour, minute, second, ms),
+    timezone,
+  );
 }
 
 /**
@@ -223,11 +234,18 @@ export function getPreviousWeekday(
   startDate: Date,
   targetWeekday: string,
   startOfWeek: string | number | undefined,
+  timezone: string,
 ): Date {
   const targetDay = weekdayToNumber(targetWeekday, startOfWeek);
-  const currentDay = getDay(startDate);
-  const daysToSubtract = (currentDay - targetDay + DAYS_IN_WEEK) % DAYS_IN_WEEK || DAYS_IN_WEEK;
-  return subDays(startDate, daysToSubtract);
+  const currentNormalized = getWeekdayIndexInTz(startDate, timezone, startOfWeek);
+  const daysToSubtract =
+    (currentNormalized - targetDay + DAYS_IN_WEEK) % DAYS_IN_WEEK || DAYS_IN_WEEK;
+  const { year, month, day, hour, minute, second, ms } = getLocalDateTimeParts(startDate, timezone);
+  const newYmd = addDaysToCalendar({ year, month, day }, -daysToSubtract);
+  return zonedTimeToUtc(
+    buildLocalDateTimeISO(newYmd.year, newYmd.month, newYmd.day, hour, minute, second, ms),
+    timezone,
+  );
 }
 
 /**
@@ -242,18 +260,24 @@ export function getStartOfPeriod(
   date: Date,
   period: string,
   weekStart: string | number = 'Monday',
+  timezone: string,
 ): Date {
   switch (period) {
-    case 'day':
-      return startOfDay(date);
-    case 'week':
-      return startOfWeek(date, { weekStartsOn: resolveWeekStartsOn(weekStart) });
-    case 'month':
-      return startOfMonth(date);
-    case 'quarter':
-      return startOfQuarter(date);
-    case 'year':
-      return startOfYear(date);
+    case 'day': {
+      return startOfDayInTz(date, timezone);
+    }
+    case 'week': {
+      return startOfWeekInTz(date, timezone, resolveWeekStartsOn(weekStart));
+    }
+    case 'month': {
+      return startOfMonthInTz(date, timezone);
+    }
+    case 'quarter': {
+      return startOfQuarterInTz(date, timezone);
+    }
+    case 'year': {
+      return startOfYearInTz(date, timezone);
+    }
     default:
       throw new InvalidPeriodQueryError(`getStartOfPeriod: Unsupported period: ${period}`);
   }
@@ -272,18 +296,24 @@ export function getEndOfPeriod(
   date: Date,
   period: string,
   weekStart: string | number = 'Monday',
+  timezone: string,
 ): Date {
   switch (period) {
-    case 'day':
-      return endOfDay(date);
-    case 'week':
-      return endOfWeek(date, { weekStartsOn: resolveWeekStartsOn(weekStart) });
-    case 'month':
-      return endOfMonth(date);
-    case 'quarter':
-      return endOfQuarter(date);
-    case 'year':
-      return endOfYear(date);
+    case 'day': {
+      return endOfDayInTz(date, timezone);
+    }
+    case 'week': {
+      return endOfWeekInTz(date, timezone, resolveWeekStartsOn(weekStart));
+    }
+    case 'month': {
+      return endOfMonthInTz(date, timezone);
+    }
+    case 'quarter': {
+      return endOfQuarterInTz(date, timezone);
+    }
+    case 'year': {
+      return endOfYearInTz(date, timezone);
+    }
     default:
       throw new InvalidPeriodQueryError(`Unsupported period: ${period}`);
   }
@@ -299,4 +329,174 @@ function resolveWeekStartsOn(weekStart: string | number): import('date-fns').Day
     return weekStart as import('date-fns').Day;
   }
   return weekdayToNumber(weekStart) as import('date-fns').Day;
+}
+
+/**
+ * Timezone helpers and period boundary calculators (timezone-aware)
+ */
+function getEffectiveTimezone(tz?: string): string {
+  if (tz?.trim()) return tz;
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch {
+    return 'UTC';
+  }
+}
+
+function getWeekdayIndexInTz(
+  date: Date,
+  timezone: string,
+  startOfWeek: string | number | undefined,
+): number {
+  const isoDay = Number(formatInTimeZone(date, timezone, 'i')); // 1=Mon..7=Sun
+  const jsDay = isoDay % ISO_SUN; // 0=Sun..6=Sat
+  const weekStartIndex = resolveWeekStartsOn(startOfWeek ?? 'Monday');
+  return (jsDay - weekStartIndex + DAYS_IN_WEEK) % DAYS_IN_WEEK;
+}
+
+function getLocalDateTimeParts(
+  date: Date,
+  timezone: string,
+): {
+  year: number;
+  month: number;
+  day: number;
+  hour: number;
+  minute: number;
+  second: number;
+  ms: number;
+} {
+  const year = Number(formatInTimeZone(date, timezone, 'yyyy'));
+  const month = Number(formatInTimeZone(date, timezone, 'MM'));
+  const day = Number(formatInTimeZone(date, timezone, 'dd'));
+  const hour = Number(formatInTimeZone(date, timezone, 'HH'));
+  const minute = Number(formatInTimeZone(date, timezone, 'mm'));
+  const second = Number(formatInTimeZone(date, timezone, 'ss'));
+  const ms = Number(formatInTimeZone(date, timezone, 'SSS'));
+  return { year, month, day, hour, minute, second, ms };
+}
+
+function addDaysToCalendar(
+  ymd: { year: number; month: number; day: number },
+  deltaDays: number,
+): { year: number; month: number; day: number } {
+  const tmp = new Date(Date.UTC(ymd.year, ymd.month - 1, ymd.day, 0, 0, 0, 0));
+  const res = addDays(tmp, deltaDays);
+  return { year: res.getUTCFullYear(), month: res.getUTCMonth() + 1, day: res.getUTCDate() };
+}
+
+function buildLocalDateTimeISO(
+  year: number,
+  month: number,
+  day: number,
+  hour: number,
+  minute: number,
+  second: number,
+  ms: number,
+): string {
+  const mm = String(month).padStart(TWO_DIGIT_PAD, '0');
+  const dd = String(day).padStart(TWO_DIGIT_PAD, '0');
+  const hh = String(hour).padStart(TWO_DIGIT_PAD, '0');
+  const mi = String(minute).padStart(TWO_DIGIT_PAD, '0');
+  const ss = String(second).padStart(TWO_DIGIT_PAD, '0');
+  const mss = String(ms).padStart(THREE_DIGIT_PAD, '0');
+  return `${year}-${mm}-${dd}T${hh}:${mi}:${ss}.${mss}`;
+}
+
+function startOfDayInTz(date: Date, timezone: string): Date {
+  const { year, month, day } = getLocalDateTimeParts(date, timezone);
+  return zonedTimeToUtc(buildLocalDateTimeISO(year, month, day, 0, 0, 0, 0), timezone);
+}
+
+function endOfDayInTz(date: Date, timezone: string): Date {
+  const { year, month, day } = getLocalDateTimeParts(date, timezone);
+  const next = addDaysToCalendar({ year, month, day }, 1);
+  return new Date(
+    zonedTimeToUtc(
+      buildLocalDateTimeISO(next.year, next.month, next.day, 0, 0, 0, 0),
+      timezone,
+    ).getTime() - ONE_MS,
+  );
+}
+
+function startOfWeekInTz(date: Date, timezone: string, weekStartsOn: number): Date {
+  const { year, month, day } = getLocalDateTimeParts(date, timezone);
+  const isoDay = Number(formatInTimeZone(date, timezone, 'i')) % ISO_SUN; // js day 0..6
+  const diff = (isoDay - weekStartsOn + DAYS_IN_WEEK) % DAYS_IN_WEEK;
+  const start = addDaysToCalendar({ year, month, day }, -diff);
+  return zonedTimeToUtc(
+    buildLocalDateTimeISO(start.year, start.month, start.day, 0, 0, 0, 0),
+    timezone,
+  );
+}
+
+function endOfWeekInTz(date: Date, timezone: string, weekStartsOn: number): Date {
+  const start = startOfWeekInTz(date, timezone, weekStartsOn);
+  // start is UTC instant of local midnight; add 7 local days by computing next local midnight and subtract 1 ms
+  const startParts = getLocalDateTimeParts(start, timezone);
+  const next = addDaysToCalendar(
+    { year: startParts.year, month: startParts.month, day: startParts.day },
+    DAYS_IN_WEEK,
+  );
+  return new Date(
+    zonedTimeToUtc(
+      buildLocalDateTimeISO(next.year, next.month, next.day, 0, 0, 0, 0),
+      timezone,
+    ).getTime() - ONE_MS,
+  );
+}
+
+function startOfMonthInTz(date: Date, timezone: string): Date {
+  const year = Number(formatInTimeZone(date, timezone, 'yyyy'));
+  const month = Number(formatInTimeZone(date, timezone, 'MM'));
+  return zonedTimeToUtc(buildLocalDateTimeISO(year, month, 1, 0, 0, 0, 0), timezone);
+}
+
+function endOfMonthInTz(date: Date, timezone: string): Date {
+  const year = Number(formatInTimeZone(date, timezone, 'yyyy'));
+  const month = Number(formatInTimeZone(date, timezone, 'MM'));
+  const nextMonth = month === MONTHS_IN_YEAR ? 1 : month + 1;
+  const nextYear = month === MONTHS_IN_YEAR ? year + 1 : year;
+  return new Date(
+    zonedTimeToUtc(buildLocalDateTimeISO(nextYear, nextMonth, 1, 0, 0, 0, 0), timezone).getTime() -
+      ONE_MS,
+  );
+}
+
+function startOfQuarterInTz(date: Date, timezone: string): Date {
+  const year = Number(formatInTimeZone(date, timezone, 'yyyy'));
+  const month = Number(formatInTimeZone(date, timezone, 'MM'));
+  const qStartMonth = Math.floor((month - 1) / MONTHS_PER_QUARTER) * MONTHS_PER_QUARTER + 1;
+  return zonedTimeToUtc(buildLocalDateTimeISO(year, qStartMonth, 1, 0, 0, 0, 0), timezone);
+}
+
+function endOfQuarterInTz(date: Date, timezone: string): Date {
+  const year = Number(formatInTimeZone(date, timezone, 'yyyy'));
+  const month = Number(formatInTimeZone(date, timezone, 'MM'));
+  const qStartMonth = Math.floor((month - 1) / MONTHS_PER_QUARTER) * MONTHS_PER_QUARTER + 1;
+  const nextQuarterMonth =
+    qStartMonth + MONTHS_PER_QUARTER > MONTHS_IN_YEAR
+      ? qStartMonth + MONTHS_PER_QUARTER - MONTHS_IN_YEAR
+      : qStartMonth + MONTHS_PER_QUARTER;
+  const nextQuarterYear = qStartMonth + MONTHS_PER_QUARTER > MONTHS_IN_YEAR ? year + 1 : year;
+  return new Date(
+    zonedTimeToUtc(
+      buildLocalDateTimeISO(nextQuarterYear, nextQuarterMonth, 1, 0, 0, 0, 0),
+      timezone,
+    ).getTime() - ONE_MS,
+  );
+}
+
+function startOfYearInTz(date: Date, timezone: string): Date {
+  const year = Number(formatInTimeZone(date, timezone, 'yyyy'));
+  return zonedTimeToUtc(buildLocalDateTimeISO(year, 1, 1, 0, 0, 0, 0), timezone);
+}
+
+function endOfYearInTz(date: Date, timezone: string): Date {
+  const year = Number(formatInTimeZone(date, timezone, 'yyyy'));
+  const nextYearStart = zonedTimeToUtc(
+    buildLocalDateTimeISO(year + 1, 1, 1, 0, 0, 0, 0),
+    timezone,
+  ).getTime();
+  return new Date(nextYearStart - ONE_MS);
 }
