@@ -502,12 +502,6 @@
     "configuration": {
       "title": "AI Watch",
       "properties": {
-        "aiWatch.defaultTimezone": {
-          "type": "string",
-          "default": "",
-          "description": "Default timezone for operations when not specified (IANA timezone identifier, e.g., 'America/New_York'). Leave empty to auto-detect from system.",
-          "scope": "window"
-        },
         "aiWatch.defaultDateFormat": {
           "type": "string",
           "default": "YYYY-MM-DD HH:mm:ss",

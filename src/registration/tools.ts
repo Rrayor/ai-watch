@@ -4,7 +4,6 @@
 
 import { ExtensionContext, lm } from 'vscode';
 import {
-  GetCurrentDateTool,
   CalculateDifferenceTool,
   ConvertTimezoneTool,
   AddTimeTool,
@@ -12,7 +11,8 @@ import {
   FormatDurationTool,
   BusinessDayTool,
   DateQueryTool,
-} from '../tools';
+  GetCurrentDateTimeTool,
+} from '../modules';
 
 /**
  * Registers all Language Model Tools with VS Code for AI assistant integration.
@@ -21,7 +21,9 @@ import {
  * @param context - VS Code extension context for managing subscriptions
  */
 export function registerChatTools(context: ExtensionContext): void {
-  context.subscriptions.push(lm.registerTool('ai-watch_getCurrentDate', new GetCurrentDateTool()));
+  context.subscriptions.push(
+    lm.registerTool('ai-watch_getCurrentDate', new GetCurrentDateTimeTool()),
+  );
   context.subscriptions.push(
     lm.registerTool('ai-watch_calculateDifference', new CalculateDifferenceTool()),
   );

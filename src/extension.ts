@@ -12,12 +12,6 @@
 import { ExtensionContext } from 'vscode';
 import { registerChatTools, registerCommands } from './registration';
 
-// Export organized namespaces to avoid conflicts
-export * as Types from './types';
-export * as Tools from './tools';
-export * as Commands from './commands';
-export * as Utils from './utils';
-
 /**
  * Activates the AI Watch extension.
  * Registers all Language Model Tools and VS Code commands.

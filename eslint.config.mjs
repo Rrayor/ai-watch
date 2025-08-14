@@ -38,7 +38,7 @@ export default [
             "prefer-template": "error",
 
             // JS-0105: Class methods should utilize this - MINOR
-            "class-methods-use-this": "error",
+            "class-methods-use-this": "off",
 
             // JS-0047: No default cases in switch statements - MINOR
             "default-case": "error",

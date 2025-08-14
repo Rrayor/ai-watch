@@ -4,25 +4,23 @@
 
 import { ExtensionContext, commands } from 'vscode';
 import {
-  getCurrentDateCommand,
+  getCurrentDateTimeCommand,
+  CalculateDifferenceOptions,
   calculateDifferenceCommand,
+  ConvertTimezoneOptions,
   convertTimezoneCommand,
+  AddTimeOptions,
   addTimeCommand,
+  SubtractTimeOptions,
   subtractTimeCommand,
   formatDurationCommand,
-  businessDayCommand,
-  dateQueryCommand,
-} from '../commands';
-import {
-  GetCurrentDateOptions,
-  CalculateDifferenceOptions,
-  ConvertTimezoneOptions,
-  AddTimeOptions,
-  SubtractTimeOptions,
-  FormatDurationOptions,
   BusinessDayOptions,
+  businessDayCommand,
   DateQueryOptions,
-} from '../types';
+  dateQueryCommand,
+  GetCurrentDateTimeOptions,
+  FormatDurationOptions,
+} from '../modules';
 
 /**
  * Registers all VS Code commands for programmatic access by other extensions.
@@ -32,8 +30,8 @@ import {
  */
 export function registerCommands(context: ExtensionContext): void {
   context.subscriptions.push(
-    commands.registerCommand('ai-watch.getCurrentDate', (options?: GetCurrentDateOptions) => {
-      return getCurrentDateCommand(options);
+    commands.registerCommand('ai-watch.getCurrentDate', (options?: GetCurrentDateTimeOptions) => {
+      return getCurrentDateTimeCommand(options);
     }),
   );
 
