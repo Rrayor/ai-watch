@@ -33,4 +33,18 @@ suite('DateQueryTool', () => {
     assert.ok(message.includes('Start of year'));
     assert.ok(message.includes('End of year'));
   });
+
+  test('buildResponseMessage includes next/previous weekday labels', () => {
+    const message = DateQueryTool.buildResponseMessage(
+      {
+        dates: ['2025-08-18', '2025-08-08'],
+      } as import('../../modules/date-query/model/DateQueryResult').DateQueryResult,
+      [
+        { type: 'nextWeekday', weekday: 'monday' },
+        { type: 'previousWeekday', weekday: 'friday' },
+      ] as unknown as DateQueryOptions['queries'],
+    );
+    assert.ok(message.includes('Next monday'));
+    assert.ok(message.includes('Previous friday'));
+  });
 });
