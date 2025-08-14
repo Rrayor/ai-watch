@@ -106,7 +106,7 @@
             },
             "format": {
               "type": "string",
-              "description": "Date format pattern. Defaults to 'YYYY-MM-DD HH:mm:ss' when timezone is specified.",
+              "description": "Date format pattern. If omitted, uses aiWatch.defaultDateFormat when configured.",
               "default": "YYYY-MM-DD HH:mm:ss"
             }
           }
@@ -406,6 +406,21 @@
               "type": "number",
               "description": "Number of business days to add/subtract (for add/subtract operations)",
               "default": 5
+            },
+            "businessDays": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Optional business days to use (array of names/abbreviations). Overrides configuration when provided."
+            },
+            "excludedDates": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+              },
+              "description": "Optional YYYY-MM-DD dates to exclude from business day calculations. Overrides configuration when provided."
             }
           },
           "required": [
@@ -468,6 +483,7 @@
                   "period": {
                     "type": "string",
                     "enum": [
+                      "day",
                       "week",
                       "month",
                       "quarter",
@@ -505,13 +521,22 @@
         "aiWatch.defaultDateFormat": {
           "type": "string",
           "default": "YYYY-MM-DD HH:mm:ss",
-          "description": "Default date/time format pattern for display",
+          "description": "Global default date/time display format when no explicit format is provided",
           "scope": "window"
         },
         "aiWatch.businessDays": {
-          "type": "string",
-          "default": "Mon-Fri",
-          "description": "Business days definition. Use range format like 'Mon-Fri' or 'Sun-Thu', or list format like 'Mon,Wed,Fri'",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri"
+          ],
+          "description": "Business days definition as array of day names/abbreviations (e.g., [\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\"]).",
           "scope": "window"
         },
         "aiWatch.excludedDates": {
@@ -525,13 +550,22 @@
           "scope": "window"
         },
         "aiWatch.weekStart": {
-          "type": "string",
-          "enum": [
-            "monday",
-            "sunday"
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": [
+                "monday",
+                "sunday"
+              ]
+            },
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 6
+            }
           ],
           "default": "monday",
-          "description": "First day of the week for period calculations",
+          "description": "First day of the week for period calculations. Accepts 'monday' | 'sunday' or numbers 0–6 (0=Sunday).",
           "scope": "window"
         },
         "aiWatch.durationFormat": {
@@ -548,7 +582,7 @@
         "aiWatch.maxDurationUnits": {
           "type": "number",
           "minimum": 1,
-          "maximum": 7,
+          "maximum": 6,
           "default": 3,
           "description": "Maximum number of time units to display in duration formatting",
           "scope": "window"
@@ -581,7 +615,6 @@
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "@types/vscode": "^1.90.0",
     "@typescript-eslint/eslint-plugin": "^8.39.0",
     "@typescript-eslint/parser": "^8.39.0",
     "@vscode/test-cli": "^0.0.11",
@@ -595,6 +628,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "date-fns": "^4.1.0"
+    "@types/vscode": "^1.102.0",
+    "date-fns": "^2.30.0"
   }
 }

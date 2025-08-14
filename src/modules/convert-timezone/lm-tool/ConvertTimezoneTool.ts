@@ -5,19 +5,15 @@
 
 import {
   LanguageModelTool,
+  LanguageModelToolResult,
+  LanguageModelTextPart,
   LanguageModelToolInvocationOptions,
   CancellationToken,
   LanguageModelToolInvocationPrepareOptions,
   MarkdownString,
 } from 'vscode';
 import { ConvertTimezoneOptions } from '../model/ConvertTimezoneOptions';
-import {
-  parseISOString,
-  InvalidDateError,
-  LanguageModelToolResult,
-  LanguageModelTextPart,
-  InvalidTimezoneError,
-} from '../../shared';
+import { parseISOString, InvalidDateError, InvalidTimezoneError } from '../../shared';
 import { convertTimezoneCommand } from '../command/convertTimezoneCommand';
 import { ConvertTimezoneResult } from '../model/ConvertTimezoneResult';
 

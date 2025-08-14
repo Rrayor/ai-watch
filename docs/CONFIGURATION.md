@@ -10,46 +10,29 @@ AI Watch supports both user and workspace settings for flexible configuration ac
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `aiWatch.defaultTimezone` | string | System detected | Default timezone for operations |
-| `aiWatch.defaultDateFormat` | string | `"YYYY-MM-DD HH:mm:ss"` | Default date/time format pattern |
-| `aiWatch.businessDays` | string | `"Mon-Fri"` | Business days definition |
+| `aiWatch.defaultDateFormat` | string | `"YYYY-MM-DD HH:mm:ss"` | Global default date/time display format when no explicit format is provided |
+| `aiWatch.businessDays` | string[] | `["Mon","Tue","Wed","Thu","Fri"]` | Business days definition (array of day names/abbreviations) |
 | `aiWatch.excludedDates` | array | `[]` | Dates to exclude from business calculations |
-| `aiWatch.weekStart` | string | `"monday"` | First day of the week |
+| `aiWatch.weekStart` | string | `"monday"` | First day of the week for period calculations (also accepts numbers 0–6) |
 | `aiWatch.durationFormat` | string | `"standard"` | Default duration verbosity |
-| `aiWatch.maxDurationUnits` | number | `3` | Maximum time units in duration display |
+| `aiWatch.maxDurationUnits` | number | `3` | Maximum time units in duration display (1–6) |
 
 ## Detailed Configuration
 
-### Default Timezone
+### Removed: Default Timezone
 
-**Setting:** `aiWatch.defaultTimezone`
-
-Specifies the default timezone for operations when not explicitly provided.
-
-**Valid Values:** Any IANA timezone identifier
-- `"UTC"` - Coordinated Universal Time
-- `"America/New_York"` - Eastern Time (US)
-- `"Europe/London"` - Greenwich Mean Time/British Summer Time
-- `"Asia/Tokyo"` - Japan Standard Time
-- `"Australia/Sydney"` - Australian Eastern Time
-
-**Examples:**
-```json
-{
-  "aiWatch.defaultTimezone": "Europe/London"
-}
-```
-
-**Usage:**
-- Applied when no timezone parameter is provided to tools
-- Used for local time calculations
-- Affects timezone-aware operations
+`aiWatch.defaultTimezone` has been removed. The extension uses the system timezone by default and allows explicit `timezone` parameters per command. If you need a specific timezone, pass it to the command/tool call.
 
 ### Default Date Format
 
 **Setting:** `aiWatch.defaultDateFormat`
 
-Defines the default format pattern for date/time display.
+Defines the global default format pattern for date/time display.
+
+How it is applied:
+- Used whenever a command/tool does not provide an explicit `format` parameter.
+- Independent of timezone detection. The timezone only determines the clock time; the pattern controls how it’s rendered.
+- If both `format` (per call) and `aiWatch.defaultDateFormat` are absent, a standard locale-safe format is used.
 
 **Valid Values:** Format string using standard tokens
 - `YYYY` - 4-digit year
@@ -79,13 +62,15 @@ Defines the default format pattern for date/time display.
 Defines which days of the week are considered business days.
 
 **Valid Values:**
-- **Range format:** `"Mon-Fri"`, `"Sun-Thu"`, `"Tue-Sat"`
-- **List format:** `"Mon,Wed,Fri"`, `"Tue,Thu,Sat"`
+- Array of day names/abbreviations (case-insensitive), e.g.:
+  - `["Mon","Tue","Wed","Thu","Fri"]`
+  - `["Sun","Mon","Tue","Wed","Thu"]`
+  - `["Mon","Wed","Fri"]`
 
 **Examples:**
 ```json
 {
-  "aiWatch.businessDays": "Sun-Thu"
+  "aiWatch.businessDays": ["Sun","Mon","Tue","Wed","Thu"]
 }
 ```
 
@@ -127,8 +112,8 @@ List of specific dates to exclude from business day calculations (holidays, shut
 Defines which day is considered the start of the week for period calculations.
 
 **Valid Values:**
-- `"monday"` - Week starts on Monday (default)
-- `"sunday"` - Week starts on Sunday
+- Strings: weekday names/abbreviations like `"monday"`, `"sunday"` (case-insensitive)
+- Numbers: 0–6 (0=Sunday, 1=Monday, ...)
 
 **Examples:**
 ```json
@@ -136,6 +121,10 @@ Defines which day is considered the start of the week for period calculations.
   "aiWatch.weekStart": "sunday"
 }
 ```
+
+Notes:
+- For start/end of period queries, the default when unset is Monday.
+- For weekday navigation (next/previous weekday), when unset the internal default treats Sunday as index 0.
 
 **Impact:**
 - Affects `startOfPeriod` and `endOfPeriod` calculations for weeks
@@ -165,13 +154,16 @@ Default verbosity level for duration formatting.
 - **Standard:** `"1 day, 2 hours, 30 minutes"`
 - **Verbose:** `"1 day, 2 hours and 30 minutes"`
 
+Applied when:
+- Using `formatDuration` without an explicit `verbosity` parameter.
+
 ### Max Duration Units
 
 **Setting:** `aiWatch.maxDurationUnits`
 
 Maximum number of time units to display in duration formatting.
 
-**Valid Values:** Integer between 1 and 7
+**Valid Values:** Integer between 1 and 6
 
 **Examples:**
 ```json
@@ -185,6 +177,9 @@ Maximum number of time units to display in duration formatting.
 - **maxUnits: 2** - `"2 days, 3 hours"` (two largest units)
 - **maxUnits: 3** - `"2 days, 3 hours, 45 minutes"` (three largest units)
 
+Applied when:
+- Using `formatDuration` without an explicit `maxUnits` parameter.
+
 ## Configuration Examples
 
 ### Global Development Team
@@ -193,9 +188,8 @@ For teams working across multiple timezones with standardized practices:
 
 ```json
 {
-  "aiWatch.defaultTimezone": "UTC",
   "aiWatch.defaultDateFormat": "YYYY-MM-DD HH:mm:ss",
-  "aiWatch.businessDays": "Mon-Fri",
+  "aiWatch.businessDays": ["Mon","Tue","Wed","Thu","Fri"],
   "aiWatch.weekStart": "monday",
   "aiWatch.durationFormat": "standard",
   "aiWatch.maxDurationUnits": 3,
@@ -212,9 +206,8 @@ For US-based companies with typical business practices:
 
 ```json
 {
-  "aiWatch.defaultTimezone": "America/New_York",
   "aiWatch.defaultDateFormat": "MM/DD/YYYY hh:mm A",
-  "aiWatch.businessDays": "Mon-Fri", 
+  "aiWatch.businessDays": ["Mon","Tue","Wed","Thu","Fri"],
   "aiWatch.weekStart": "sunday",
   "aiWatch.durationFormat": "verbose",
   "aiWatch.maxDurationUnits": 4,
@@ -240,9 +233,8 @@ For Middle Eastern companies with Friday-Saturday weekends:
 
 ```json
 {
-  "aiWatch.defaultTimezone": "Asia/Dubai",
   "aiWatch.defaultDateFormat": "DD/MM/YYYY HH:mm",
-  "aiWatch.businessDays": "Sun-Thu",
+  "aiWatch.businessDays": ["Sun","Mon","Tue","Wed","Thu"],
   "aiWatch.weekStart": "sunday",
   "aiWatch.durationFormat": "standard",
   "aiWatch.maxDurationUnits": 3,
@@ -260,9 +252,8 @@ For EU-based teams with Monday week start:
 
 ```json
 {
-  "aiWatch.defaultTimezone": "Europe/Berlin",
   "aiWatch.defaultDateFormat": "DD.MM.YYYY HH:mm",
-  "aiWatch.businessDays": "Mon-Fri",
+  "aiWatch.businessDays": ["Mon","Tue","Wed","Thu","Fri"],
   "aiWatch.weekStart": "monday",
   "aiWatch.durationFormat": "standard",
   "aiWatch.maxDurationUnits": 3,
@@ -360,9 +351,9 @@ Error: Invalid excluded date '25/12/2025'. Use YYYY-MM-DD format.
 
 **Invalid Business Days:**
 ```
-Error: Invalid business days 'Monday-Friday'. Use 'Mon-Fri' format.
+Error: Invalid business days 'Monday-Friday'. Provide an array like ["Mon","Tue","Wed","Thu","Fri"].
 ```
-**Solution:** Use 3-letter day abbreviations in range or list format.
+**Solution:** Provide an array of day names/abbreviations (case-insensitive).
 
 ### Settings Validation
 

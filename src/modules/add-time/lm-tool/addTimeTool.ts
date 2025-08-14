@@ -5,6 +5,8 @@
 
 import {
   LanguageModelTool,
+  LanguageModelToolResult,
+  LanguageModelTextPart,
   LanguageModelToolInvocationOptions,
   CancellationToken,
   LanguageModelToolInvocationPrepareOptions,
@@ -12,8 +14,6 @@ import {
 } from 'vscode';
 import { addTimeCommand } from '../command/addTimeCommand';
 import { AddTimeOptions } from '../model/AddTimeOptions';
-import { LanguageModelToolResult } from '../../shared';
-import { LanguageModelTextPart } from '../../shared';
 import { AddTimeResult } from '../model/AddTimeResult';
 import { InvalidDateError } from '../../shared';
 import { InvalidTimezoneError } from '../../shared';

@@ -5,12 +5,13 @@
 
 import {
   LanguageModelTool,
+  LanguageModelToolResult,
+  LanguageModelTextPart,
   LanguageModelToolInvocationOptions,
   CancellationToken,
   LanguageModelToolInvocationPrepareOptions,
   MarkdownString,
 } from 'vscode';
-import { LanguageModelToolResult, LanguageModelTextPart } from '../../shared';
 import { GetCurrentDateTimeResult } from '../model/GetCurrentDateTimeResult';
 import { getCurrentDateTimeCommand } from '../command/getCurrentDateTimeCommand';
 import { GetCurrentDateTimeOptions } from '../model/GetCurrentDateTimeOptions';

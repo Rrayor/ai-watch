@@ -3,8 +3,14 @@
  * Converts duration values into human-readable strings with various verbosity levels.
  */
 
-import { LanguageModelTool, LanguageModelToolInvocationOptions, CancellationToken } from 'vscode';
-import { LanguageModelToolResult, LanguageModelTextPart, InvalidDateError } from '../../shared';
+import {
+  LanguageModelTool,
+  LanguageModelToolResult,
+  LanguageModelTextPart,
+  LanguageModelToolInvocationOptions,
+  CancellationToken,
+} from 'vscode';
+import { InvalidDateError } from '../../shared';
 import { formatDurationCommand } from '../command/formatDurationCommand';
 import { FormatDurationOptions } from '../model/FormatDurationOptions';
 import { FormatDurationResult } from '../model/FormatDurationResult';

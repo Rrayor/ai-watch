@@ -5,13 +5,15 @@
 
 import {
   LanguageModelTool,
+  LanguageModelToolResult,
+  LanguageModelTextPart,
   LanguageModelToolInvocationOptions,
   CancellationToken,
   LanguageModelToolInvocationPrepareOptions,
   MarkdownString,
 } from 'vscode';
 import { CalculateDifferenceOptions } from '../model/CalculateDifferenceOptions';
-import { LanguageModelToolResult, LanguageModelTextPart, InvalidDateError } from '../../shared';
+import { InvalidDateError } from '../../shared';
 import { calculateDifferenceCommand } from '../command/calculateDifferenceCommand';
 import { CalculateDifferenceResult } from '../model/CalculateDifferenceResult';
 

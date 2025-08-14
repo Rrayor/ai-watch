@@ -4,9 +4,15 @@
  * calculating start/end of periods, and chaining multiple date operations.
  */
 
-import { LanguageModelTool, LanguageModelToolInvocationOptions, CancellationToken } from 'vscode';
+import {
+  LanguageModelTool,
+  LanguageModelToolResult,
+  LanguageModelTextPart,
+  LanguageModelToolInvocationOptions,
+  CancellationToken,
+} from 'vscode';
 import { DateQueryOptions } from '../model/DateQueryOptions';
-import { LanguageModelToolResult, LanguageModelTextPart, InvalidDateError } from '../../shared';
+import { InvalidDateError } from '../../shared';
 import { dateQueryCommand } from '../command/dateQueryCommand';
 import { InvalidQueryError } from '../error/InvalidQueryError';
 import { InvalidPeriodQueryError } from '../error/InvalidPeriodQueryError';

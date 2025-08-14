@@ -17,12 +17,13 @@ Returns current date and time with timezone and formatting support.
 **Returns:**
 ```typescript
 {
-  iso: string;           // ISO 8601 format: "2025-08-09T13:37:01.000Z"
-  utc: string;           // UTC format: "2025-08-09 13:37:01 UTC"
-  local: string;         // Local timezone: "2025-08-09 09:37:01"
-  localTimezone: string; // Detected timezone: "America/New_York"
-  formatted?: string;    // Custom format (if timezone specified)
-  timezone?: string;     // Requested timezone (if specified)
+  iso?: string;            // ISO 8601 format (if available)
+  utc?: string;            // UTC format (if available)
+  local: string;           // Local timezone formatted time
+  localTimezone: string;   // Detected timezone
+  formattedResult: string; // Formatted string using requested format/timezone
+  resultTimezone: string;  // Timezone used for formattedResult
+  info?: string[];         // Additional informational messages
 }
 ```
 
@@ -54,12 +55,12 @@ Calculates precise time differences between two dates.
 **Returns:**
 ```typescript
 {
-  days: number;     // Total days difference
-  hours: number;    // Total hours difference
-  minutes: number;  // Total minutes difference
-  seconds: number;  // Total seconds difference
-  from: string;     // Echo of input from date
-  to: string;       // Echo of input to date
+  milliseconds?: number; // Total difference in milliseconds
+  seconds?: number;      // Total difference in seconds
+  minutes?: number;      // Total difference in minutes
+  hours?: number;        // Total difference in hours
+  days?: number;         // Total difference in days
+  formatted?: string;    // Human-readable duration
 }
 ```
 
@@ -84,10 +85,14 @@ Converts date/time between different timezones.
 **Returns:**
 ```typescript
 {
-  formatted: string;     // Converted date in target timezone
-  fromTimezone: string;  // Source timezone
-  toTimezone: string;    // Target timezone
-  iso: string;          // Original ISO date
+  iso?: string;            // ISO 8601 format (if available)
+  utc?: string;            // UTC format (if available)
+  local: string;           // Local timezone formatted time
+  localTimezone: string;   // Detected local timezone
+  formattedResult: string; // Converted/Formatted string in target timezone
+  resultTimezone: string;  // Target timezone identifier
+  fromTimezone?: string;   // Source timezone (if provided)
+  info?: string[];         // Informational messages
 }
 ```
 
@@ -118,13 +123,14 @@ Adds specified duration components to a base time.
 **Returns:**
 ```typescript
 {
-  iso: string;           // Result in ISO format
-  utc: string;           // Result in UTC format
-  local: string;         // Result in local timezone
-  localTimezone: string; // Detected local timezone
-  baseTime: string;      // Original base time used
-  formatted?: string;    // Result in requested timezone (if specified)
-  timezone?: string;     // Requested timezone (if specified)
+  iso?: string;            // Result in ISO format (if available)
+  utc?: string;            // Result in UTC format (if available)
+  local: string;           // Result in local timezone
+  localTimezone: string;   // Detected local timezone
+  formattedResult: string; // Result in requested timezone/format
+  resultTimezone: string;  // Requested timezone
+  baseTime?: string;       // Base time used for calculation
+  info?: string[];         // Informational messages
 }
 ```
 
@@ -164,13 +170,14 @@ Subtracts specified duration components from a base time.
 **Returns:**
 ```typescript
 {
-  iso: string;           // Result in ISO format
-  utc: string;           // Result in UTC format
-  local: string;         // Result in local timezone
-  localTimezone: string; // Detected local timezone
-  baseTime: string;      // Original base time used
-  formatted?: string;    // Result in requested timezone (if specified)
-  timezone?: string;     // Requested timezone (if specified)
+  iso?: string;            // Result in ISO format (if available)
+  utc?: string;            // Result in UTC format (if available)
+  local: string;           // Result in local timezone
+  localTimezone: string;   // Detected local timezone
+  formattedResult: string; // Result in requested timezone/format
+  resultTimezone: string;  // Requested timezone
+  baseTime?: string;       // Base time used for calculation
+  info?: string[];         // Informational messages
 }
 ```
 
@@ -213,9 +220,9 @@ Converts time duration between two dates into human-readable format with type-sa
 **Returns:**
 ```typescript
 {
-  formatted: string;  // Human-readable duration with proper negative sign handling
-} | {
-  error: string;     // Error message if invalid input
+  formatted?: string;      // Human-readable duration
+  totalMilliseconds?: number; // Total duration in milliseconds
+  error?: string;          // Error message if invalid input
 }
 ```
 
@@ -254,24 +261,19 @@ Performs business day calculations including validation and math operations.
 ```typescript
 // For 'isBusinessDay'
 {
-  date: string;         // Input date
-  operation: string;    // Operation performed ('isBusinessDay')
-  isBusinessDay: boolean; // Whether it's a business day
-  weekday: string;      // Day name (e.g., "Monday")
+  isBusinessDay?: boolean; // Whether it's a business day
+  weekday?: string;        // Day name (e.g., "Monday")
 }
 
 // For 'addBusinessDays' or 'subtractBusinessDays'
 {
-  date: string;         // Input date
-  operation: string;    // Operation performed
-  days: number;         // Number of days added/subtracted
-  result: string;       // Result date in ISO format
+  result?: string;         // Result date in ISO format
+  days?: number;           // Number of days added/subtracted
+  businessDays?: string;   // Business day configuration used
+  excludedDates?: string[];// Excluded dates considered
 }
 
-// Error case
-{
-  error: string;       // Error description
-}
+// Error case remains returned via thrown errors in commands layer
 ```
 
 **Examples:**
@@ -319,19 +321,8 @@ Performs advanced date queries including weekday navigation and period boundarie
 
 **Returns:**
 ```typescript
-// Single query result
 {
-  date: string;        // Result date in ISO format
-}
-
-// Multiple query results
-{
-  dates: string[];     // Array of result dates in ISO format
-}
-
-// Error case
-{
-  error: string;       // Error description
+  dates?: string[];     // Array of result dates in ISO format
 }
 ```
 

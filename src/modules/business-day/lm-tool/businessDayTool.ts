@@ -4,9 +4,15 @@
  * adding/subtracting business days, and handling custom business day definitions.
  */
 
-import { LanguageModelTool, LanguageModelToolInvocationOptions, CancellationToken } from 'vscode';
+import {
+  LanguageModelTool,
+  LanguageModelToolResult,
+  LanguageModelTextPart,
+  LanguageModelToolInvocationOptions,
+  CancellationToken,
+} from 'vscode';
 import { BusinessDayOptions } from '../model/BusinessDayOptions';
-import { LanguageModelToolResult, LanguageModelTextPart, InvalidWeekDayError } from '../../shared';
+import { InvalidWeekDayError } from '../../shared';
 import { businessDayCommand } from '../command/businessDayCommand';
 import { MissingDaysError } from '../error/MissingDaysError';
 import { UnsupportedBusinessDayOperation } from '../error/UnsupportedBusinessDayOperation';

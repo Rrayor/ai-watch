@@ -330,100 +330,115 @@ Comprehensive test suite covering all layers:
   - `addTime.test.ts` - Time addition with multiple units
   - `allCommands.test.ts` - All command implementations and edge cases
 
-- **Integration Layer**:
-  - `integration.test.ts` - End-to-end VS Code command testing
-  - `extension.test.ts` - Extension activation and tool registration
+# AI Watch Extension Architecture
 
-### Test Quality Standards
+This document describes the current modular architecture of the AI Watch VS Code extension after the recent overhaul. It reflects the implementation under `src/modules` and the registration wiring. Test-related content is intentionally omitted.
 
-- **Documented Behavior**: Tests validate documented API behavior, not implementation details
-- **Timezone Independence**: UTC-based assertions prevent environment-specific failures
-- **Error Coverage**: Comprehensive validation of error conditions and edge cases
-- **Format Validation**: Strict checking of output formats and data structures
+## Overview
 
-## Performance Considerations
+AI Watch provides 8 date/time capabilities as both VS Code commands and Language Model Tools. The codebase is organized by feature modules, with a small registration layer and a thin entry point.
 
-### Optimization Techniques:
-1. **Lazy Loading**: Modules loaded only when needed
-2. **Efficient Imports**: Barrel exports prevent loading unused code
-3. **Minimal Dependencies**: Utils layer has no VS Code API dependencies
-4. **Caching**: User timezone detection cached in `getUserTimezone()`
+## High-level layout
 
-### Memory Footprint:
-- **Before**: Single 1,800+ line file loaded entirely
-- **After**: Modular loading based on usage patterns
-
-## Extension Points
-
-The architecture supports easy extension:
-
-### Adding New Tools:
-1. Create utility functions in `src/utils/`
-2. Add command in `src/commands/`
-3. Add tool in `src/tools/`
-4. Add types in `src/types/`
-5. Register in `src/registration/`
-
-### Adding New Features:
-- **Custom Formatters**: Extend `timezoneUtils.ts`
-- **New Business Rules**: Extend `businessDayUtils.ts`
-- **Additional Date Operations**: Extend `dateUtils.ts`
-
-## Development Workflow
-
-### Module Guidelines:
-- **Single Responsibility**: Each module has one clear purpose
-- **Dependency Direction**: Higher layers depend on lower layers only
-- **Error Handling**: Consistent validation and user-friendly messages
-- **Type Safety**: Comprehensive TypeScript interfaces for all interactions
-
-### Adding New Features:
-1. **Define Types** - Add interfaces to the types layer
-2. **Create Utilities** - Implement reusable functions in utils layer
-3. **Build Commands** - Create VS Code command implementations
-4. **Implement Tools** - Add Language Model Tool implementations
-5. **Register** - Update registration layer to expose new functionality
-
-## Configuration Integration
-
-```mermaid
-graph TB
-    A[VS Code Settings] --> B[Configuration API]
-    B --> C[Default Values]
-    C --> D[Business Day Utils]
-    C --> E[Timezone Utils]
-    C --> F[Duration Utils]
-
-    subgraph "User Configurable"
-        G[aiWatch.businessDays]
-        H[aiWatch.defaultTimezone]
-        I[aiWatch.defaultDateFormat]
-        J[aiWatch.excludedDates]
-    end
-
-    G --> D
-    H --> E
-    I --> E
-    J --> D
+```text
+src/
+    extension.ts                # Entry point: activation/deactivation
+    registration/               # Wiring for commands and LM tools
+        index.ts
+        commands.ts               # Registers VS Code commands
+        tools.ts                  # Registers Language Model Tools (lm.registerTool)
+    modules/
+        <feature>/                # One folder per capability (e.g., add-time, date-query)
+            index.ts                # Barrel for the feature
+            command/                # Command implementation(s)
+            lm-tool/                # Language Model Tool implementation(s)
+            model/                  # Options/Result types for the feature
+        shared/                   # Reusable errors/models/utils across features
+            error/
+            model/
+            util/
 ```
 
-## Future Architecture Enhancements
+## Runtime wiring
 
-### Planned Improvements:
-1. **Plugin System**: Dynamic tool loading
-2. **Custom Business Rules**: User-defined business day patterns
-3. **Internationalization**: Multi-language support
-4. **Advanced Caching**: Intelligent timezone data caching
-5. **Performance Monitoring**: Built-in performance metrics
+- Entry point (`src/extension.ts`)
+    - Calls `registerChatTools(context)` and `registerCommands(context)` during `activate`.
+    - Deactivation relies on VS Code disposing subscriptions automatically.
+
+- Registration layer (`src/registration/`)
+    - `commands.ts`: binds command IDs (e.g., `ai-watch.addTime`) to module command functions.
+    - `tools.ts`: registers LM Tools (e.g., `ai-watch_addTime`) for the Language Model Tools API.
+
+- Modules (`src/modules/`)
+    - Feature-scoped folders encapsulate:
+        - command: pure command functions (validate → compute → return typed result)
+        - lm-tool: VS Code Language Model Tool classes bridging AI agents to the command layer
+        - model: TypeScript option/result interfaces used by both command and tool
+    - `shared/` module provides cross-cutting utilities and types:
+        - `util/timezoneUtils.ts`: timezone formatting, custom format application, local/UTC helpers
+        - `util/dateUtils.ts`: parsing, weekday normalization, duration description
+        - `error/*`: rich, specific error types
+        - `model/OperationContext.ts`: collects informational messages surfaced in results
+
+## Data flow (commands vs tools)
+
+- Commands
+    - Invoked via `vscode.commands.executeCommand('ai-watch.<cmd>', options)`
+    - Return typed JSON results directly (no VS Code UI coupling)
+
+- Language Model Tools
+    - Registered via `lm.registerTool('<tool_name>', new <ToolClass>())`
+    - Call the same command functions under the hood
+    - Provide LM-friendly output structure; agents surface JSON first and may include a short human message
+
+## Feature modules at a glance
+
+- current-date-time: get current date/time with timezone and optional formatting
+- add-time / subtract-time: arithmetic on dates using date-fns (years…seconds)
+- convert-timezone: convert a timestamp to a target IANA timezone
+- calculate-difference: difference between two instants (ms + formatted)
+- format-duration: human-readable durations using date-fns interval formatting
+- business-day: weekday/business-day math with exclusions and custom calendars
+- date-query: navigation (next/previous weekday) and period boundaries (start/end of week/month/quarter/year)
+
+All modules expose their public entry via their feature `index.ts` and a central `modules/index.ts` barrel.
+
+## Configuration touchpoints
+
+Configuration is read from the `aiWatch` namespace via VS Code’s workspace configuration:
+
+- `defaultDateFormat` (string): global default formatting pattern when no explicit format is provided.
+- `businessDays` (string[]): custom business-day set for business-day math.
+- `excludedDates` (string[]): YYYY-MM-DD dates excluded from business-day calculations.
+- `weekStart` (string | number): week start used by period queries and weekday normalization.
+- `durationFormat` ("compact" | "standard" | "verbose"): default verbosity for `formatDuration`.
+- `maxDurationUnits` (number): default maximum units for `formatDuration` (1–6).
+
+These are consumed in module code (e.g., `timezoneUtils`, `businessDayCommand`, `dateQueryCommand`, `formatDurationCommand`). Per-invocation parameters override configuration.
+
+## Error handling
+
+- Specific error classes (e.g., `InvalidDateError`, `InvalidTimezoneError`, `InvalidWeekDayError`) provide precise failure reasons.
+- Commands throw errors on invalid inputs; LM tools and callers can surface messages alongside the structured result.
+- `OperationContext` collects non-fatal info strings (e.g., which timezone or format was applied).
+
+## Extending the extension
+
+To add a new capability:
+1. Create `src/modules/<new-feature>/` with `command/`, `lm-tool/`, and `model/` folders and an `index.ts` barrel.
+2. Implement the command function(s) in `command/` and types in `model/`.
+3. Implement a Language Model Tool class in `lm-tool/` that calls the command.
+4. Export from `src/modules/<new-feature>/index.ts` and add to `src/modules/index.ts`.
+5. Register the VS Code command in `src/registration/commands.ts` and the LM tool in `src/registration/tools.ts`.
+
+This feature-first structure keeps code cohesive and discoverable, with shared concerns centralized under `modules/shared`.
 
 ## Summary
 
-This modular architecture provides:
-- **Maintainability**: Clear module boundaries and responsibilities
-- **Scalability**: Easy to add new features and tools
-- **Testability**: Each component can be tested in isolation
-- **Performance**: Efficient loading and minimal dependencies
-- **Type Safety**: Comprehensive TypeScript interfaces
-- **Developer Experience**: Clear APIs and consistent patterns
+The current architecture is:
+- Feature-first (`src/modules/<feature>`): command + tool + model per capability
+- Thin registration layer: predictable wiring to VS Code APIs
+- Thin entry point: just activation/deactivation
+- Centralized shared utilities and error types
 
-This modular design positions AI Watch for long-term growth and maintainability while providing a solid foundation for the 8 current date/time tools.
+This design makes features easy to add, behavior easy to reason about, and integration with AI assistants straightforward.

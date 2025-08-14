@@ -5,6 +5,8 @@
 
 import {
   LanguageModelTool,
+  LanguageModelToolResult,
+  LanguageModelTextPart,
   LanguageModelToolInvocationOptions,
   CancellationToken,
   LanguageModelToolInvocationPrepareOptions,
@@ -12,13 +14,7 @@ import {
   MarkdownString,
 } from 'vscode';
 import { SubtractTimeOptions } from '../model/SubtractTimeOptions';
-import {
-  LanguageModelToolResult,
-  LanguageModelTextPart,
-  InvalidDateError,
-  InvalidTimezoneError,
-  buildDurationParts,
-} from '../../shared';
+import { InvalidDateError, InvalidTimezoneError, buildDurationParts } from '../../shared';
 import { subtractTimeCommand } from '../command/subtractTimeCommand';
 import { SubtractTimeResult } from '../model/SubtractTimeResult';
 

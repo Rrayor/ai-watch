@@ -36,27 +36,40 @@ export function formatInTimezone(
   customFormat?: string,
 ): string {
   try {
-    if (customFormat !== undefined) {
-      return formatWithCustomFormat(date, timezone, context, customFormat ?? '');
+    // Resolve timezone to use (explicit or detected)
+    const tzToUse = timezone || getUserTimezone(context);
+
+    // Prefer explicit custom format; otherwise use configured default format if present
+    const defaultFormat = workspace
+      .getConfiguration('aiWatch')
+      .get<string | undefined>('defaultDateFormat');
+
+    const effectiveFormat = customFormat ?? defaultFormat;
+
+    if (effectiveFormat) {
+      return formatWithCustomFormat(date, tzToUse, context, effectiveFormat);
     }
-    return formatStandard(date, context, timezone);
+
+    // Fall back to standard formatting when no format strings are provided
+    return formatStandard(date, context, tzToUse);
   } catch {
     if (timezone) {
+      // Explicit timezone likely invalid
       throw new InvalidTimezoneError(timezone);
     }
+
+    // When timezone resolution fails, try using configured default format
     const defaultDateFormatConfiguration = workspace
       .getConfiguration('aiWatch')
       .get<string>('defaultDateFormat');
 
     if (defaultDateFormatConfiguration) {
-      context.addInfo(
-        `No timezone was provided, using default date format from settings: ${defaultDateFormatConfiguration}`,
-      );
-      return formatWithCustomFormat(date, timezone, context, defaultDateFormatConfiguration);
+      context.addInfo(`Using default date format from settings: ${defaultDateFormatConfiguration}`);
+      return formatWithCustomFormat(date, undefined, context, defaultDateFormatConfiguration);
     }
 
     context.addInfo(
-      'No timezone was provided and there was an error with the local timezone, using UTC timezone by default.',
+      'Timezone resolution failed and no default date format is set; falling back to ISO-like UTC.',
     );
     // Fallback to ISO format if user timezone fails
     return date.toISOString().slice(0, ISO_TIMESTAMP_LENGTH).replace('T', ' ');
@@ -73,7 +86,7 @@ export function formatInTimezone(
  */
 function formatWithCustomFormat(
   date: Date,
-  timezone: string,
+  timezone: string | undefined,
   context: OperationContext,
   customFormat = '',
 ): string {
@@ -92,10 +105,8 @@ function formatWithCustomFormat(
     const parts = formatter.formatToParts(date);
     return applyCustomFormatFromParts(parts, customFormat);
   } else {
-    context.addInfo(
-      'No timezone was provided and there was an error with the local timezone, using UTC timezone by default.',
-    );
-    // No timezone, use local date
+    // No explicit timezone provided; format using system local time
+    context.addInfo('No timezone provided; formatting using local system time.');
     return applyCustomFormat(date, customFormat);
   }
 }
