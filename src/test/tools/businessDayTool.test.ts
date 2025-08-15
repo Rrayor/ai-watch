@@ -21,4 +21,48 @@ suite('BusinessDayTool', () => {
     const res = await tool.invoke(options, undefined as unknown as CancellationToken);
     assert.ok(res);
   });
+
+  test('invoke error: MissingDaysError (addBusinessDays without days)', async () => {
+    const tool = new BusinessDayTool();
+    const options = {
+      input: { operation: 'addBusinessDays', date: '2025-08-11T00:00:00Z' },
+    } as unknown as LanguageModelToolInvocationOptions<BusinessDayOptions>;
+    const res = await tool.invoke(options, undefined as unknown as CancellationToken);
+    assert.ok(res);
+  });
+
+  test('invoke error: UnsupportedBusinessDayOperation', async () => {
+    const tool = new BusinessDayTool();
+    const options = {
+      input: {
+        operation: 'notSupported' as unknown as 'addBusinessDays',
+        date: '2025-08-11T00:00:00Z',
+      },
+    } as unknown as LanguageModelToolInvocationOptions<BusinessDayOptions>;
+    const res = await tool.invoke(options, undefined as unknown as CancellationToken);
+    assert.ok(res);
+  });
+
+  test('invoke error: InvalidWeekDayError from custom businessDays', async () => {
+    const tool = new BusinessDayTool();
+    const options = {
+      input: {
+        operation: 'addBusinessDays',
+        date: '2025-08-11T00:00:00Z',
+        days: 1,
+        businessDays: ['NotARealDay'],
+      },
+    } as unknown as LanguageModelToolInvocationOptions<BusinessDayOptions>;
+    const res = await tool.invoke(options, undefined as unknown as CancellationToken);
+    assert.ok(res);
+  });
+
+  test('invoke error: InvalidDateError falls through to unexpected', async () => {
+    const tool = new BusinessDayTool();
+    const options = {
+      input: { operation: 'isBusinessDay', date: 'not-a-date' },
+    } as unknown as LanguageModelToolInvocationOptions<BusinessDayOptions>;
+    const res = await tool.invoke(options, undefined as unknown as CancellationToken);
+    assert.ok(res);
+  });
 });

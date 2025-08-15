@@ -47,4 +47,67 @@ suite('DateQueryTool', () => {
     assert.ok(message.includes('Next monday'));
     assert.ok(message.includes('Previous friday'));
   });
+
+  test('invoke error: InvalidDateError', async () => {
+    const tool = new DateQueryTool();
+    const options = {
+      input: { baseDate: 'not-a-date', timezone: 'UTC', queries: [] },
+    } as unknown as LanguageModelToolInvocationOptions<DateQueryOptions>;
+    const res = await tool.invoke(options, undefined as unknown as CancellationToken);
+    assert.ok(res);
+  });
+
+  test('invoke error: InvalidQueryError (unsupported type)', async () => {
+    const tool = new DateQueryTool();
+    const options = {
+      input: {
+        baseDate: '2025-08-14T10:00:00Z',
+        timezone: 'UTC',
+        queries: [{ type: 'somethingElse' } as unknown as DateQueryOptions['queries'][0]],
+      },
+    } as unknown as LanguageModelToolInvocationOptions<DateQueryOptions>;
+    const res = await tool.invoke(options, undefined as unknown as CancellationToken);
+    assert.ok(res);
+  });
+
+  test('invoke error: InvalidWeekDayQueryError (nextWeekday without weekday)', async () => {
+    const tool = new DateQueryTool();
+    const options = {
+      input: {
+        baseDate: '2025-08-14T10:00:00Z',
+        timezone: 'UTC',
+        queries: [{ type: 'nextWeekday' } as unknown as DateQueryOptions['queries'][0]],
+      },
+    } as unknown as LanguageModelToolInvocationOptions<DateQueryOptions>;
+    const res = await tool.invoke(options, undefined as unknown as CancellationToken);
+    assert.ok(res);
+  });
+
+  test('invoke error: MissingPeriodQueryError (startOfPeriod without period)', async () => {
+    const tool = new DateQueryTool();
+    const options = {
+      input: {
+        baseDate: '2025-08-14T10:00:00Z',
+        timezone: 'UTC',
+        queries: [{ type: 'startOfPeriod' } as unknown as DateQueryOptions['queries'][0]],
+      },
+    } as unknown as LanguageModelToolInvocationOptions<DateQueryOptions>;
+    const res = await tool.invoke(options, undefined as unknown as CancellationToken);
+    assert.ok(res);
+  });
+
+  test('invoke error: InvalidPeriodQueryError (invalid period)', async () => {
+    const tool = new DateQueryTool();
+    const options = {
+      input: {
+        baseDate: '2025-08-14T10:00:00Z',
+        timezone: 'UTC',
+        queries: [
+          { type: 'startOfPeriod', period: 'decade' } as unknown as DateQueryOptions['queries'][0],
+        ],
+      },
+    } as unknown as LanguageModelToolInvocationOptions<DateQueryOptions>;
+    const res = await tool.invoke(options, undefined as unknown as CancellationToken);
+    assert.ok(res);
+  });
 });

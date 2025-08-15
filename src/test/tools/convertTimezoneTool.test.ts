@@ -32,4 +32,13 @@ suite('ConvertTimezoneTool', () => {
     const res = await tool.invoke(options, undefined as unknown as CancellationToken);
     assert.ok(res);
   });
+
+  test('invoke handles invalid timezone with error message', async () => {
+    const tool = new ConvertTimezoneTool();
+    const options = {
+      input: { date: '2025-08-14T10:00:00Z', toTimezone: 'Invalid/Zone' },
+    } as unknown as LanguageModelToolInvocationOptions<ConvertTimezoneOptions>;
+    const res = await tool.invoke(options, undefined as unknown as CancellationToken);
+    assert.ok(res);
+  });
 });
