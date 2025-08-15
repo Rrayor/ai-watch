@@ -22,6 +22,15 @@ suite('BusinessDayTool', () => {
     assert.ok(res);
   });
 
+  test('invoke returns readable message for subtractBusinessDays', async () => {
+    const tool = new BusinessDayTool();
+    const options = {
+      input: { operation: 'subtractBusinessDays', date: '2025-08-20T00:00:00Z', days: 1 },
+    } as unknown as LanguageModelToolInvocationOptions<BusinessDayOptions>;
+    const res = await tool.invoke(options, undefined as unknown as CancellationToken);
+    assert.ok(res);
+  });
+
   test('invoke error: MissingDaysError (addBusinessDays without days)', async () => {
     const tool = new BusinessDayTool();
     const options = {
@@ -64,5 +73,17 @@ suite('BusinessDayTool', () => {
     } as unknown as LanguageModelToolInvocationOptions<BusinessDayOptions>;
     const res = await tool.invoke(options, undefined as unknown as CancellationToken);
     assert.ok(res);
+  });
+
+  test('buildResponseMessage handles default branch for unknown operation', () => {
+    const anyTool = BusinessDayTool as unknown as {
+      buildResponseMessage(param: BusinessDayOptions, result: unknown): string;
+    };
+    const out = anyTool.buildResponseMessage(
+      { operation: 'unknown' as unknown as 'addBusinessDays', date: '2025-01-01' },
+      { some: 'result' },
+    );
+    assert.ok(out.includes('```json'));
+    assert.ok(out.includes('Unknown operation'));
   });
 });

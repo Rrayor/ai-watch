@@ -48,6 +48,33 @@ suite('DateQueryTool', () => {
     assert.ok(message.includes('Previous friday'));
   });
 
+  test('buildResponseMessage handles no dates/queries', () => {
+    const msg = DateQueryTool.buildResponseMessage(
+      {
+        dates: [],
+      } as unknown as import('../../modules/date-query/model/DateQueryResult').DateQueryResult,
+      undefined as unknown as DateQueryOptions['queries'],
+    );
+    assert.ok(msg.startsWith('No dates found.'));
+  });
+
+  test('formatting default line when query is undefined or unknown type', () => {
+    const out = DateQueryTool.buildResponseMessage(
+      {
+        dates: ['2025-08-15'],
+      } as unknown as import('../../modules/date-query/model/DateQueryResult').DateQueryResult,
+      [{ type: 'unknown' } as unknown as DateQueryOptions['queries'][0]],
+    );
+    assert.ok(/1\./.test(out));
+  });
+
+  test('getErrorMessage returns unknown for unrecognized errors', () => {
+    const msg = (
+      DateQueryTool as unknown as { getErrorMessage: (e: unknown) => string }
+    ).getErrorMessage('weird');
+    assert.ok(/Unknown error/.test(msg));
+  });
+
   test('invoke error: InvalidDateError', async () => {
     const tool = new DateQueryTool();
     const options = {

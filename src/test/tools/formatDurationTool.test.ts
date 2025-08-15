@@ -21,4 +21,13 @@ suite('FormatDurationTool', () => {
     const res = await tool.invoke(options, undefined as unknown as CancellationToken);
     assert.ok(res);
   });
+
+  test('getErrorMessage returns generic message for unknown errors', () => {
+    const anyTool = FormatDurationTool as unknown as {
+      getErrorMessage(e: unknown): string;
+    };
+    const msg = anyTool.getErrorMessage(new Error('boom'));
+    assert.ok(msg.startsWith('Failed formatting duration:'));
+    assert.ok(msg.includes('boom'));
+  });
 });

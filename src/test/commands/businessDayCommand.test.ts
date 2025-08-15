@@ -48,6 +48,16 @@ suite('businessDayCommand', () => {
     assert.strictEqual(res.result?.startsWith('2025-08-15'), true);
   });
 
+  test('addBusinessDays with negative days subtracts using addBusinessDays branch', () => {
+    const res = businessDayCommand({
+      operation: 'addBusinessDays',
+      date: '2025-08-18T10:00:00Z', // Monday
+      days: -1,
+    });
+    // One business day back from Monday -> previous Friday 2025-08-15
+    assert.strictEqual(res.result?.startsWith('2025-08-15'), true);
+  });
+
   test('addBusinessDays with zero days throws MissingDaysError', () => {
     const opts = {
       operation: 'addBusinessDays',
@@ -116,6 +126,36 @@ suite('businessDayCommand', () => {
       assert.strictEqual(res.result?.startsWith('2025-08-18'), true); // Monday
     } finally {
       await cfg.update('businessDays', prev, true);
+    }
+  });
+
+  test('falls back to STANDARD_BUSINESS_DAYS when businessDays config is missing', async () => {
+    const originalGetConfiguration = workspace.getConfiguration;
+    try {
+      const fakeGetConfiguration: typeof workspace.getConfiguration = ((section?: string) => {
+        if (section === 'aiWatch') {
+          return {
+            get: (_key: string) => undefined,
+          } as unknown as ReturnType<typeof workspace.getConfiguration>;
+        }
+        return originalGetConfiguration.call(workspace, section) as unknown as ReturnType<
+          typeof workspace.getConfiguration
+        >;
+      }) as typeof workspace.getConfiguration;
+      // Override
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (workspace as any).getConfiguration = fakeGetConfiguration;
+
+      const res = businessDayCommand({
+        operation: 'addBusinessDays',
+        date: '2025-08-15T10:00:00Z', // Friday
+        days: 1,
+      });
+      assert.strictEqual(res.result?.startsWith('2025-08-18'), true);
+    } finally {
+      // Restore
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (workspace as any).getConfiguration = originalGetConfiguration;
     }
   });
 });

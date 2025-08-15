@@ -11,6 +11,11 @@ suite('ConvertTimezoneTool', () => {
     } as unknown as LanguageModelToolInvocationOptions<ConvertTimezoneOptions>;
     const res = await tool.invoke(options, undefined as unknown as CancellationToken);
     assert.ok(res);
+    const serialized = JSON.stringify(res);
+    assert.ok(serialized.includes('```json'));
+    // Human summary should include timezone label
+    assert.ok(serialized.includes('- From timezone:'));
+    assert.ok(serialized.includes('- To timezone:'));
   });
 
   test('prepareInvocation returns confirmation structure', async () => {
@@ -40,5 +45,13 @@ suite('ConvertTimezoneTool', () => {
     } as unknown as LanguageModelToolInvocationOptions<ConvertTimezoneOptions>;
     const res = await tool.invoke(options, undefined as unknown as CancellationToken);
     assert.ok(res);
+  });
+
+  test('getErrorMessage returns fallback for unexpected errors', () => {
+    const anyInstance = new ConvertTimezoneTool() as unknown as {
+      getErrorMessage(e: unknown): string;
+    };
+    const msg = anyInstance.getErrorMessage(new Error('boom'));
+    assert.strictEqual(msg, 'Unexpected Error!');
   });
 });

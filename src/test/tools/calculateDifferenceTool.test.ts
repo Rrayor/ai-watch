@@ -36,4 +36,13 @@ suite('CalculateDifferenceTool', () => {
     assert.ok(confirmationMessages.title.includes('Calculate time difference'));
     assert.ok(confirmationMessages.message instanceof MarkdownString);
   });
+
+  test('getErrorMessage returns unknown error message for non-InvalidDateError', () => {
+    const anyTool = CalculateDifferenceTool as unknown as {
+      getErrorMessage(e: unknown): string;
+    };
+    const msg = anyTool.getErrorMessage(new Error('boom'));
+    assert.ok(msg.startsWith('Difference calculation failed:'));
+    assert.ok(msg.includes('unknown error'));
+  });
 });

@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import { subYears, subMonths, subWeeks } from 'date-fns';
 import { subtractTimeCommand } from '../../modules/subtract-time/command/subtractTimeCommand';
 
 suite('subtractTimeCommand', () => {
@@ -41,5 +42,20 @@ suite('subtractTimeCommand', () => {
 
   test('invalid baseTime throws InvalidDateError', () => {
     assert.throws(() => subtractTimeCommand({ baseTime: 'invalid', minutes: 5 }));
+  });
+
+  test('subtracts years, months, and weeks branches', () => {
+    const baseTime = '2025-12-31T00:00:00Z';
+    const res = subtractTimeCommand({
+      baseTime,
+      years: 1,
+      months: 2,
+      weeks: 3,
+      timezone: 'UTC',
+    });
+    // Compute expected using the same date-fns operations for environment-agnostic check
+    const expected = subWeeks(subMonths(subYears(new Date(baseTime), 1), 2), 3);
+    assert.strictEqual(res.iso, expected.toISOString());
+    assert.strictEqual(res.resultTimezone, 'UTC');
   });
 });

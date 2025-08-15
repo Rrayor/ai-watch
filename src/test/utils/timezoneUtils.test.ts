@@ -124,6 +124,19 @@ suite('timezoneUtils', () => {
     assert.strictEqual(out, '2025-08-10 12:30:45');
   });
 
+  test('formatStandard without timezone uses detected timezone (local equivalent)', () => {
+    const ctx = new OperationContext();
+    const d = new Date('2025-08-10T12:30:45Z');
+    const out = formatStandard(d, ctx);
+    // Should match local system time representation for the given instant
+    const expectedLocal = applyCustomFormat(d, 'YYYY-MM-DD HH:mm:ss');
+    assert.strictEqual(out, expectedLocal);
+    assert.ok(
+      ctx.info.some((m) => m.includes('attempting to detect user timezone')),
+      'Expected info to mention timezone detection',
+    );
+  });
+
   test('when timezone detection throws, uses configured defaultDateFormat', async () => {
     const tzUtils = require('../../modules/shared/util/timezoneUtils');
     const cfg = workspace.getConfiguration('aiWatch');
@@ -171,6 +184,45 @@ suite('timezoneUtils', () => {
     } finally {
       if (orig) tzUtils.getUserTimezone = orig;
       await cfg.update('defaultDateFormat', prev, true);
+    }
+  });
+
+  test('formatInTimezone with custom format handles missing Intl parts (tokens become empty)', () => {
+    const ctx = new OperationContext();
+    const d = new Date('2025-08-10T12:30:45Z');
+
+    // Save originals
+    const originalIntl = global.Intl;
+
+    // Minimal fake DateTimeFormat that only returns a subset of parts (year only)
+    class FakeDTF {
+      constructor(_locale?: string, _opts?: unknown) {}
+      formatToParts(_date: Date) {
+        return [{ type: 'year', value: '2025' } as Intl.DateTimeFormatPart];
+      }
+      format(_date: Date) {
+        return '2025-??-??, ??:??:??';
+      }
+    }
+
+    try {
+      // Patch global Intl.DateTimeFormat
+      const fakeIntl = {
+        ...originalIntl,
+        DateTimeFormat: function () {
+          return new FakeDTF() as unknown as Intl.DateTimeFormat;
+        },
+      } as unknown as typeof Intl;
+      const g = globalThis as unknown as { Intl: typeof Intl };
+      g.Intl = fakeIntl;
+
+      const out = formatInTimezone(d, 'UTC', ctx, 'YYYY-YY-MM-M-DD-D HH-H:mm-m:ss-s');
+      // With only year present, all other tokens should be empty strings
+      assert.strictEqual(out, '2025-25---- -:-:-');
+    } finally {
+      // Restore
+      const g = globalThis as unknown as { Intl: typeof Intl };
+      g.Intl = originalIntl;
     }
   });
 });
