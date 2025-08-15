@@ -41,7 +41,7 @@ jobs:
       run: |
         export DISPLAY=':99.0'
         Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-        npx vscode-test --coverage --coverage-output ./coverage --coverage-reporter lcov --coverage-reporter text
+        npm test -- --coverage --coverage-output ./coverage --coverage-reporter lcov --coverage-reporter text
 
     - name: Upload coverage to DeepSource
       run: |
