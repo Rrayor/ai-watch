@@ -8,7 +8,7 @@ suite('convertTimezoneCommand', () => {
   test('defaults fromTimezone to UTC when not provided and returns info message', () => {
     const res = convertTimezoneCommand({ date, toTimezone: 'UTC' });
     assert.strictEqual(res.fromTimezone, 'UTC');
-    assert.ok(res.info && res.info.some((m) => m.toLowerCase().includes('defaulting to utc')));
+    assert.ok(res.info?.some((m) => m.toLowerCase().includes('defaulting to utc')));
     assert.strictEqual(res.resultTimezone, 'UTC');
     assert.ok(res.formattedResult.includes('UTC') || res.formattedResult.length > 0);
   });

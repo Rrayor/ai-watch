@@ -49,6 +49,12 @@ export class SubtractTimeTool implements LanguageModelTool<SubtractTimeOptions> 
     }
   }
 
+  /**
+   * Prepares the invocation of the subtract time tool.
+   * @param options - Tool invocation options containing input parameters
+   * @param _token - Cancellation token (unused)
+   * @returns Prepared tool invocation object
+   */
   async prepareInvocation(
     options: LanguageModelToolInvocationPrepareOptions<SubtractTimeOptions>,
     _token: CancellationToken,

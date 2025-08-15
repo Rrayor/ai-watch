@@ -140,7 +140,7 @@ function processStartOfPeriodQuery(
   if (!query.period) {
     throw new MissingPeriodQueryError('Period required for startOfPeriod query');
   }
-  return getStartOfPeriod(baseDate, query.period, query.weekStart, timezone);
+  return getStartOfPeriod(baseDate, query.period, timezone, query.weekStart);
 }
 
 /**
@@ -159,7 +159,7 @@ function processEndOfPeriodQuery(
   if (!query.period) {
     throw new MissingPeriodQueryError('Period required for endOfPeriod query');
   }
-  return getEndOfPeriod(baseDate, query.period, query.weekStart, timezone);
+  return getEndOfPeriod(baseDate, query.period, timezone, query.weekStart);
 }
 
 /**
@@ -259,8 +259,8 @@ export function getPreviousWeekday(
 export function getStartOfPeriod(
   date: Date,
   period: string,
-  weekStart: string | number = 'Monday',
   timezone: string,
+  weekStart: string | number = 'Monday',
 ): Date {
   switch (period) {
     case 'day': {
@@ -295,8 +295,8 @@ export function getStartOfPeriod(
 export function getEndOfPeriod(
   date: Date,
   period: string,
-  weekStart: string | number = 'Monday',
   timezone: string,
+  weekStart: string | number = 'Monday',
 ): Date {
   switch (period) {
     case 'day': {
@@ -343,6 +343,16 @@ function getEffectiveTimezone(tz?: string): string {
   }
 }
 
+/**
+ * Resolve the effective timezone to use for operations.
+ * If the caller provides a non-empty timezone string that is returned as-is.
+ * Otherwise this attempts to detect the runtime's IANA timezone via
+ * Intl.DateTimeFormat; if detection fails the function falls back to 'UTC'.
+ *
+ * @param tz - Optional timezone string provided by the caller
+ * @returns IANA timezone string to use
+ */
+
 function getWeekdayIndexInTz(
   date: Date,
   timezone: string,
@@ -353,6 +363,16 @@ function getWeekdayIndexInTz(
   const weekStartIndex = resolveWeekStartsOn(startOfWeek ?? 'Monday');
   return (jsDay - weekStartIndex + DAYS_IN_WEEK) % DAYS_IN_WEEK;
 }
+
+/**
+ * Returns the weekday index (0=Sunday..6=Saturday) for the given date expressed
+ * in the provided timezone, normalized against the configured week start.
+ *
+ * @param date - Date object to evaluate
+ * @param timezone - IANA timezone to use when computing the weekday
+ * @param startOfWeek - Optional week start (name or number) used to normalize the index
+ * @returns Normalized weekday index (0..6)
+ */
 
 function getLocalDateTimeParts(
   date: Date,
@@ -376,6 +396,16 @@ function getLocalDateTimeParts(
   return { year, month, day, hour, minute, second, ms };
 }
 
+/**
+ * Extracts the local date/time components for a Date in a given IANA timezone.
+ * Uses date-fns-tz's formatting helpers to return numeric parts suitable for
+ * constructing local midnight instants or other timezone-specific calculations.
+ *
+ * @param date - Source Date
+ * @param timezone - IANA timezone string
+ * @returns Object with numeric year, month, day, hour, minute, second, ms
+ */
+
 function addDaysToCalendar(
   ymd: { year: number; month: number; day: number },
   deltaDays: number,
@@ -384,6 +414,16 @@ function addDaysToCalendar(
   const res = addDays(tmp, deltaDays);
   return { year: res.getUTCFullYear(), month: res.getUTCMonth() + 1, day: res.getUTCDate() };
 }
+
+/**
+ * Adds (or subtracts when deltaDays is negative) whole calendar days to a
+ * year/month/day tuple and returns the resulting Y/M/D tuple. This uses UTC
+ * arithmetic via Date to avoid local DST anomalies when shifting calendar days.
+ *
+ * @param ymd - Object with year, month (1-12), day (1-31)
+ * @param deltaDays - Number of days to add (can be negative)
+ * @returns New year/month/day tuple after adding deltaDays
+ */
 
 function buildLocalDateTimeISO(
   year: number,
@@ -403,10 +443,34 @@ function buildLocalDateTimeISO(
   return `${year}-${mm}-${dd}T${hh}:${mi}:${ss}.${mss}`;
 }
 
+/**
+ * Builds a local (no timezone suffix) ISO-like datetime string from numeric
+ * parts. The resulting string is intended to be interpreted with a timezone
+ * by date-fns-tz's `zonedTimeToUtc` helper.
+ *
+ * @param year - Full year
+ * @param month - Month (1-12)
+ * @param day - Day of month (1-31)
+ * @param hour - Hour (0-23)
+ * @param minute - Minute (0-59)
+ * @param second - Second (0-59)
+ * @param ms - Milliseconds (0-999)
+ * @returns ISO-like local datetime string without timezone suffix
+ */
+
 function startOfDayInTz(date: Date, timezone: string): Date {
   const { year, month, day } = getLocalDateTimeParts(date, timezone);
   return zonedTimeToUtc(buildLocalDateTimeISO(year, month, day, 0, 0, 0, 0), timezone);
 }
+
+/**
+ * Returns the UTC instant corresponding to the local midnight at the given
+ * date in the specified timezone.
+ *
+ * @param date - Reference date
+ * @param timezone - IANA timezone
+ * @returns Date representing the instant of local midnight in UTC
+ */
 
 function endOfDayInTz(date: Date, timezone: string): Date {
   const { year, month, day } = getLocalDateTimeParts(date, timezone);
@@ -419,6 +483,15 @@ function endOfDayInTz(date: Date, timezone: string): Date {
   );
 }
 
+/**
+ * Returns the last instant (1 ms before local midnight) of the given day in
+ * the specified timezone, expressed as a UTC Date.
+ *
+ * @param date - Reference date
+ * @param timezone - IANA timezone
+ * @returns Date representing the last millisecond of the local day in UTC
+ */
+
 function startOfWeekInTz(date: Date, timezone: string, weekStartsOn: number): Date {
   const { year, month, day } = getLocalDateTimeParts(date, timezone);
   const isoDay = Number(formatInTimeZone(date, timezone, 'i')) % ISO_SUN; // js day 0..6
@@ -429,6 +502,16 @@ function startOfWeekInTz(date: Date, timezone: string, weekStartsOn: number): Da
     timezone,
   );
 }
+
+/**
+ * Returns the UTC instant for the start of the week (local midnight of the
+ * first day of the week) for the provided date in the given timezone.
+ *
+ * @param date - Reference date
+ * @param timezone - IANA timezone
+ * @param weekStartsOn - Numeric week start (0=Sunday..6=Saturday)
+ * @returns Date for local midnight of the week's start, expressed in UTC
+ */
 
 function endOfWeekInTz(date: Date, timezone: string, weekStartsOn: number): Date {
   const start = startOfWeekInTz(date, timezone, weekStartsOn);
@@ -446,11 +529,30 @@ function endOfWeekInTz(date: Date, timezone: string, weekStartsOn: number): Date
   );
 }
 
+/**
+ * Returns the last instant (1 ms before local midnight of the day after the
+ * week's last day) for the week containing the provided date.
+ *
+ * @param date - Reference date
+ * @param timezone - IANA timezone
+ * @param weekStartsOn - Numeric week start (0=Sunday..6=Saturday)
+ * @returns Date representing the end of the week in UTC
+ */
+
 function startOfMonthInTz(date: Date, timezone: string): Date {
   const year = Number(formatInTimeZone(date, timezone, 'yyyy'));
   const month = Number(formatInTimeZone(date, timezone, 'MM'));
   return zonedTimeToUtc(buildLocalDateTimeISO(year, month, 1, 0, 0, 0, 0), timezone);
 }
+
+/**
+ * Returns the UTC instant corresponding to local midnight on the first day of
+ * the month for the given date/timezone.
+ *
+ * @param date - Reference date
+ * @param timezone - IANA timezone
+ * @returns Date for local midnight of month start in UTC
+ */
 
 function endOfMonthInTz(date: Date, timezone: string): Date {
   const year = Number(formatInTimeZone(date, timezone, 'yyyy'));
@@ -463,12 +565,30 @@ function endOfMonthInTz(date: Date, timezone: string): Date {
   );
 }
 
+/**
+ * Returns the last instant of the month (1 ms before local midnight on the
+ * first day of the next month) for the given date/timezone.
+ *
+ * @param date - Reference date
+ * @param timezone - IANA timezone
+ * @returns Date representing the end of the month in UTC
+ */
+
 function startOfQuarterInTz(date: Date, timezone: string): Date {
   const year = Number(formatInTimeZone(date, timezone, 'yyyy'));
   const month = Number(formatInTimeZone(date, timezone, 'MM'));
   const qStartMonth = Math.floor((month - 1) / MONTHS_PER_QUARTER) * MONTHS_PER_QUARTER + 1;
   return zonedTimeToUtc(buildLocalDateTimeISO(year, qStartMonth, 1, 0, 0, 0, 0), timezone);
 }
+
+/**
+ * Returns the UTC instant corresponding to local midnight on the first day of
+ * the quarter containing the provided date.
+ *
+ * @param date - Reference date
+ * @param timezone - IANA timezone
+ * @returns Date for the start of the quarter in UTC
+ */
 
 function endOfQuarterInTz(date: Date, timezone: string): Date {
   const year = Number(formatInTimeZone(date, timezone, 'yyyy'));
@@ -487,10 +607,29 @@ function endOfQuarterInTz(date: Date, timezone: string): Date {
   );
 }
 
+/**
+ * Returns the last instant of the quarter containing the provided date/timezone.
+ * The calculation advances to the first day of the next quarter at local
+ * midnight and subtracts 1 ms to yield the end instant.
+ *
+ * @param date - Reference date
+ * @param timezone - IANA timezone
+ * @returns Date representing the end of the quarter in UTC
+ */
+
 function startOfYearInTz(date: Date, timezone: string): Date {
   const year = Number(formatInTimeZone(date, timezone, 'yyyy'));
   return zonedTimeToUtc(buildLocalDateTimeISO(year, 1, 1, 0, 0, 0, 0), timezone);
 }
+
+/**
+ * Returns the UTC instant corresponding to local midnight on January 1 of the
+ * year for the given date/timezone.
+ *
+ * @param date - Reference date
+ * @param timezone - IANA timezone
+ * @returns Date for the start of the year in UTC
+ */
 
 function endOfYearInTz(date: Date, timezone: string): Date {
   const year = Number(formatInTimeZone(date, timezone, 'yyyy'));
@@ -500,3 +639,12 @@ function endOfYearInTz(date: Date, timezone: string): Date {
   ).getTime();
   return new Date(nextYearStart - ONE_MS);
 }
+
+/**
+ * Returns the last instant of the year (1 ms before local midnight on Jan 1
+ * of the following year) for the given date/timezone.
+ *
+ * @param date - Reference date
+ * @param timezone - IANA timezone
+ * @returns Date representing the end of the year in UTC
+ */

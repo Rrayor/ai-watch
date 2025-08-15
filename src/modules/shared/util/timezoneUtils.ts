@@ -7,6 +7,11 @@ const ISO_TIMESTAMP_LENGTH = 19;
 const YEAR_SLICE_LENGTH = -2;
 
 /**
+ * Cache for regex sources to enable safe, performant token replacement
+ */
+const tokenRegexSourceCache = new Map<string, string>();
+
+/**
  * Formats a Date object into UTC string format.
  *
  * @param date - Date object to format
@@ -261,11 +266,6 @@ function getTokenRegexSource(token: string): string {
   }
   return regexSource;
 }
-
-/**
- * Cache for regex sources to enable safe, performant token replacement
- */
-const tokenRegexSourceCache = new Map<string, string>();
 
 /**
  * Escapes special regex characters in a string

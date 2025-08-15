@@ -192,7 +192,7 @@ suite('dateQueryCommand', () => {
     });
     const first = new Date(res.dates?.[0] ?? '');
     const second = new Date(res.dates?.[1] ?? '');
-    assert.ok(+second > +first);
+    assert.ok(second > first);
   });
 
   test('startOfPeriod week with numeric weekStart', async () => {

@@ -43,6 +43,12 @@ export class CalculateDifferenceTool implements LanguageModelTool<CalculateDiffe
     }
   }
 
+  /**
+   * Prepares the invocation of the calculate difference tool.
+   * @param options - Tool invocation options containing input parameters
+   * @param _token - Cancellation token (unused)
+   * @returns Prepared invocation information
+   */
   async prepareInvocation(
     options: LanguageModelToolInvocationPrepareOptions<CalculateDifferenceOptions>,
     _token: CancellationToken,

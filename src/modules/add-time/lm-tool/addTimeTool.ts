@@ -53,6 +53,12 @@ export class AddTimeTool implements LanguageModelTool<AddTimeOptions> {
     }
   }
 
+  /**
+   * Prepares the invocation of the add time tool.
+   * @param options - Tool invocation options containing input parameters
+   * @param _token - Cancellation token (unused)
+   * @returns Prepared invocation information
+   */
   async prepareInvocation(
     options: LanguageModelToolInvocationPrepareOptions<AddTimeOptions>,
     _token: CancellationToken,

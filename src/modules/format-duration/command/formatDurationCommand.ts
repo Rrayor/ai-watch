@@ -88,6 +88,13 @@ function formatDurationFromInterval(
   return isZero ? rendered : isNegative ? `-${rendered}` : rendered;
 }
 
+/**
+ * Determines the bounds and sign of a date interval.
+ *
+ * @param start - The start date
+ * @param end - The end date
+ * @returns An object containing the earlier and later dates, and whether the interval is negative
+ */
 function boundsAndSign(
   start: Date,
   end: Date,
@@ -114,6 +121,15 @@ function selectTopUnits(
   ) as Array<DurationUnits>;
 }
 
+/**
+ * Renders a duration string based on the provided parameters.
+ *
+ * @param duration - The duration object containing time units
+ * @param selectedUnits - The units to include in the output
+ * @param verbosity - The verbosity level for formatting
+ * @param isZero - Whether the duration is zero
+ * @returns A formatted duration string
+ */
 function renderDuration(
   duration: Partial<Record<DurationUnits, number>>,
   selectedUnits: Array<DurationUnits>,
@@ -165,9 +181,9 @@ function formatCompactFromDuration(
     seconds: 's',
   };
   const parts: string[] = [];
-  for (const u of order) {
-    const v = duration[u] ?? 0;
-    if (v > 0) parts.push(`${v}${abbr[u]}`);
+  for (const unit of order) {
+    const value = duration[unit] ?? 0;
+    if (value > 0) parts.push(`${value}${abbr[unit]}`);
   }
   return parts.length ? parts.join(' ') : '0s';
 }

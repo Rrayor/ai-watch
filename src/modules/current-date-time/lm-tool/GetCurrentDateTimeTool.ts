@@ -34,6 +34,13 @@ export class GetCurrentDateTimeTool implements LanguageModelTool<GetCurrentDateT
     const message = GetCurrentDateTimeTool.buildResponseMessage(getCurrentDateTimeCommand(params));
     return new LanguageModelToolResult([new LanguageModelTextPart(message)]);
   }
+
+  /**
+   * Prepares the invocation of the get current date tool.
+   * @param options - Tool invocation options containing input parameters
+   * @param _token - Cancellation token (unused)
+   * @returns Prepared invocation information
+   */
   async prepareInvocation(
     options: LanguageModelToolInvocationPrepareOptions<GetCurrentDateTimeOptions>,
     _token: CancellationToken,

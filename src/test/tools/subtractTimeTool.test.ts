@@ -22,14 +22,8 @@ suite('SubtractTimeTool', () => {
         ? (prepared.invocationMessage as string)
         : (prepared.invocationMessage as MarkdownString).value;
     assert.ok(invMsgStr.includes('Subtract'));
-    assert.ok(
-      prepared.confirmationMessages &&
-        prepared.confirmationMessages.title.includes('Subtract time duration'),
-    );
-    assert.ok(
-      prepared.confirmationMessages &&
-        prepared.confirmationMessages.message instanceof MarkdownString,
-    );
+    assert.ok(prepared.confirmationMessages?.title.includes('Subtract time duration'));
+    assert.ok(prepared.confirmationMessages?.message instanceof MarkdownString);
   });
 
   test('prepareInvocation uses "no time" and "current time" when no units and no baseTime', async () => {
@@ -45,14 +39,8 @@ suite('SubtractTimeTool', () => {
         : (prepared.invocationMessage as MarkdownString).value;
 
     assert.ok(invMsgStr.includes('Subtracting no time'));
-    assert.ok(
-      prepared.confirmationMessages &&
-        prepared.confirmationMessages.title.includes('Subtract time duration'),
-    );
-    assert.ok(
-      prepared.confirmationMessages &&
-        prepared.confirmationMessages.message instanceof MarkdownString,
-    );
+    assert.ok(prepared.confirmationMessages?.title.includes('Subtract time duration'));
+    assert.ok(prepared.confirmationMessages?.message instanceof MarkdownString);
     let msgVal = String(prepared.confirmationMessages?.message);
     if (
       prepared.confirmationMessages &&
