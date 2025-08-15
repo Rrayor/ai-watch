@@ -30,9 +30,12 @@ import {
  */
 export function registerCommands(context: ExtensionContext): void {
   context.subscriptions.push(
-    commands.registerCommand('ai-watch.getCurrentDate', (options?: GetCurrentDateTimeOptions) => {
-      return getCurrentDateTimeCommand(options);
-    }),
+    commands.registerCommand(
+      'ai-watch.getCurrentDateTime',
+      (options?: GetCurrentDateTimeOptions) => {
+        return getCurrentDateTimeCommand(options);
+      },
+    ),
   );
 
   context.subscriptions.push(

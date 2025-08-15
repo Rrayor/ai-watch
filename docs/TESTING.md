@@ -12,39 +12,50 @@ AI Watch employs a modular testing architecture with comprehensive test coverage
 
 ```
 src/test/
-├── utils/                    # Business Logic Tests (12 files)
-│   ├── dateUtils.test.ts     # Date parsing, formatting, calculations
-│   ├── businessDayUtils.test.ts  # Business day logic and exclusions
-│   ├── durationUtils.test.ts # Duration formatting and verbosity
-│   ├── dateQueryUtils.test.ts    # Advanced date queries
-│   ├── timezoneUtils.test.ts # Timezone conversions and DST
-│   └── index.test.ts         # Barrel export validation
-├── commands/                 # Command Layer Tests (3 files)
-│   ├── getCurrentDate.test.ts    # Current date with timezone support
-│   ├── addTime.test.ts       # Time addition with multiple units
-│   └── allCommands.test.ts   # All command implementations
-├── integration.test.ts       # End-to-End Tests
-└── extension.test.ts         # Extension Lifecycle Tests
+├── commands/                 # Command Layer Tests
+│   ├── addTimeCommand.test.ts
+│   ├── businessDayCommand.test.ts
+│   ├── calculateDifferenceCommand.test.ts
+│   ├── convertTimezoneCommand.test.ts
+│   ├── dateQueryCommand.test.ts
+│   ├── formatDurationCommand.test.ts
+│   ├── formatDurationCommand.invalid.test.ts
+│   ├── getCurrentDateTimeCommand.test.ts
+│   └── subtractTimeCommand.test.ts
+├── tools/                   # Language Model Tool Tests
+│   ├── addTimeTool.test.ts
+│   ├── businessDayTool.test.ts
+│   ├── calculateDifferenceTool.test.ts
+│   ├── convertTimezoneTool.test.ts
+│   ├── dateQueryTool.test.ts
+│   ├── formatDurationTool.test.ts
+│   ├── getCurrentDateTimeTool.test.ts
+│   └── subtractTimeTool.test.ts
+└── utils/                   # Shared Utility Tests
+    ├── dateUtils.test.ts     # Date parsing, formatting, calculations
+    ├── timezoneUtils.test.ts # Timezone conversions and DST
+    └── timezoneUtils.tokens.test.ts # Token formatting tests
 ```
 
 ### Test Coverage by Layer
+
+#### Command Layer
+- **Feature Integration**: Tests for module command functions
+- **Parameter Validation**: Input sanitization and error handling
+- **Return Structure**: Complete API response validation
+- **Error Scenarios**: Invalid input and edge case handling
+
+#### Tool Layer
+- **Language Model Integration**: LM Tool invoke/prepare methods
+- **AI Assistant Interface**: Tool parameter processing
+- **Response Formatting**: JSON and human-readable outputs
+- **Tool Registration**: Availability and functionality
 
 #### Utils Layer
 - **Pure Business Logic**: No VS Code dependencies
 - **Timezone-Independent**: UTC-based assertions
 - **Mathematical Accuracy**: Precise calculations and edge cases
 - **Format Validation**: Strict output format checking
-
-#### Command Layer
-- **Integration Testing**: VS Code command implementations
-- **Parameter Validation**: Input sanitization and error handling
-- **Return Structure**: Complete API response validation
-- **Error Scenarios**: Invalid input and edge case handling
-
-#### Integration Layer
-- **End-to-End Workflows**: Full command execution chains
-- **VS Code API Integration**: Extension lifecycle validation
-- **Tool Registration**: Language Model Tool availability
 
 ## Testing Standards
 
@@ -77,7 +88,7 @@ test('business day utilities preserve time components', () => {
   assert.strictEqual(result.getUTCMinutes(), 30);
 });
 
-// ❌ Avoid: Timezone-dependent  
+// ❌ Avoid: Timezone-dependent
 test('business day utilities preserve time components', () => {
   const result = addBusinessDays(specificTime, 1, businessDays, excludedDates);
   assert.strictEqual(result.getHours(), 14); // Fails in different timezones
@@ -144,15 +155,15 @@ npm run test:coverage
 
 ```bash
 # Run specific test file
-npm test -- --grep "dateUtils"
+npm test -- --grep "timezoneUtils"
 
 # Run specific test by name
-npm test -- --grep "should calculate basic time difference"
+npm test -- --grep "formatUTC returns expected UTC format"
 
 # Run tests for specific layer
 npm test src/test/utils/        # Utils layer only
-npm test src/test/commands/     # Command layer only  
-npm test src/test/integration/  # Integration tests only
+npm test src/test/commands/     # Command layer only
+npm test src/test/tools/        # Tool layer only
 ```
 
 ### Debugging Tests
@@ -181,7 +192,7 @@ When adding functionality, follow this checklist:
 
 2. **Command Layer**: Add integration tests
    ```typescript
-   // In src/test/commands/*.test.ts file  
+   // In src/test/commands/*.test.ts file
    test('new command integration', () => {
      // Test VS Code command implementation
    });
@@ -203,7 +214,7 @@ When adding functionality, follow this checklist:
 ### Test File Naming
 
 - **Utils**: `{utilityName}.test.ts` (e.g., `dateUtils.test.ts`)
-- **Commands**: `{commandName}.test.ts` (e.g., `getCurrentDate.test.ts`) 
+- **Commands**: `{commandName}.test.ts` (e.g., `getCurrentDateTimeCommand.test.ts`)
 - **Integration**: `integration.test.ts`
 - **Extension**: `extension.test.ts`
 
@@ -217,10 +228,10 @@ suite('Module Name Tests', () => {
   test('should describe expected behavior', () => {
     // Arrange
     const input = 'test input';
-    
-    // Act  
+
+    // Act
     const result = functionToTest(input);
-    
+
     // Assert
     assert.strictEqual(result, 'expected output');
   });
@@ -255,12 +266,13 @@ Full test suite runs on:
 - Every push to main branch
 - Scheduled nightly builds
 
-### Test Performance
+### Current Performance
 
 Current test performance metrics:
-- **155 tests** complete in ~225ms
-- **22 test files** with efficient parallel execution
+- **141 tests** complete in ~4 seconds
+- **19 test files** with efficient execution
 - **Zero flaky tests** due to timezone-independent design
+- **92.2% branch coverage** achieved through comprehensive testing
 
 ## Troubleshooting
 

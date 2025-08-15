@@ -51,7 +51,7 @@ AI Watch enables a wide range of practical, time-driven workflows for individual
 
 **What this prompt demonstrates:**
 
-- Get current time in multiple timezones: `getCurrentDate`, `convertTimezone`
+- Get current time in multiple timezones: `getCurrentDateTime`, `convertTimezone`
 - Schedule with business day math: `addTime`, `businessDay`
 - Timezone conversion for teams: `convertTimezone`
 - Duration since last deployment: `calculateDifference`, `formatDuration`
@@ -131,7 +131,7 @@ AI assistants can handle conversational requests like:
 
 All 8 language model tools are automatically registered:
 
-1. **getCurrentDate** - Current time with timezone support
+1. **getCurrentDateTime** - Current time with timezone support
 2. **addTime** - Add durations to dates
 3. **subtractTime** - Subtract durations from dates
 4. **calculateDifference** - Time differences between dates
@@ -158,7 +158,7 @@ Get precise timestamps in multiple formats and timezones.
 **Basic Usage:**
 ```javascript
 // Get current time in all standard formats
-const time = await vscode.commands.executeCommand('ai-watch.getCurrentDate');
+const time = await vscode.commands.executeCommand('ai-watch.getCurrentDateTime');
 // Returns (schema): {
 //   iso?: string,
 //   utc?: string,

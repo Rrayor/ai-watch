@@ -48,7 +48,7 @@
   "contributes": {
     "commands": [
       {
-        "command": "ai-watch.getCurrentDate",
+        "command": "ai-watch.getCurrentDateTime",
         "title": "Get Current Date and Time"
       },
       {
@@ -82,7 +82,7 @@
     ],
     "languageModelTools": [
       {
-        "name": "ai-watch_getCurrentDate",
+        "name": "ai-watch_getCurrentDateTime",
         "tags": [
           "date",
           "time",
@@ -91,8 +91,8 @@
           "timezone",
           "format"
         ],
-        "toolReferenceName": "getCurrentDate",
-        "displayName": "Get Current Date",
+        "toolReferenceName": "getCurrentDateTime",
+        "displayName": "Get Current Date and Time",
         "modelDescription": "Returns the current date and time. Supports timezone and custom formatting parameters.",
         "canBeReferencedInPrompt": true,
         "icon": "$(clock)",

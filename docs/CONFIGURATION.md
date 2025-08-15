@@ -19,9 +19,9 @@ AI Watch supports both user and workspace settings for flexible configuration ac
 
 ## Detailed Configuration
 
-### Removed: Default Timezone
+### Timezone Handling
 
-`aiWatch.defaultTimezone` has been removed. The extension uses the system timezone by default and allows explicit `timezone` parameters per command. If you need a specific timezone, pass it to the command/tool call.
+AI Watch automatically detects the system timezone and uses it as the default for all operations. If you need a specific timezone for an operation, pass it as the `timezone` parameter to the command or tool call. There is no global timezone override setting - this ensures predictable behavior and prevents configuration conflicts.
 
 ### Default Date Format
 
@@ -92,7 +92,7 @@ List of specific dates to exclude from business day calculations (holidays, shut
 {
   "aiWatch.excludedDates": [
     "2025-12-25",
-    "2025-12-26", 
+    "2025-12-26",
     "2025-01-01",
     "2026-01-01"
   ]
@@ -291,7 +291,7 @@ Settings are applied in order of precedence (highest to lowest):
 
 1. **Function Parameters** - Direct API call parameters
 2. **Workspace Settings** - Project-specific configuration
-3. **User Settings** - Personal global configuration  
+3. **User Settings** - Personal global configuration
 4. **Extension Defaults** - Built-in fallback values
 
 **Example:**
@@ -364,10 +364,10 @@ AI Watch validates settings on startup and provides clear error messages for inv
 Test your configuration with these commands:
 
 ```javascript
-// Test timezone setting
-await vscode.commands.executeCommand('ai-watch.getCurrentDate');
+// Test current time functionality
+await vscode.commands.executeCommand('ai-watch.getCurrentDateTime');
 
-// Test business days setting  
+// Test business days setting
 await vscode.commands.executeCommand('ai-watch.businessDay', {
   operation: 'isBusinessDay',
   date: '2025-08-16T10:00:00Z'  // Saturday

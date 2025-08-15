@@ -22,7 +22,7 @@ import {
  */
 export function registerChatTools(context: ExtensionContext): void {
   context.subscriptions.push(
-    lm.registerTool('ai-watch_getCurrentDate', new GetCurrentDateTimeTool()),
+    lm.registerTool('ai-watch_getCurrentDateTime', new GetCurrentDateTimeTool()),
   );
   context.subscriptions.push(
     lm.registerTool('ai-watch_calculateDifference', new CalculateDifferenceTool()),

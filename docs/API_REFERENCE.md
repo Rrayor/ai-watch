@@ -6,7 +6,7 @@ Complete API documentation for developers integrating with AI Watch.
 
 AI Watch provides 8 comprehensive tools accessible through VS Code's Language Model Tools interface. All tools provide input validation, sensible defaults, and detailed error handling.
 
-### getCurrentDate
+### getCurrentDateTime
 
 Returns current date and time with timezone and formatting support.
 
@@ -30,15 +30,15 @@ Returns current date and time with timezone and formatting support.
 **Examples:**
 ```javascript
 // Basic current time
-await vscode.commands.executeCommand('ai-watch.getCurrentDate');
+await vscode.commands.executeCommand('ai-watch.getCurrentDateTime');
 
-// Specific timezone
-await vscode.commands.executeCommand('ai-watch.getCurrentDate', {
-  timezone: 'Asia/Tokyo'
+// Test configuration changes
+await vscode.commands.executeCommand('ai-watch.getCurrentDateTime', {
+  timezone: userTimezone
 });
 
 // Custom format
-await vscode.commands.executeCommand('ai-watch.getCurrentDate', {
+await vscode.commands.executeCommand('ai-watch.getCurrentDateTime', {
   timezone: 'Europe/London',
   format: 'DD/MM/YYYY HH:mm'
 });
@@ -355,51 +355,10 @@ await vscode.commands.executeCommand('ai-watch.dateQuery', {
 
 ## Extension Integration
 
-For VS Code extension developers wanting to integrate AI Watch functionality:
-
-### Namespace Exports
-
-AI Watch uses organized namespace exports to prevent naming conflicts:
-
-```typescript
-import * as AIWatch from 'ai-watch-extension';
-
-// Access utilities with type safety
-const duration = AIWatch.Utils.formatDuration(3600, 'seconds', 'standard');
-
-// Access tools for Language Model integration
-const tool = new AIWatch.Tools.FormatDurationTool();
-
-// Access commands for direct invocation
-const result = AIWatch.Commands.formatDurationCommand(options);
-
-// Access types for TypeScript development
-const options: AIWatch.Types.FormatDurationOptions = {
-  from: '2025-08-09T12:00:00Z',
-  to: '2025-08-09T14:30:00Z',
-  verbosity: 'compact'  // Type-safe: only 'compact' | 'standard' | 'verbose' allowed
-};
-```
-
-### Type Safety Benefits
-
-```typescript
-// Compile-time type checking prevents runtime errors
-import { VerbosityLevel, DurationUnit } from 'ai-watch-extension';
-
-// TypeScript will catch invalid values:
-const verbosity: VerbosityLevel = 'detailed'; // ❌ Type error
-const unit: DurationUnit = 'millisec';        // ❌ Type error
-
-// Only valid values are accepted:
-const verbosity: VerbosityLevel = 'verbose';  // ✅ Valid
-const unit: DurationUnit = 'milliseconds';    // ✅ Valid
-```
-
-All functionality is available through direct VS Code commands for programmatic access.
+For VS Code extension developers wanting to integrate AI Watch functionality, all capabilities are available through direct VS Code commands for programmatic access.
 
 **Available Commands:**
-- `ai-watch.getCurrentDate`
+- `ai-watch.getCurrentDateTime`
 - `ai-watch.calculateDifference`
 - `ai-watch.convertTimezone`
 - `ai-watch.addTime`
@@ -519,7 +478,7 @@ export function activate(context: vscode.ExtensionContext) {
 // AI Assistant integration
 class TimeAwareAssistant {
   async getCurrentContext() {
-    const now = await vscode.commands.executeCommand('ai-watch.getCurrentDate');
+    const now = await vscode.commands.executeCommand('ai-watch.getCurrentDateTime');
     return {
       timestamp: now.iso,
       timezone: now.localTimezone,
@@ -549,8 +508,8 @@ import assert from 'assert';
 import * as vscode from 'vscode';
 
 suite('AI Watch Integration Tests', () => {
-  test('getCurrentDate command returns valid formats', async () => {
-    const result = await vscode.commands.executeCommand('ai-watch.getCurrentDate');
+  test('getCurrentDateTime command returns valid formats', async () => {
+    const result = await vscode.commands.executeCommand('ai-watch.getCurrentDateTime');
 
     // Validate required fields
     assert.ok(result.iso);
