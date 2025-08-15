@@ -75,14 +75,25 @@ suite('timezoneUtils', () => {
   });
 
   test('applyCustomFormat replaces YYYY, MM, DD, HH, mm, ss tokens correctly', () => {
-    const date = new Date(2025, 6, 9, 5, 7, 3); // 2025-07-09 05:07:03 local
+    // Use a UTC-based Date to avoid local-time flakiness and compute expected using the
+    // date's local getters (applyCustomFormat uses local getters).
+    const date = new Date(Date.UTC(2025, 6, 9, 5, 7, 3)); // 2025-07-09T05:07:03Z
+    function pad2(n: number) {
+      return String(n).padStart(2, '0');
+    }
+    const year = date.getFullYear();
+    const month = pad2(date.getMonth() + 1);
+    const day = pad2(date.getDate());
+    const hours = pad2(date.getHours());
+    const minutes = pad2(date.getMinutes());
+    const seconds = pad2(date.getSeconds());
+    const expected = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     const out = applyCustomFormat(date, 'YYYY-MM-DD HH:mm:ss');
-    const expected = `${String(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
     assert.strictEqual(out, expected);
   });
 
   test('applyCustomFormat supports single-letter tokens and YY', () => {
-    const date = new Date(1999, 0, 2, 3, 4, 5);
+    const date = new Date(1999, 0, 2, 3, 4, 5); // local 1999-01-02T03:04:05
     const out = applyCustomFormat(date, 'YY-M-D H:m:s');
     const expected = `${String(date.getFullYear()).slice(-2)}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
     assert.strictEqual(out, expected);
@@ -116,51 +127,63 @@ suite('timezoneUtils', () => {
   });
 
   test('when timezone detection throws, uses configured defaultDateFormat', async () => {
-    const tzUtils = await import('../../modules/shared/util/timezoneUtils');
+    const tzUtils = await import('../../modules/shared/util/timezoneUtils.js');
     const cfg = workspace.getConfiguration('aiWatch');
     const prev = cfg.get('defaultDateFormat');
     const ctx = new OperationContext();
     const d = new Date('2025-08-10T12:30:45Z');
 
     // set configured default format
-    let orig: ((context: OperationContext) => string) | undefined;
+    const originalIntl = (globalThis as unknown as { Intl: typeof Intl }).Intl;
     try {
       await cfg.update('defaultDateFormat', 'YYYY/MM/DD HH:mm:ss', true);
-      orig = tzUtils.getUserTimezone;
-      tzUtils.getUserTimezone = () => {
-        throw new Error('simulate failure');
-      };
+      // Simulate failure by making Intl.DateTimeFormat throw so getUserTimezone fails
+      const fakeIntl = {
+        ...originalIntl,
+        DateTimeFormat() {
+          throw new Error('simulate failure');
+        },
+      } as unknown as typeof Intl;
+      const g = globalThis as unknown as { Intl: typeof Intl };
+      g.Intl = fakeIntl;
       const out = tzUtils.formatInTimezone(d, '', ctx);
       // expected uses local time because formatWithCustomFormat is called with undefined timezone
       const expected = applyCustomFormat(d, 'YYYY/MM/DD HH:mm:ss');
       assert.strictEqual(out, expected);
     } finally {
-      // restore and reset config
-      if (orig) tzUtils.getUserTimezone = orig;
+      // restore Intl and reset config
+      const g2 = globalThis as unknown as { Intl: typeof Intl };
+      g2.Intl = originalIntl;
       await cfg.update('defaultDateFormat', prev, true);
     }
   });
 
   test('when timezone detection throws and no default format, falls back to ISO-like UTC', async () => {
-    const tzUtils = await import('../../modules/shared/util/timezoneUtils');
+    const tzUtils = await import('../../modules/shared/util/timezoneUtils.js');
     const cfg = workspace.getConfiguration('aiWatch');
     const prev = cfg.get('defaultDateFormat');
     const ctx = new OperationContext();
     const d = new Date('2025-08-10T12:30:45Z');
-    let orig: (context: OperationContext) => string = () => '';
+    const originalIntl2 = (globalThis as unknown as { Intl: typeof Intl }).Intl;
 
     try {
       await cfg.update('defaultDateFormat', undefined, true);
-      orig = tzUtils.getUserTimezone;
-      tzUtils.getUserTimezone = () => {
-        throw new Error('simulate failure');
-      };
+      // Simulate failure by making Intl.DateTimeFormat throw so getUserTimezone fails
+      const fakeIntl2 = {
+        ...originalIntl2,
+        DateTimeFormat() {
+          throw new Error('simulate failure');
+        },
+      } as unknown as typeof Intl;
+      const g3 = globalThis as unknown as { Intl: typeof Intl };
+      g3.Intl = fakeIntl2;
       const out = tzUtils.formatInTimezone(d, '', ctx);
       const expectedUtc = d.toISOString().slice(0, 19).replace('T', ' ');
       const expectedLocal = applyCustomFormat(d, 'YYYY-MM-DD HH:mm:ss');
       assert.ok(out === expectedUtc || out === expectedLocal);
     } finally {
-      if (orig) tzUtils.getUserTimezone = orig;
+      const g4 = globalThis as unknown as { Intl: typeof Intl };
+      g4.Intl = originalIntl2;
       await cfg.update('defaultDateFormat', prev, true);
     }
   });
@@ -169,8 +192,8 @@ suite('timezoneUtils', () => {
     const ctx = new OperationContext();
     const d = new Date('2025-08-10T12:30:45Z');
 
-    // Save originals
-    const originalIntl = global.Intl;
+    // Save original DateTimeFormat constructor
+    const originalDTF = global.Intl.DateTimeFormat;
 
     // Minimal fake DateTimeFormat that only returns a subset of parts (year only)
     class FakeDTF {
@@ -183,23 +206,17 @@ suite('timezoneUtils', () => {
     }
 
     try {
-      // Patch global Intl.DateTimeFormat
-      const fakeIntl = {
-        ...originalIntl,
-        DateTimeFormat() {
-          return new FakeDTF() as unknown as Intl.DateTimeFormat;
-        },
-      } as unknown as typeof Intl;
-      const g = globalThis as unknown as { Intl: typeof Intl };
-      g.Intl = fakeIntl;
+      // Patch only the DateTimeFormat constructor so timezone validation is bypassed
+      (globalThis as unknown as { Intl: typeof Intl }).Intl.DateTimeFormat = function () {
+        return new FakeDTF() as unknown as Intl.DateTimeFormat;
+      } as unknown as (typeof Intl)['DateTimeFormat'];
 
       const out = formatInTimezone(d, 'UTC', ctx, 'YYYY-YY-MM-M-DD-D HH-H:mm-m:ss-s');
       // With only year present, all other tokens should be empty strings
       assert.strictEqual(out, '2025-25---- -:-:-');
     } finally {
-      // Restore
-      const g = globalThis as unknown as { Intl: typeof Intl };
-      g.Intl = originalIntl;
+      // Restore original DateTimeFormat
+      (globalThis as unknown as { Intl: typeof Intl }).Intl.DateTimeFormat = originalDTF;
     }
   });
 });
