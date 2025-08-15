@@ -118,7 +118,7 @@ function formatWithCustomFormat(
  * @param timezone - Target timezone (optional)
  * @returns Formatted date string
  */
-function formatStandard(date: Date, context: OperationContext, timezone?: string): string {
+export function formatStandard(date: Date, context: OperationContext, timezone?: string): string {
   let tz = timezone;
   if (!tz) {
     context.addInfo('No timezone was provided, attempting to detect user timezone.');
@@ -185,7 +185,7 @@ function applyCustomFormatFromParts(parts: Intl.DateTimeFormatPart[], format: st
  * @param format - Format string with tokens like YYYY, MM, DD, HH, mm, ss
  * @returns Formatted date string
  */
-function applyCustomFormat(date: Date, format: string): string {
+export function applyCustomFormat(date: Date, format: string): string {
   const tokens: { [key: string]: string } = {
     YYYY: date.getFullYear().toString(),
     YY: date.getFullYear().toString().slice(YEAR_SLICE_LENGTH),

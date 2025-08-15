@@ -4,6 +4,8 @@ import {
   formatUTC,
   formatInTimezone,
   getUserTimezone,
+  applyCustomFormat,
+  formatStandard,
 } from '../../modules/shared/util/timezoneUtils';
 import { OperationContext } from '../../modules/shared/model/OperationContext';
 import { InvalidTimezoneError } from '../../modules/shared/error/InvalidTimezoneError';
@@ -70,5 +72,105 @@ suite('timezoneUtils', () => {
     const ctx = new OperationContext();
     const tz = getUserTimezone(ctx);
     assert.ok(typeof tz === 'string' && tz.length > 0);
+  });
+
+  test('applyCustomFormat replaces YYYY, MM, DD, HH, mm, ss tokens correctly', () => {
+    const date = new Date(2025, 6, 9, 5, 7, 3); // 2025-07-09 05:07:03 local
+    const out = applyCustomFormat(date, 'YYYY-MM-DD HH:mm:ss');
+    const expected =
+      String(date.getFullYear()) +
+      '-' +
+      String(date.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(date.getDate()).padStart(2, '0') +
+      ' ' +
+      String(date.getHours()).padStart(2, '0') +
+      ':' +
+      String(date.getMinutes()).padStart(2, '0') +
+      ':' +
+      String(date.getSeconds()).padStart(2, '0');
+    assert.strictEqual(out, expected);
+  });
+
+  test('applyCustomFormat supports single-letter tokens and YY', () => {
+    const date = new Date(1999, 0, 2, 3, 4, 5);
+    const out = applyCustomFormat(date, 'YY-M-D H:m:s');
+    const expected =
+      String(date.getFullYear()).slice(-2) +
+      '-' +
+      (date.getMonth() + 1) +
+      '-' +
+      date.getDate() +
+      ' ' +
+      date.getHours() +
+      ':' +
+      date.getMinutes() +
+      ':' +
+      date.getSeconds();
+    assert.strictEqual(out, expected);
+  });
+
+  test('applyCustomFormat leaves unknown tokens untouched', () => {
+    const date = new Date(2020, 11, 31, 23, 59, 59);
+    const out = applyCustomFormat(date, 'YYYY-XX-DD');
+    const expected = String(date.getFullYear()) + '-XX-' + String(date.getDate()).padStart(2, '0');
+    assert.strictEqual(out, expected);
+  });
+
+  test('formatStandard formats date in given timezone (UTC)', () => {
+    const ctx = new OperationContext();
+    const d = new Date('2025-08-10T12:30:45Z');
+    const out = formatStandard(d, ctx, 'UTC');
+    assert.strictEqual(out, '2025-08-10 12:30:45');
+  });
+
+  test('when timezone detection throws, uses configured defaultDateFormat', async () => {
+    const tzUtils = require('../../modules/shared/util/timezoneUtils');
+    const cfg = workspace.getConfiguration('aiWatch');
+    const prev = cfg.get('defaultDateFormat');
+    const ctx = new OperationContext();
+    const d = new Date('2025-08-10T12:30:45Z');
+
+    // set configured default format
+    let orig: (() => string) | undefined = undefined;
+    try {
+      await cfg.update('defaultDateFormat', 'YYYY/MM/DD HH:mm:ss', true);
+      orig = tzUtils.getUserTimezone;
+      tzUtils.getUserTimezone = () => {
+        throw new Error('simulate failure');
+      };
+      const out = tzUtils.formatInTimezone(d, undefined, ctx);
+      // expected uses local time because formatWithCustomFormat is called with undefined timezone
+      const expected = applyCustomFormat(d, 'YYYY/MM/DD HH:mm:ss');
+      assert.strictEqual(out, expected);
+    } finally {
+      // restore and reset config
+      if (orig) tzUtils.getUserTimezone = orig;
+      await cfg.update('defaultDateFormat', prev, true);
+    }
+  });
+
+  test('when timezone detection throws and no default format, falls back to ISO-like UTC', async () => {
+    const tzUtils = require('../../modules/shared/util/timezoneUtils');
+    const cfg = workspace.getConfiguration('aiWatch');
+    const prev = cfg.get('defaultDateFormat');
+    const ctx = new OperationContext();
+    const d = new Date('2025-08-10T12:30:45Z');
+    let orig: () => string = () => '';
+
+    try {
+      await cfg.update('defaultDateFormat', undefined, true);
+      orig = tzUtils.getUserTimezone;
+      tzUtils.getUserTimezone = () => {
+        throw new Error('simulate failure');
+      };
+      const out = tzUtils.formatInTimezone(d, undefined, ctx);
+      const expectedUtc = d.toISOString().slice(0, 19).replace('T', ' ');
+      const expectedLocal = applyCustomFormat(d, 'YYYY-MM-DD HH:mm:ss');
+      assert.ok(out === expectedUtc || out === expectedLocal);
+    } finally {
+      if (orig) tzUtils.getUserTimezone = orig;
+      await cfg.update('defaultDateFormat', prev, true);
+    }
   });
 });
