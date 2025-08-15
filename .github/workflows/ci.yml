@@ -37,11 +37,42 @@ jobs:
     - name: Build extension
       run: npm run compile
 
-    - name: Run tests with coverage
+    - name: Instrument compiled code for coverage
+      run: |
+        # Instrument compiled JS so the Electron test host executes instrumented code
+        npx nyc instrument out out_instrumented
+        rm -rf out && mv out_instrumented out
+
+    - name: Run tests against instrumented code
       run: |
         export DISPLAY=':99.0'
         Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        # Run tests; instrumented code will record coverage during Electron execution
         npx vscode-test --coverage --coverage-output ./coverage --coverage-reporter lcov --coverage-reporter text
+
+    - name: Generate nyc lcov report
+      run: |
+        # If instrumentation produced .nyc_output coverage, generate lcov
+        npx nyc report --reporter=lcov --reporter=text || true
+
+    - name: Dump coverage for debugging
+      run: |
+        echo "Working dir: $(pwd)"
+        ls -la coverage || true
+        echo "===== lcov head ====="
+        head -n 80 coverage/lcov.info || true
+        echo "===== SF entries (source files covered) ====="
+        grep -n '^SF:' coverage/lcov.info || true
+
+    - name: Remap coverage to TypeScript sources
+      run: |
+        npm run remap-coverage
+    - name: Dump remapped coverage for verification
+      run: |
+        echo "=== remapped lcov head ==="
+        head -n 80 coverage/lcov.info || true
+        echo "=== remapped SF entries ==="
+        grep -n '^SF:' coverage/lcov.info || true
 
     - name: Upload coverage to DeepSource
       run: |

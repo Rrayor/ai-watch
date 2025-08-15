@@ -607,8 +607,10 @@
     "pretest": "npm run compile && npm run compile:test && npm run lint",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
-    "test": "vscode-test",
+  "test": "vscode-test",
+  "test:coverage": "npx nyc --reporter=lcov --reporter=text npm test",
     "prepare": "husky install",
+  "remap-coverage": "npx lcov-to-istanbul coverage/lcov.info -o coverage/coverage-final.json && npx remap-istanbul -i coverage/coverage-final.json -o coverage/lcov.info || true",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
     "typecheck": "tsc --noEmit",
@@ -616,6 +618,15 @@
     "typecheck:all": "npm run typecheck && npm run typecheck:test",
     "quality": "npm run typecheck:all && npm run lint && npm run format:check",
     "quality:fix": "npm run typecheck:all && npm run lint:fix && npm run format"
+  },
+  "nyc": {
+    "extension": [".ts", ".js"],
+    "include": ["src/**/*.ts"],
+    "exclude": ["test/**", "src/test/**", "out/**"],
+    "reporter": ["lcov", "text"],
+    "sourceMap": true,
+    "instrument": true,
+    "all": true
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
@@ -630,8 +641,10 @@
     "husky": "^8.0.0",
     "lint-staged": "^16.1.5",
     "prettier": "^3.6.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "remap-istanbul": "^0.6.0"
   },
+
   "dependencies": {
     "@types/vscode": "^1.102.0",
   "date-fns": "^2.30.0",
