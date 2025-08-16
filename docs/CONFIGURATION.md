@@ -1,12 +1,17 @@
-# AI Watch Configuration
 
-This guide covers all configuration options and settings for AI Watch.
+# ⚙️ AI Watch Configuration
 
-## VS Code Settings
+> **Purpose:** This guide covers all configuration options and settings for AI Watch, with actionable examples and troubleshooting tips.
+
+
+---
+
+## 📝 VS Code Settings
 
 AI Watch supports both user and workspace settings for flexible configuration across different environments and teams.
 
-### Settings Overview
+
+### 🔧 Settings Overview
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -17,13 +22,18 @@ AI Watch supports both user and workspace settings for flexible configuration ac
 | `aiWatch.durationFormat` | string | `"standard"` | Default duration verbosity |
 | `aiWatch.maxDurationUnits` | number | `3` | Maximum time units in duration display (1–6) |
 
-## Detailed Configuration
 
-### Timezone Handling
+---
+
+## ⚙️ Detailed Configuration
+
+
+### 🌍 Timezone Handling
 
 AI Watch automatically detects the system timezone and uses it as the default for all operations. If you need a specific timezone for an operation, pass it as the `timezone` parameter to the command or tool call. There is no global timezone override setting - this ensures predictable behavior and prevents configuration conflicts.
 
-### Default Date Format
+
+### 📅 Default Date Format
 
 **Setting:** `aiWatch.defaultDateFormat`
 
@@ -53,7 +63,8 @@ How it is applied:
 - `"YYYY-MM-DD HH:mm:ss"` - ISO-like format (default)
 - `"DD.MM.YYYY HH:mm"` - European format
 
-### Business Days
+
+### 🗓️ Business Days
 
 **Setting:** `aiWatch.businessDays`
 
@@ -72,7 +83,8 @@ Defines which days of the week are considered business days.
 }
 ```
 
-### Excluded Dates
+
+### 🚫 Excluded Dates
 
 **Setting:** `aiWatch.excludedDates`
 
@@ -98,7 +110,8 @@ List of specific dates to exclude from business day calculations (holidays, shut
 - Regional observances
 - Maintenance windows
 
-### Week Start
+
+### 🏁 Week Start
 
 **Setting:** `aiWatch.weekStart`
 
@@ -123,7 +136,8 @@ Notes:
 - Influences business day calculations
 - Used in date navigation queries
 
-### Duration Format
+
+### ⏳ Duration Format
 
 **Setting:** `aiWatch.durationFormat`
 
@@ -149,7 +163,8 @@ Default verbosity level for duration formatting.
 Applied when:
 - Using `formatDuration` without an explicit `verbosity` parameter.
 
-### Max Duration Units
+
+### 🔢 Max Duration Units
 
 **Setting:** `aiWatch.maxDurationUnits`
 
@@ -172,9 +187,13 @@ Maximum number of time units to display in duration formatting.
 Applied when:
 - Using `formatDuration` without an explicit `maxUnits` parameter.
 
-## Configuration Examples
 
-### Global Development Team
+---
+
+## 💡 Configuration Examples
+
+
+#### Global Development Team
 
 For teams working across multiple timezones with standardized practices:
 
@@ -192,7 +211,8 @@ For teams working across multiple timezones with standardized practices:
 }
 ```
 
-### US Enterprise
+
+#### US Enterprise
 
 For US-based companies with typical business practices:
 
@@ -219,7 +239,8 @@ For US-based companies with typical business practices:
 }
 ```
 
-### Middle East Region
+
+#### Middle East Region
 
 For Middle Eastern companies with Friday-Saturday weekends:
 
@@ -238,7 +259,8 @@ For Middle Eastern companies with Friday-Saturday weekends:
 }
 ```
 
-### European Union
+
+#### European Union
 
 For EU-based teams with Monday week start:
 
@@ -263,9 +285,13 @@ For EU-based teams with Monday week start:
 }
 ```
 
-## Settings Scope
 
-### User vs Workspace Settings
+---
+
+## 📂 Settings Scope
+
+
+### 👤 User vs Workspace Settings
 
 **User Settings** (`settings.json` in user profile):
 - Apply globally to all VS Code workspaces
@@ -277,7 +303,8 @@ For EU-based teams with Monday week start:
 - Good for team configurations and project-specific needs
 - Committed to version control for team consistency
 
-### Settings Priority
+
+### 🥇 Settings Priority
 
 Settings are applied in order of precedence (highest to lowest):
 
@@ -294,9 +321,13 @@ await vscode.commands.executeCommand('ai-watch.getCurrentDate', {
 });
 ```
 
-## Configuration Management
 
-### Team Setup
+---
+
+## 🛠️ Configuration Management
+
+
+### 👥 Team Setup
 
 For consistent team configuration:
 
@@ -305,7 +336,8 @@ For consistent team configuration:
 3. **Document decisions** in team guidelines
 4. **Update as needed** for changing requirements
 
-### Environment-Specific Settings
+
+### 🌐 Environment-Specific Settings
 
 Different environments may need different configurations:
 
@@ -325,9 +357,13 @@ Different environments may need different configurations:
 }
 ```
 
-## Validation and Troubleshooting
 
-### Common Issues
+---
+
+## 🧪 Validation and Troubleshooting
+
+
+### ⚠️ Common Issues
 
 **Invalid Timezone:**
 ```
@@ -347,11 +383,13 @@ Error: Invalid business days 'Monday-Friday'. Provide an array like ["Mon","Tue"
 ```
 **Solution:** Provide an array of day names/abbreviations (case-insensitive).
 
-### Settings Validation
+
+### ✅ Settings Validation
 
 AI Watch validates settings on startup and provides clear error messages for invalid configurations. Check the VS Code output panel for validation errors.
 
-### Testing Configuration
+
+### 🧪 Testing Configuration
 
 Test your configuration with these commands:
 
@@ -372,9 +410,13 @@ await vscode.commands.executeCommand('ai-watch.formatDuration', {
 });
 ```
 
-## Migration and Updates
 
-### Updating Settings
+---
+
+## 🔄 Migration and Updates
+
+
+### 🆕 Updating Settings
 
 When updating settings:
 
@@ -383,34 +425,44 @@ When updating settings:
 3. **Update documentation** for team members
 4. **Communicate changes** to affected users
 
-### Version Compatibility
+
+### 🔗 Version Compatibility
 
 AI Watch maintains backward compatibility for settings across versions. New settings are added with sensible defaults that don't break existing configurations.
 
-## Best Practices
 
-### For Teams
+---
+
+## 🏅 Best Practices
+
+
+### 👥 For Teams
 
 1. **Standardize on workspace settings** for consistency
 2. **Document configuration decisions** in README or wiki
 3. **Use version control** for workspace settings
 4. **Regular review** of excluded dates and business rules
 
-### For Individual Users
+
+### 👤 For Individual Users
 
 1. **Set user defaults** that match your typical work environment
 2. **Override in workspaces** for project-specific needs
 3. **Keep settings simple** unless specific requirements exist
 4. **Test configuration changes** before committing
 
-### For Global Organizations
+
+### 🌍 For Global Organizations
 
 1. **Establish regional defaults** for different locations
 2. **Create configuration templates** for new projects
 3. **Document timezone policies** for distributed teams
 4. **Plan for holiday calendar updates** annually
 
-## Support
+
+---
+
+## 🆘 Support
 
 For configuration help:
 - Check the [User Guide](USER_GUIDE.md) for feature explanations

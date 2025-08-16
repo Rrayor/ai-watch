@@ -1,6 +1,10 @@
-# Contributing to AI Watch
 
-We welcome contributions to AI Watch! This document provides guidelines for contributing to the project.
+# 🤝 Contributing to AI Watch
+
+> **Purpose:** This guide provides actionable, up-to-date contribution guidelines for AI Watch, aligned with current architecture, documentation, and review standards.
+
+
+---
 
 ## 🚀 Getting Started
 
@@ -58,6 +62,24 @@ We welcome contributions to AI Watch! This document provides guidelines for cont
 6. **Quality Check**: Run `npm run quality` before committing
 7. **Commit**: Pre-commit hooks automatically validate and fix code quality
 
+---
+
+## Architecture
+
+AI Watch follows a modular architecture to enhance maintainability and scalability. The key components are:
+
+- **Core**: Contains the main logic and APIs
+- **UI**: Manages the user interface elements
+- **Tests**: Holds all test cases and testing utilities
+
+For further information on the architecture see the [relevant documentation](docs/ARCHITECTURE.md).
+
+### Architectural Decision Records
+
+AI Watch maintains a set of [Architectural Decision Records](docs/adr/adr-project-base-2025-08-16.md) (ADRs) to capture important decisions made during the development process. These records help ensure that the rationale behind architectural choices is documented and accessible.
+
+---
+
 ## 📝 How to Contribute
 
 ### Reporting Issues
@@ -98,6 +120,7 @@ Feature requests are welcome! Please:
    - Ensure all tests pass with `npm test`
 
 3. **Commit Your Changes**
+   Use conventional commit messages! Pre-commit linting is set up to enforce the format. A copilot-commit-message.md instruction is also provided in the repository for automatic commit message generation OR developer reference.
    ```bash
    git commit -m "feat: add new time calculation feature"
    ```
@@ -115,6 +138,9 @@ Feature requests are welcome! Please:
    - Documentation updated
    - Pre-commit hooks configured and working
 
+
+---
+
 ## 🏗️ Development Guidelines
 
 ### Code Style
@@ -123,6 +149,9 @@ Feature requests are welcome! Please:
 - **Formatting**: Follow existing formatting (enforced via Prettier)
 - **Naming**: Use descriptive names for functions and variables
 - **Comments**: Add JSDoc comments for public APIs
+
+
+---
 
 ## 🔧 Code Quality Tools
 
@@ -288,12 +317,16 @@ npm test src/test/integration/  # Integration tests only
 
 #### Adding New Tests
 
-When adding functionality:
+When adding functionality (refer to [Testing Guidelines](docs/TESTING.md)):
 
 1. **Utils Layer**: Add unit tests in appropriate `utils/*.test.ts` file
 2. **Command Layer**: Add command tests in `commands/*.test.ts` file
 3. **Documentation**: Ensure test examples match API documentation
 4. **Coverage**: Aim for 100% coverage of new functionality including error cases
+
+#### Manual Testing
+
+A manual testing checklist is provided to validate the extension's functionality in a real VS Code environment. See [Manual Testing Checklist](docs/MANUAL_TESTING_SCRIPT.md).
 
 ### Language Model Tools
 
@@ -330,6 +363,8 @@ When adding new Language Model Tools:
   }
 }
 ```
+
+---
 
 ## 📚 Documentation
 
@@ -448,6 +483,14 @@ docs/
 └── TESTING.md         # Testing strategy and guidelines
 ```
 
+---
+
+## Code reviews
+
+Refer to the [Code Review Checklist](docs/CODE_REVIEW.md) for guidelines on conducting effective code reviews.
+
+---
+
 ## 🧪 Continuous Integration
 
 ### GitHub Actions Pipeline
@@ -489,7 +532,10 @@ git add .               # Stage the fixes
 git commit              # Retry commit
 ```
 
-## 🧪 Release Process
+
+---
+
+## 🚀 Release Process
 
 ### Version Management
 
@@ -507,28 +553,36 @@ We follow [Semantic Versioning](https://semver.org/):
 5. **Create Release**: Tag and create GitHub release
 6. **Publish**: Publish to VS Code Marketplace
 
+
+---
+
+
 ## 🎯 Areas for Contribution
+
+> **Usage Tip:** Use this section as a checklist for onboarding, self-assessment, and PR review. When contributing, pick a focus area below, then consult the mapped documentation (see above) for relevant standards, examples, and requirements. Reviewers should reference these areas to ensure all critical aspects are covered in each PR.
 
 ### High Priority
 
-- **Performance Optimizations**: Improve calculation efficiency
-- **Error Handling**: Enhance error messages and recovery
-- **Testing**: Increase test coverage
-- **Documentation**: Improve examples and guides
+- **Testing**: Increase test coverage, perform manual testing, and report bugs.
+- **Bug fixing**: Address reported issues and improve stability.
+- **Performance Optimizations**: Improve calculation efficiency. While no major performance issues are known, long-running tasks can cause AI agents to hang or behave unpredictably—proactively prevent this.
+- **Error Handling**: Enhance error messages and recovery. Ensure AI agents and users are clearly notified of errors, especially in multi-step or automated processes.
+- **Documentation**: Improve examples and guides for both users and developers.
 
 ### Medium Priority
 
-- **New Features**: Additional time/date operations
-- **Internationalization**: Support for more locales
-- **Configuration**: Additional customization options
-- **Accessibility**: Improve accessibility features
+- **New Features**: Add additional time/date operations.
+- **Configuration**: Expand customization options.
+- **Accessibility**: Improve accessibility features. If you identify areas for enhancement, propose and implement improvements.
 
 ### Good First Issues
 
-- **Documentation**: Fix typos, improve examples
-- **Testing**: Add tests for existing functionality
-- **Bug Fixes**: Fix minor bugs and edge cases
-- **Code Quality**: Refactor and improve code structure
+- **Documentation**: Fix typos, clarify examples, and improve explanations.
+- **Testing**: Add or improve tests for existing functionality; report bugs.
+- **Bug Fixes**: Resolve minor bugs and edge cases.
+- **Code Quality**: Refactor and improve code structure for maintainability.
+
+---
 
 ## 💬 Community
 
@@ -548,6 +602,8 @@ Contributors will be:
 - Listed in release notes for significant contributions
 - Credited in the README for ongoing contributions
 - Invited to participate in project decisions
+
+---
 
 ## 🔄 Development Workflow
 
@@ -583,6 +639,8 @@ test(unit): add tests for date calculations
 3. **Testing**: Verify functionality works as expected in VS Code
 4. **Documentation**: Ensure all affected documentation is updated
 5. **Merge**: Maintainer merges after approval and quality gate passage
+
+---
 
 ## 🙋‍♂️ Getting Help
 
@@ -635,5 +693,16 @@ rm -rf out/ coverage/      # Clean previous builds
 npm run compile && npm run compile:test
 npm test                   # Regenerate coverage
 ```
+
+
+---
+
+## 🔗 Cross-References
+- [Architecture](ARCHITECTURE.md)
+- [API Reference](API_REFERENCE.md)
+- [User Guide](USER_GUIDE.md)
+- [Configuration](CONFIGURATION.md)
+- [Testing](TESTING.md)
+- [Code Review Checklist](CODE_REVIEW.md)
 
 Thank you for contributing to AI Watch! 🕐

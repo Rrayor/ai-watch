@@ -1,14 +1,23 @@
-# Testing Guide
 
-Comprehensive guide to the AI Watch testing strategy, architecture, and best practices.
+# 🧪 AI Watch Testing Guide
 
-## Overview
+> **Purpose:** Comprehensive guide to the AI Watch testing strategy, architecture, and best practices.
+
+
+---
+
+## 🎯 Overview
+
 
 AI Watch employs a modular testing architecture with comprehensive test coverage across all functionality layers. The test suite aims to validate documented API behavior as the primary goal, but comprehensive coverage—including lower-level logic and edge cases—is also important. Some tests may target implementation details when it improves reliability or coverage, ensuring long-term maintainability.
 
-## Test Architecture
 
-### Layer-Based Organization
+---
+
+## 🏗️ Test Architecture
+
+
+### 🗂️ Layer-Based Organization
 
 ```
 src/test/
@@ -37,7 +46,8 @@ src/test/
     └── timezoneUtils.tokens.test.ts # Token formatting tests
 ```
 
-### Test Coverage by Layer
+
+### 📏 Test Coverage by Layer
 
 #### Command Layer
 - **Feature Integration**: Tests for module command functions
@@ -57,9 +67,13 @@ src/test/
 - **Mathematical Accuracy**: Precise calculations and edge cases
 - **Format Validation**: Strict output format checking
 
-## Testing Standards
 
-### Document-Driven Testing
+---
+
+## 🏅 Testing Standards
+
+
+### 📄 Document-Driven Testing
 
 Tests aim to validate **documented API behavior** as the primary goal, but comprehensive coverage—including lower-level logic and edge cases—is also important. Some tests may target implementation details when it improves reliability or coverage:
 
@@ -76,7 +90,8 @@ test('formatUTC calls toISOString internally', () => {
 });
 ```
 
-### Timezone Independence
+
+### 🌍 Timezone Independence
 
 Use UTC methods to prevent environment-specific test failures:
 
@@ -95,7 +110,8 @@ test('business day utilities preserve time components', () => {
 });
 ```
 
-### Error Coverage
+
+### ⚠️ Error Coverage
 
 Test both success and error conditions comprehensively:
 
@@ -117,7 +133,8 @@ test('parseISOString should throw error for invalid dates', () => {
 });
 ```
 
-### Format Validation
+
+### 🧾 Format Validation
 
 Strictly validate return structures match documentation:
 
@@ -136,9 +153,13 @@ test('businessDay command returns complete structure', () => {
 });
 ```
 
-## Running Tests
 
-### Basic Commands
+---
+
+## ▶️ Running Tests
+
+
+### 🏃 Basic Commands
 
 ```bash
 # Run all tests
@@ -151,7 +172,8 @@ npm run test:watch
 npm run test:coverage
 ```
 
-### Targeted Testing
+
+### 🎯 Targeted Testing
 
 ```bash
 # Run specific test file
@@ -166,7 +188,8 @@ npm test src/test/commands/     # Command layer only
 npm test src/test/tools/        # Tool layer only
 ```
 
-### Debugging Tests
+
+### 🐞 Debugging Tests
 
 ```bash
 # Run single test with detailed output
@@ -176,9 +199,13 @@ npm test -- --grep "specific test name" --reporter spec
 # Use "Mocha Tests" debug configuration in .vscode/launch.json
 ```
 
-## Test Development Guidelines
 
-### Adding New Tests
+---
+
+## 🛠️ Test Development Guidelines
+
+
+### ➕ Adding New Tests
 
 When adding functionality, follow this checklist:
 
@@ -211,14 +238,16 @@ When adding functionality, follow this checklist:
    });
    ```
 
-### Test File Naming
+
+### 🏷️ Test File Naming
 
 - **Utils**: `{utilityName}.test.ts` (e.g., `dateUtils.test.ts`)
 - **Commands**: `{commandName}.test.ts` (e.g., `getCurrentDateTimeCommand.test.ts`)
 - **Integration**: `integration.test.ts`
 - **Extension**: `extension.test.ts`
 
-### Test Structure
+
+### 🧩 Test Structure
 
 ```typescript
 import * as assert from 'assert';
@@ -245,9 +274,13 @@ suite('Module Name Tests', () => {
 });
 ```
 
-## Continuous Integration
 
-### Pre-commit Hooks
+---
+
+## 🔄 Continuous Integration
+
+
+### 🪝 Pre-commit Hooks
 
 Lint-staged runs linting and formatting on staged files before commit, but does not run tests. Tests are run automatically in CI (see below).
 
@@ -265,15 +298,20 @@ Example lint-staged config:
 }
 ```
 
-### GitHub Actions
+
+### 🤖 GitHub Actions
 
 Full test suite runs on:
 - Every pull request
 - Every push to main branch
 
-## Troubleshooting
 
-### Common Issues
+---
+
+## 🆘 Troubleshooting
+
+
+### ⚠️ Common Issues
 
 1. **Timezone-related failures**
    ```bash
@@ -296,16 +334,21 @@ Full test suite runs on:
    });
    ```
 
-### Debugging Test Failures
+
+### 🐞 Debugging Test Failures
 
 1. **Check recent changes**: Review what code changed since last passing tests
 2. **Run single test**: Isolate the failing test for focused debugging
 3. **Check documentation**: Ensure test expectations match documented behavior
 4. **Verify timezone**: Confirm test uses UTC methods for date operations
 
-## Contributing to Tests
 
-### Test Review Checklist
+---
+
+## 🤝 Contributing to Tests
+
+
+### ☑️ Test Review Checklist
 
 When reviewing test-related PRs:
 
@@ -316,14 +359,18 @@ When reviewing test-related PRs:
 - [ ] Test names clearly describe expected behavior
 - [ ] Performance impact is minimal (tests complete quickly)
 
-### Test Quality Metrics
+
+### 📊 Test Quality Metrics
 
 - **Coverage**: Aim for 100% line and branch coverage, but 90% or higher is considered acceptable
 - **Documentation Alignment**: All tests must match API documentation
 - **Timezone Independence**: Zero environment-specific test failures
 - **Maintainability**: Tests remain valid through refactoring
 
-## Resources
+
+---
+
+## 🔗 Resources
 
 - [API Reference](API_REFERENCE.md) - Documented behavior to validate
 - [Architecture Guide](ARCHITECTURE.md) - Understanding the modular structure

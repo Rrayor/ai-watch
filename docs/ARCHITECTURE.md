@@ -1,12 +1,19 @@
-# AI Watch Extension Architecture
 
-This document describes the modular, feature-first architecture of the AI Watch VS Code extension as designed for its initial public release.
+# 🏗️ AI Watch Extension Architecture
 
-## Overview
+> **Purpose:** This document describes the modular, feature-first architecture of the AI Watch VS Code extension, with actionable guidance for contributors and maintainers.
+
+
+---
+
+## 📦 Overview
 
 AI Watch provides a suite of date and time capabilities as both VS Code commands and Language Model Tools. The codebase is organized by feature modules, with a small registration layer and a thin entry point.
 
-## High-Level Architecture
+
+---
+
+## 🧩 High-Level Architecture
 
 ```mermaid
 graph TB
@@ -32,7 +39,10 @@ graph TB
     style D fill:#fce4ec
 ```
 
-## Directory Structure
+
+---
+
+## 🗂️ Directory Structure
 
 ```text
 src/
@@ -53,7 +63,11 @@ src/
             util/
 ```
 
-## Core Components
+
+---
+
+## 🏛️ Core Components
+
 
 ### 1. Entry Point (`src/extension.ts`)
 - **Purpose**: VS Code extension activation/deactivation
@@ -70,6 +84,7 @@ export function deactivate() {
 }
 ```
 
+
 ### 2. Registration Layer (`src/registration/`)
 - **Purpose**: Wire commands and tools to VS Code APIs
 - **Modules**:
@@ -84,6 +99,7 @@ vscode.commands.registerCommand('ai-watch.addTime', addTimeCommand);
 // Example tool registration
 vscode.lm.registerTool('ai-watch_addTime', new AddTimeTool());
 ```
+
 
 ### 3. Feature Modules (`src/modules/<feature>/`)
 - **Purpose**: Feature-scoped encapsulation
@@ -102,6 +118,7 @@ vscode.lm.registerTool('ai-watch_addTime', new AddTimeTool());
 - `business-day` - Business day math with exclusions
 - `date-query` - Date navigation and period boundaries
 
+
 ### 4. Shared Layer (`src/modules/shared/`)
 - **Purpose**: Cross-cutting concerns and utilities
 - **Components**:
@@ -110,7 +127,10 @@ vscode.lm.registerTool('ai-watch_addTime', new AddTimeTool());
   - `error/` - Specific error classes (InvalidDateError, etc.)
   - `model/OperationContext.ts` - Info message collection
 
-## Data Flow Patterns
+
+---
+
+## 🔄 Data Flow Patterns
 
 ### Command Execution
 ```mermaid
@@ -144,7 +164,10 @@ sequenceDiagram
     Tool-->>AI: LanguageModelToolResult
 ```
 
-## Architectural Patterns
+
+---
+
+## 🏗️ Architectural Patterns
 
 ### 1. Feature-First Organization
 Each capability is self-contained within its module:
@@ -177,7 +200,10 @@ export type { AddTimeOptions, AddTimeResult } from './model';
 import { addTimeCommand, AddTimeOptions } from '../modules/add-time';
 ```
 
-## Configuration Integration
+
+---
+
+## ⚙️ Configuration Integration
 
 Configuration is read from VS Code's `aiWatch` namespace:
 
@@ -193,7 +219,10 @@ Configuration flows through the system:
 2. Per-call parameters override defaults
 3. Shared utilities apply effective values
 
-## Error Handling Strategy
+
+---
+
+## ⚠️ Error Handling Strategy
 
 ```mermaid
 graph LR
@@ -223,7 +252,10 @@ graph LR
 3. **Error Transformation**: User-friendly messages
 4. **Consistent Format**: Structured error responses
 
-## Testing Architecture
+
+---
+
+## 🧪 Testing Architecture
 
 The modular design enables focused testing:
 
@@ -242,7 +274,10 @@ src/test/
 - **End-to-End Tests**: Full extension workflows
 - **Document-Driven**: Tests aim to validate API documentation as the primary goal, but comprehensive coverage—including lower-level logic and edge cases—is also important. Some tests may target implementation details when it improves reliability or coverage.
 
-## Extension Points
+
+---
+
+## 🔌 Extension Points
 
 ### Adding New Features
 
@@ -310,7 +345,10 @@ Add new utilities to `src/modules/shared/util/` following the same patterns:
 - Type-safe interfaces
 - Barrel exports through `shared/index.ts`
 
-## Performance Considerations
+
+---
+
+## ⚡ Performance Considerations
 
 ### Lazy Loading
 - Modules only load when first used
@@ -327,7 +365,10 @@ Add new utilities to `src/modules/shared/util/` following the same patterns:
 - Shared utilities minimize duplication
 - External dependencies carefully managed
 
-## Best Practices
+
+---
+
+## 🏅 Best Practices
 
 ### Module Design
 1. **Single Responsibility**: Each module handles one capability
@@ -347,7 +388,10 @@ Add new utilities to `src/modules/shared/util/` following the same patterns:
 3. **Timezone Safety**: UTC-based test assertions
 4. **Error Coverage**: Test both success and failure paths
 
-## Summary
+
+---
+
+## 📋 Summary
 
 AI Watch's current architecture prioritizes:
 - **Modularity**: Feature-first organization
@@ -355,4 +399,14 @@ AI Watch's current architecture prioritizes:
 - **Extensibility**: Easy to add new capabilities
 - **Reliability**: Comprehensive error handling and testing
 
+
 This design enables rapid development of new time/date features while maintaining code quality and system stability.
+
+---
+
+## 🔗 Cross-References
+
+- [API Reference](API_REFERENCE.md)
+- [User Guide](USER_GUIDE.md)
+- [Configuration](CONFIGURATION.md)
+- [Testing](TESTING.md)

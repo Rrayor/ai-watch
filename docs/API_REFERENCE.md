@@ -1,20 +1,23 @@
-# AI Watch API Reference
 
-Complete API documentation for developers integrating with AI Watch.
+# 📚 AI Watch API Reference
 
-## Language Model Tools
+> **Purpose:** This document provides complete, actionable API documentation for developers and AI assistants integrating with AI Watch.
 
-AI Watch provides 8 comprehensive tools accessible through VS Code's Language Model Tools interface. All tools provide input validation, sensible defaults, and detailed error handling.
+---
 
-### getCurrentDateTime
+## 🛠️ Language Model Tools & Commands
 
-Returns current date and time with timezone and formatting support.
+AI Watch exposes 8 tools as both VS Code commands and Language Model Tools. All tools provide input validation, sensible defaults, and detailed error handling.
 
-**Parameters:**
+
+### `getCurrentDateTime`
+**Returns current date and time with timezone and formatting support.**
+
+#### Parameters
 - `timezone` (optional, string): IANA timezone identifier
 - `format` (optional, string): Date format pattern, defaults to 'YYYY-MM-DD HH:mm:ss'
 
-**Returns:**
+#### Returns
 ```typescript
 {
   iso?: string;            // ISO 8601 format (if available)
@@ -27,7 +30,7 @@ Returns current date and time with timezone and formatting support.
 }
 ```
 
-**Examples:**
+#### Examples
 ```javascript
 // Basic current time
 await vscode.commands.executeCommand('ai-watch.getCurrentDateTime');
@@ -44,15 +47,15 @@ await vscode.commands.executeCommand('ai-watch.getCurrentDateTime', {
 });
 ```
 
-### calculateDifference
 
-Calculates precise time differences between two dates.
+### `calculateDifference`
+**Calculates precise time differences between two dates.**
 
-**Parameters:**
+#### Parameters
 - `from` (required, string): Starting date/time in ISO 8601 format
 - `to` (required, string): Ending date/time in ISO 8601 format
 
-**Returns:**
+#### Returns
 ```typescript
 {
   milliseconds?: number; // Total difference in milliseconds
@@ -64,7 +67,7 @@ Calculates precise time differences between two dates.
 }
 ```
 
-**Example:**
+#### Example
 ```javascript
 await vscode.commands.executeCommand('ai-watch.calculateDifference', {
   from: '2025-08-01T00:00:00Z',
@@ -73,16 +76,16 @@ await vscode.commands.executeCommand('ai-watch.calculateDifference', {
 // Returns: { days: 8, hours: 205, minutes: 12317, seconds: 739021 }
 ```
 
-### convertTimezone
 
-Converts date/time between different timezones.
+### `convertTimezone`
+**Converts date/time between different timezones.**
 
-**Parameters:**
+#### Parameters
 - `date` (required, string): Date/time in ISO 8601 format
 - `toTimezone` (required, string): Target IANA timezone
 - `fromTimezone` (optional, string): Source timezone, defaults to 'UTC'
 
-**Returns:**
+#### Returns
 ```typescript
 {
   iso?: string;            // ISO 8601 format (if available)
@@ -96,7 +99,7 @@ Converts date/time between different timezones.
 }
 ```
 
-**Example:**
+#### Example
 ```javascript
 await vscode.commands.executeCommand('ai-watch.convertTimezone', {
   date: '2025-08-09T13:37:01Z',
@@ -105,11 +108,11 @@ await vscode.commands.executeCommand('ai-watch.convertTimezone', {
 // Returns: { formatted: "2025-08-09 22:37:01", fromTimezone: "UTC", toTimezone: "Asia/Tokyo" }
 ```
 
-### addTime
 
-Adds specified duration components to a base time.
+### `addTime`
+**Adds specified duration components to a base time.**
 
-**Parameters:**
+#### Parameters
 - `baseTime` (optional, string): Starting time in ISO format, defaults to current time
 - `years` (optional, number): Years to add, defaults to 0
 - `months` (optional, number): Months to add, defaults to 0
@@ -120,7 +123,7 @@ Adds specified duration components to a base time.
 - `seconds` (optional, number): Seconds to add, defaults to 0
 - `timezone` (optional, string): Display result in specific timezone
 
-**Returns:**
+#### Returns
 ```typescript
 {
   iso?: string;            // Result in ISO format (if available)
@@ -134,7 +137,7 @@ Adds specified duration components to a base time.
 }
 ```
 
-**Examples:**
+#### Examples
 ```javascript
 // Add 2 hours and 30 minutes from now
 await vscode.commands.executeCommand('ai-watch.addTime', {
@@ -152,11 +155,11 @@ await vscode.commands.executeCommand('ai-watch.addTime', {
 });
 ```
 
-### subtractTime
 
-Subtracts specified duration components from a base time.
+### `subtractTime`
+**Subtracts specified duration components from a base time.**
 
-**Parameters:**
+#### Parameters
 - `baseTime` (optional, string): Starting time in ISO format, defaults to current time
 - `years` (optional, number): Years to subtract, defaults to 0
 - `months` (optional, number): Months to subtract, defaults to 0
@@ -167,7 +170,7 @@ Subtracts specified duration components from a base time.
 - `seconds` (optional, number): Seconds to subtract, defaults to 0
 - `timezone` (optional, string): Display result in specific timezone
 
-**Returns:**
+#### Returns
 ```typescript
 {
   iso?: string;            // Result in ISO format (if available)
@@ -181,7 +184,7 @@ Subtracts specified duration components from a base time.
 }
 ```
 
-**Examples:**
+#### Examples
 ```javascript
 // Go back 4 weeks, 2 days, and 3 hours from now
 await vscode.commands.executeCommand('ai-watch.subtractTime', {
@@ -199,11 +202,11 @@ await vscode.commands.executeCommand('ai-watch.subtractTime', {
 });
 ```
 
-### formatDuration
 
-Converts time duration between two dates into human-readable format with type-safe parameters.
+### `formatDuration`
+**Converts time duration between two dates into human-readable format with type-safe parameters.**
 
-**Parameters:**
+#### Parameters
 - `from` (required, string): Starting date/time in ISO format
 - `to` (required, string): Ending date/time in ISO format
 - `verbosity` (optional, VerbosityLevel): Format verbosity level with compile-time type safety
@@ -212,12 +215,12 @@ Converts time duration between two dates into human-readable format with type-sa
   - `'verbose'`: "2 days, 3 hours and 45 minutes" (most detailed)
 - `maxUnits` (optional, number): Maximum number of time units to display, defaults to 3
 
-**Type Safety:**
+#### Type Safety
 - TypeScript union types prevent invalid verbosity values at compile time
 - Negative durations are properly handled with sign preservation
 - Zero durations return unsigned results (prevents "-0s" outputs)
 
-**Returns:**
+#### Returns
 ```typescript
 {
   formatted?: string;      // Human-readable duration
@@ -226,7 +229,7 @@ Converts time duration between two dates into human-readable format with type-sa
 }
 ```
 
-**Examples:**
+#### Examples
 ```javascript
 // Basic duration formatting
 await vscode.commands.executeCommand('ai-watch.formatDuration', {
@@ -245,11 +248,11 @@ await vscode.commands.executeCommand('ai-watch.formatDuration', {
 // Returns: { formatted: "8d 13h" }
 ```
 
-### businessDay
 
-Performs business day calculations including validation and math operations.
+### `businessDay`
+**Performs business day calculations including validation and math operations.**
 
-**Parameters:**
+#### Parameters
 - `operation` (required, string): Operation type
   - `'isBusinessDay'`: Check if date is a business day
   - `'addBusinessDays'`: Add business days to date
@@ -257,7 +260,7 @@ Performs business day calculations including validation and math operations.
 - `date` (required, string): Base date in ISO format
 - `days` (optional, number): Number of business days to add/subtract (required for add/subtract operations)
 
-**Returns:**
+#### Returns
 ```typescript
 // For 'isBusinessDay'
 {
@@ -276,7 +279,7 @@ Performs business day calculations including validation and math operations.
 // Error case remains returned via thrown errors in commands layer
 ```
 
-**Examples:**
+#### Examples
 ```javascript
 // Check if date is business day
 await vscode.commands.executeCommand('ai-watch.businessDay', {
@@ -299,11 +302,11 @@ await vscode.commands.executeCommand('ai-watch.businessDay', {
 });
 ```
 
-### dateQuery
 
-Performs advanced date queries including weekday navigation and period boundaries.
+### `dateQuery`
+**Performs advanced date queries including weekday navigation and period boundaries.**
 
-**Parameters:**
+#### Parameters
 - `baseDate` (required, string): Base date for calculations in ISO format
 - `queries` (required, array): Array of query operations to perform in sequence
   - Each query object supports:
@@ -319,14 +322,14 @@ Performs advanced date queries including weekday navigation and period boundarie
     - `weekStart` (optional, string|number): Week start day for period queries
       - Valid: 'sunday' (default), 'monday', or numbers 0–6 (0=Sunday)
 
-**Returns:**
+#### Returns
 ```typescript
 {
   dates?: string[];     // Array of result dates in ISO format
 }
 ```
 
-**Examples:**
+#### Examples
 ```javascript
 // Find next Friday
 await vscode.commands.executeCommand('ai-watch.dateQuery', {
@@ -353,11 +356,14 @@ await vscode.commands.executeCommand('ai-watch.dateQuery', {
 });
 ```
 
-## Extension Integration
 
-For VS Code extension developers wanting to integrate AI Watch functionality, all capabilities are available through direct VS Code commands for programmatic access.
+---
 
-**Available Commands:**
+## 🔗 Extension Integration
+
+All capabilities are available as VS Code commands for programmatic access. See [User Guide](USER_GUIDE.md) for practical examples.
+
+#### Available Commands
 - `ai-watch.getCurrentDateTime`
 - `ai-watch.calculateDifference`
 - `ai-watch.convertTimezone`
@@ -367,16 +373,20 @@ For VS Code extension developers wanting to integrate AI Watch functionality, al
 - `ai-watch.businessDay`
 - `ai-watch.dateQuery`
 
-**Usage Pattern:**
+#### Usage Pattern
 ```typescript
 const result = await vscode.commands.executeCommand('ai-watch.[command]', parameters);
 ```
 
-## Error Handling
 
-All tools provide comprehensive error handling with descriptive messages:
+---
 
-### Common Error Types
+## ⚠️ Error Handling
+
+All tools provide comprehensive error handling with descriptive messages. Always check for errors before using results.
+
+
+#### Common Error Types
 
 **Invalid Date Format:**
 ```javascript
@@ -406,7 +416,8 @@ All tools provide comprehensive error handling with descriptive messages:
 }
 ```
 
-### Best Practices
+
+#### Best Practices
 
 1. **Always check for errors** before using results
 2. **Use try-catch blocks** for robust error handling
@@ -430,29 +441,37 @@ try {
 }
 ```
 
-## Performance Considerations
 
-### Optimization Tips
+---
+
+## ⚡ Performance Considerations
+
+#### Optimization Tips
 
 1. **Batch operations** when possible to reduce command calls
 2. **Cache results** for repeated calculations with same parameters
 3. **Use appropriate precision** - not all use cases need millisecond accuracy
 4. **Choose efficient formats** - compact formatting is faster than verbose
 
-### Rate Limiting
+
+#### Rate Limiting
 
 No explicit rate limiting is implemented, but consider:
 - Avoiding high-frequency polling for current time
 - Batching multiple date calculations
 - Caching results when appropriate
 
-### Memory Usage
+
+#### Memory Usage
 
 All operations are stateless and don't retain data between calls. Memory usage is minimal and proportional to the complexity of the operation.
 
-## Integration Examples
 
-### Extension Development
+---
+
+## 💡 Integration Examples
+
+#### Extension Development
 
 ```typescript
 // In your VS Code extension
@@ -472,7 +491,8 @@ export function activate(context: vscode.ExtensionContext) {
 }
 ```
 
-### Language Model Tool
+
+#### Language Model Tool
 
 ```typescript
 // AI Assistant integration
@@ -496,11 +516,13 @@ class TimeAwareAssistant {
 }
 ```
 
-### Testing
+
+#### Testing
 
 The modular architecture enables comprehensive testing across multiple layers. Here are examples for each layer:
 
-#### Integration Testing
+
+##### Integration Testing
 
 ```typescript
 // End-to-end VS Code command testing
@@ -535,7 +557,8 @@ suite('AI Watch Integration Tests', () => {
 });
 ```
 
-#### Unit Testing
+
+##### Unit Testing
 
 ```typescript
 // Utils layer testing
@@ -565,7 +588,8 @@ suite('Date Utils Tests', () => {
 });
 ```
 
-#### Command Testing
+
+##### Command Testing
 
 ```typescript
 // Command layer testing
@@ -588,7 +612,8 @@ suite('Business Day Command Tests', () => {
 });
 ```
 
-#### Test Organization
+
+##### Test Organization
 
 The test suite consists of multiple test files organized by layer:
 
@@ -597,16 +622,20 @@ The test suite consists of multiple test files organized by layer:
 - **Integration Layer**: Test files covering end-to-end functionality
 - **Extension Layer**: Test files covering tool registration and lifecycle
 
-#### Best Practices
+
+##### Best Practices
 
 1. **Document-Driven Testing**: Validate documented behavior, not implementation
 2. **Timezone Independence**: Use UTC methods to prevent environment-specific failures
 3. **Error Coverage**: Test both success and error conditions thoroughly
 4. **Format Validation**: Strictly check return structures match documentation
 
-## Migration Guide
 
-### From Direct Date Usage
+---
+
+## 🔄 Migration Guide
+
+#### From Direct Date Usage
 
 If you're currently using JavaScript's Date object directly:
 
@@ -624,7 +653,8 @@ const future = await vscode.commands.executeCommand('ai-watch.addTime', {
 const futureDate = new Date(future.iso);
 ```
 
-### From Other Time Libraries
+
+#### From Other Time Libraries
 
 Migrating from libraries like moment.js or date-fns:
 
@@ -640,9 +670,11 @@ Migrating from libraries like moment.js or date-fns:
 - VS Code environment requirement
 - Limited to supported operations
 
-## Support
 
-For additional help:
+---
+
+## 🆘 Support
+
 - Review the [User Guide](USER_GUIDE.md) for practical examples
 - Check [Configuration](CONFIGURATION.md) for settings
 - Report issues on [GitHub](https://github.com/Rrayor/copilot-watch/issues)

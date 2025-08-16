@@ -1,9 +1,13 @@
 
-# AI Watch User Guide
 
-This guide covers all features and capabilities of AI Watch, with practical examples for both users and AI assistants.
+# 🧑‍💻 AI Watch User Guide
 
-## Table of Contents
+> **Purpose:** This guide covers all features and capabilities of AI Watch, with practical, actionable examples for both users and AI assistants.
+
+
+---
+
+## 🗂️ Table of Contents
 
 1. [Overview](#overview)
 2. [AI Use Cases & Real-World Scenarios](#ai-use-cases--real-world-scenarios)
@@ -14,11 +18,18 @@ This guide covers all features and capabilities of AI Watch, with practical exam
 7. [Troubleshooting](#troubleshooting)
 
 
-## Overview
+
+---
+
+## 🌟 Overview
+
 
 AI Watch is designed primarily for AI-assisted development workflows, providing comprehensive time and date tools that enable AI assistants, like GitHub Copilot, and other development tools to access accurate temporal information.
 
-## AI Use Cases & Real-World Scenarios
+
+---
+
+## 💡 AI Use Cases & Real-World Scenarios
 
 AI Watch enables a wide range of practical, time-driven workflows for individuals and teams. Below are grouped use cases and real-world scenarios - mostly AI generated, because I couldn't come up with enough unique ideas :sweat_smile: - to inspire your automation:
 
@@ -111,7 +122,10 @@ AI Watch enables a wide range of practical, time-driven workflows for individual
 5. **SLA Monitoring**: Ensure targets are met
 6. **Global Impact**: Consider timezone differences
 
-## Language Model Integration
+
+---
+
+## 🤖 Language Model Integration
 
 AI Watch integrates seamlessly with VS Code's Language Model Tools, making all functionality available to AI assistants through natural language.
 
@@ -149,7 +163,11 @@ All 8 language model tools are automatically registered:
 > Agents should parse the JSON for facts and may include the message in user-facing replies.
 
 
-## Core Features
+
+---
+
+## 🛠️ Core Features
+
 
 ### 📅 Current Date & Time
 
@@ -175,6 +193,7 @@ const time = await vscode.commands.executeCommand('ai-watch.getCurrentDateTime')
 - Create "last updated" dates in documentation
 - Set cache expiration times
 - Generate realistic test data
+
 
 ### 🌍 Timezone Operations
 
@@ -203,6 +222,7 @@ const converted = await vscode.commands.executeCommand('ai-watch.convertTimezone
 - Schedule deployments across regions
 - Localize timestamps for different audiences
 - Analyze logs from distributed systems
+
 
 ### ⏱️ Time Calculations
 
@@ -271,6 +291,7 @@ const duration = await vscode.commands.executeCommand('ai-watch.calculateDiffere
 - Plan sprint schedules and delivery dates
 - Track time elapsed between events
 
+
 ### 🎨 Human-Readable Formatting
 
 Convert durations into natural language.
@@ -302,6 +323,7 @@ const compact = await vscode.commands.executeCommand('ai-watch.formatDuration', 
 - Create readable performance summaries
 - Format uptime and downtime reports
 - Display "time ago" information
+
 
 ### 💼 Business Day Support
 
@@ -341,6 +363,7 @@ const workdaysSubtracted = await vscode.commands.executeCommand('ai-watch.busine
 - Schedule deployments avoiding weekends
 - Plan releases considering business hours
 - Track SLA compliance
+
 
 ### 🔍 Advanced Date Queries
 
@@ -382,7 +405,10 @@ const chained = await vscode.commands.executeCommand('ai-watch.dateQuery', {
 // Returns (schema): { dates?: string[] }
 ```
 
-## Configuration
+
+---
+
+## ⚙️ Configuration
 
 AI Watch can be customized through VS Code settings for team-specific needs:
 
@@ -397,7 +423,10 @@ AI Watch can be customized through VS Code settings for team-specific needs:
 
 See [Configuration Guide](CONFIGURATION.md) for complete settings documentation.
 
-## Best Practices
+
+---
+
+## 🏅 Best Practices
 
 ### For AI Development
 
@@ -420,7 +449,10 @@ See [Configuration Guide](CONFIGURATION.md) for complete settings documentation.
 3. **Format efficiently** - Choose appropriate verbosity levels
 4. **Monitor usage** - Track API calls in high-frequency scenarios
 
-## Troubleshooting
+
+---
+
+## 🆘 Troubleshooting
 
 ### Common Issues
 
@@ -432,7 +464,8 @@ See [Configuration Guide](CONFIGURATION.md) for complete settings documentation.
 
 **Timezone conversion accuracy**: Verify source and target timezones are correct
 
-### Getting Help
+
+### 🆘 Getting Help
 
 - Check the [API Reference](API_REFERENCE.md) for detailed parameter information
 - Review [Configuration](CONFIGURATION.md) for settings help
