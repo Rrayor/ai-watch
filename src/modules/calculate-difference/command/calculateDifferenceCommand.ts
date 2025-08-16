@@ -35,15 +35,7 @@ export function calculateDifferenceCommand(
  * @param to - End date
  * @returns Object containing the difference in days, hours, minutes, and seconds
  */
-function calculateDateDifference(
-  from: Date,
-  to: Date,
-): {
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-} {
+function calculateDateDifference(from: Date, to: Date): CalculateDifferenceResult {
   return {
     days: differenceInDays(to, from),
     hours: differenceInHours(to, from),

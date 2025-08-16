@@ -4,7 +4,7 @@ Comprehensive guide to the AI Watch testing strategy, architecture, and best pra
 
 ## Overview
 
-AI Watch employs a modular testing architecture with comprehensive test coverage across all functionality layers. The test suite validates documented API behavior rather than implementation details, ensuring long-term maintainability.
+AI Watch employs a modular testing architecture with comprehensive test coverage across all functionality layers. The test suite aims to validate documented API behavior as the primary goal, but comprehensive coverage—including lower-level logic and edge cases—is also important. Some tests may target implementation details when it improves reliability or coverage, ensuring long-term maintainability.
 
 ## Test Architecture
 
@@ -61,7 +61,7 @@ src/test/
 
 ### Document-Driven Testing
 
-Tests validate **documented API behavior**, not implementation details:
+Tests aim to validate **documented API behavior** as the primary goal, but comprehensive coverage—including lower-level logic and edge cases—is also important. Some tests may target implementation details when it improves reliability or coverage:
 
 ```typescript
 // ✅ Good: Tests documented return format
@@ -70,7 +70,7 @@ test('formatUTC includes UTC suffix', () => {
   assert.strictEqual(result, '2025-08-10 12:30:45 UTC');
 });
 
-// ❌ Avoid: Tests implementation details
+// ❌ Avoid: Tests implementation details unless necessary for reliability or coverage
 test('formatUTC calls toISOString internally', () => {
   // Don't test internal method calls
 });
@@ -200,7 +200,7 @@ When adding functionality, follow this checklist:
 
 3. **Documentation**: Ensure examples match API docs
    ```typescript
-   // Test should validate documented behavior
+  // Test should validate documented behavior, but may cover lower-level logic or edge cases if needed
    // Return formats must match API_REFERENCE.md
    ```
 
@@ -249,13 +249,19 @@ suite('Module Name Tests', () => {
 
 ### Pre-commit Hooks
 
-Tests run automatically via lint-staged:
+Lint-staged runs linting and formatting on staged files before commit, but does not run tests. Tests are run automatically in CI (see below).
+
+Example lint-staged config:
 
 ```json
 {
-  "lint-staged": {
-    "*.ts": ["npm run lint:fix", "npm test"]
-  }
+  "src/**/*.{ts,tsx}": [
+    "eslint --ext .ts --fix",
+    "prettier --write"
+  ],
+  "src/**/*.{js,jsx,json,md}": [
+    "prettier --write"
+  ]
 }
 ```
 
@@ -264,15 +270,6 @@ Tests run automatically via lint-staged:
 Full test suite runs on:
 - Every pull request
 - Every push to main branch
-- Scheduled nightly builds
-
-### Current Performance
-
-Current test performance metrics:
-- **141 tests** complete in ~4 seconds
-- **19 test files** with efficient execution
-- **Zero flaky tests** due to timezone-independent design
-- **92.2% branch coverage** achieved through comprehensive testing
 
 ## Troubleshooting
 
@@ -312,7 +309,7 @@ Current test performance metrics:
 
 When reviewing test-related PRs:
 
-- [ ] Tests validate documented behavior, not implementation details
+- [ ] Tests aim to validate documented behavior, but may cover implementation details for reliability or edge cases
 - [ ] All date operations use UTC methods for timezone independence
 - [ ] Error cases are thoroughly covered
 - [ ] Return structures match API documentation exactly
@@ -321,10 +318,9 @@ When reviewing test-related PRs:
 
 ### Test Quality Metrics
 
-- **Coverage**: Aim for 100% line and branch coverage
+- **Coverage**: Aim for 100% line and branch coverage, but 90% or higher is considered acceptable
 - **Documentation Alignment**: All tests must match API documentation
 - **Timezone Independence**: Zero environment-specific test failures
-- **Performance**: Test suite completes in under 300ms
 - **Maintainability**: Tests remain valid through refactoring
 
 ## Resources

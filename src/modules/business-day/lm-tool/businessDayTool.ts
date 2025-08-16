@@ -67,7 +67,7 @@ export class BusinessDayTool implements LanguageModelTool<BusinessDayOptions> {
         readableMessage = `The date ${param.date} is ${result.isBusinessDay ? '' : 'not '}a business day.`;
         break;
       default:
-        readableMessage = `Unknown operation: ${jsonBlock}`; // This case should be unreachable but let's fail gracefully if it does
+        readableMessage = `Unknown operation: ${jsonBlock}`; // This case should be unreachable but let's fail gracefully if it does happen
     }
     return [jsonBlock, readableMessage].join('\n');
   }

@@ -50,7 +50,7 @@ This script covers all features with prompts and expected outcomes for AI chat/m
 | 1.2 | `What time is it in Tokyo right now?` | Tool: `getCurrentDateTime` with timezone<br>Result: Asia/Tokyo time, correct offset | [ ] |
 | 1.3 | `Show me the current date and time in MM/DD/YYYY format.` | Tool: `getCurrentDateTime` with custom format<br>Result: MM/DD/YYYY HH:mm:ss | [ ] |
 | 1.4 | `What time is it in New York, London, and Sydney right now?` | Multiple calls or multi-timezone<br>Results for all 3, correct offsets | [ ] |
-| 1.5 | `What time is it in EST timezone?` | Error: Suggest IANA timezone, e.g. "America/New_York" | [ ] |
+| 1.5 | `What time is it in EST timezone?` | Error: Suggest IANA timezone, e.g. "America/New_York" (NOTE: The LLM might be smart here and use IANA anyway. That's acceptable, but check the logs to see if maybe it first ran into an error. Not a problem if not, but counts as verification if it did) | [ ] |
 
 ---
 

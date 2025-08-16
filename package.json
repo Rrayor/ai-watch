@@ -501,7 +501,7 @@
                       "monday",
                       "sunday"
                     ],
-                    "default": "monday"
+                    "default": "sunday"
                   }
                 }
               },
@@ -569,7 +569,7 @@
               "maximum": 6
             }
           ],
-          "default": "monday",
+          "default": "sunday",
           "description": "First day of the week for period calculations. Accepts 'monday' | 'sunday' or numbers 0–6 (0=Sunday).",
           "scope": "window"
         },

@@ -26,7 +26,6 @@ export class SubtractTimeTool implements LanguageModelTool<SubtractTimeOptions> 
    * @param _token - Cancellation token (unused)
    * @returns Language model tool result with the calculated past date
    */
-
   async invoke(
     options: LanguageModelToolInvocationOptions<SubtractTimeOptions>,
     _token: CancellationToken,

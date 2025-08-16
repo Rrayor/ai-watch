@@ -14,7 +14,7 @@ export interface DateQueryOptions {
     weekday?: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
     /** Period type for period queries */
     period?: 'day' | 'week' | 'month' | 'quarter' | 'year';
-    /** Week start day (defaults to monday) */
+    /** Week start day (defaults to sunday) */
     weekStart?: string | number | undefined;
   }>;
 }

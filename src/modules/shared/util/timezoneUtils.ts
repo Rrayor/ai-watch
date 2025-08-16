@@ -33,7 +33,6 @@ export function formatUTC(date: Date): string {
  * @returns Formatted date string
  * @throws {InvalidTimezoneError} If the timezone is invalid
  */
-
 export function formatInTimezone(
   date: Date,
   timezone: string,

@@ -28,7 +28,6 @@ export class DateQueryTool implements LanguageModelTool<DateQueryOptions> {
    * @param _token - Cancellation token (unused)
    * @returns Language model tool result with date query operation results
    */
-
   async invoke(
     options: LanguageModelToolInvocationOptions<DateQueryOptions>,
     _token: CancellationToken,

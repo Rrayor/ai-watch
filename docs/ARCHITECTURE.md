@@ -1,10 +1,10 @@
 # AI Watch Extension Architecture
 
-This document describes the current modular architecture of the AI Watch VS Code extension after the recent overhaul from a monolithic structure to a feature-first modular design.
+This document describes the modular, feature-first architecture of the AI Watch VS Code extension as designed for its initial public release.
 
 ## Overview
 
-AI Watch provides 8 date/time capabilities as both VS Code commands and Language Model Tools. The codebase is organized by feature modules, with a small registration layer and a thin entry point.
+AI Watch provides a suite of date and time capabilities as both VS Code commands and Language Model Tools. The codebase is organized by feature modules, with a small registration layer and a thin entry point.
 
 ## High-Level Architecture
 
@@ -58,7 +58,6 @@ src/
 ### 1. Entry Point (`src/extension.ts`)
 - **Purpose**: VS Code extension activation/deactivation
 - **Responsibilities**: Delegate to registration modules
-- **Size**: ~35 lines (minimal entry point)
 
 ```typescript
 export function activate(context: ExtensionContext) {
@@ -82,7 +81,7 @@ export function deactivate() {
 // Example command registration
 vscode.commands.registerCommand('ai-watch.addTime', addTimeCommand);
 
-// Example tool registration  
+// Example tool registration
 vscode.lm.registerTool('ai-watch_addTime', new AddTimeTool());
 ```
 
@@ -232,7 +231,7 @@ The modular design enables focused testing:
 ```text
 src/test/
 ├── commands/                 # Command integration tests
-├── tools/                   # LM tool functionality tests  
+├── tools/                   # LM tool functionality tests
 ├── utils/                   # Shared utility unit tests
 └── (integration tests)      # End-to-end workflows
 ```
@@ -241,40 +240,67 @@ src/test/
 - **Unit Tests**: Shared utilities tested in isolation
 - **Integration Tests**: Command/tool implementations
 - **End-to-End Tests**: Full extension workflows
-- **Document-Driven**: Tests validate API documentation
+- **Document-Driven**: Tests aim to validate API documentation as the primary goal, but comprehensive coverage—including lower-level logic and edge cases—is also important. Some tests may target implementation details when it improves reliability or coverage.
 
 ## Extension Points
 
 ### Adding New Features
 
-1. **Create Module Structure**:
-   ```bash
-   mkdir src/modules/new-feature
-   mkdir src/modules/new-feature/{command,lm-tool,model}
-   ```
+**Recommended Workflow for Adding New Features**
 
-2. **Implement Core Logic**:
-   ```typescript
-   // src/modules/new-feature/command/newFeatureCommand.ts
-   export function newFeatureCommand(options: NewFeatureOptions): NewFeatureResult {
-     // Implementation
-   }
-   ```
+> _Note: This is the recommended workflow. The process is naturally iterative—you may not know all error states or the final options/results structure before development. It's encouraged to think ahead, but it's normal to revise types, errors, and documentation as you go. Maintain good practices throughout the process._
 
-3. **Create LM Tool**:
-   ```typescript
-   // src/modules/new-feature/lm-tool/newFeatureTool.ts
-   export class NewFeatureTool implements vscode.LanguageModelTool {
-     // Implementation
-   }
-   ```
+1. **Design the API First**
+  - Define the feature’s purpose, inputs, and outputs.
+  - Draft TypeScript types for options and results (e.g., `NewFeatureOptions`, `NewFeatureResult`).
+  - Add a provisional entry to `API_REFERENCE.md`.
 
-4. **Register with System**:
-   ```typescript
-   // In src/registration/commands.ts and tools.ts
-   registerCommand('ai-watch.newFeature', newFeatureCommand);
-   registerTool('ai-watch_newFeature', new NewFeatureTool());
-   ```
+2. **Define Error Types**
+  - Identify and create new error types as needed (in `src/modules/shared/error/`).
+  - Document them for clarity.
+
+3. **Create Module Structure**:
+  ```bash
+  mkdir src/modules/new-feature
+  mkdir src/modules/new-feature/{command,lm-tool,model}
+  ```
+
+4. **Implement Core Logic**:
+  ```typescript
+  // src/modules/new-feature/command/newFeatureCommand.ts
+  export function newFeatureCommand(options: NewFeatureOptions): NewFeatureResult {
+    // Implementation
+  }
+  ```
+
+5. **Create LM Tool (if needed)**
+  ```typescript
+  // src/modules/new-feature/lm-tool/newFeatureTool.ts
+  export class NewFeatureTool implements vscode.LanguageModelTool {
+    // Implementation
+  }
+  ```
+
+6. **Register with System**
+  ```typescript
+  // In src/registration/commands.ts and tools.ts
+  registerCommand('ai-watch.newFeature', newFeatureCommand);
+  registerTool('ai-watch_newFeature', new NewFeatureTool());
+  ```
+
+7. **Write Tests**
+  - Add unit, integration, and (if needed) end-to-end tests.
+  - Ensure tests aim to validate the documented API, but allow for implementation detail coverage when it improves reliability or covers edge cases.
+
+8. **Update Documentation**
+  - Finalize API docs, user guide, and configuration docs as needed.
+
+
+**Note:** When adding a new command or Language Model Tool, update `package.json` as required by VS Code:
+  - Add new commands to the `contributes.commands` section.
+  - Add new tools to the appropriate `contributes` or activation events if needed.
+  - Ensure command IDs, titles, and categories are clear and consistent.
+  - Update any other relevant fields (e.g., menus, keybindings) to expose the new feature in the UI.
 
 ### Extending Shared Utilities
 
@@ -301,32 +327,19 @@ Add new utilities to `src/modules/shared/util/` following the same patterns:
 - Shared utilities minimize duplication
 - External dependencies carefully managed
 
-## Migration from Legacy Architecture
-
-The current architecture evolved from a monolithic design:
-
-**Before**: Single large file (~1,800 lines)
-**After**: Feature modules (~50-200 lines each)
-
-**Benefits Achieved**:
-- Reduced complexity and cognitive load
-- Improved testability and maintainability  
-- Faster development cycles
-- Easier onboarding for new contributors
-
 ## Best Practices
 
 ### Module Design
 1. **Single Responsibility**: Each module handles one capability
 2. **Clean Interfaces**: Type-safe options and results
 3. **Error Handling**: Specific, actionable error messages
-4. **Documentation**: JSDoc for all public functions
+4. **Documentation**: JSDoc for all functions (not just public)—prefer documenting everything for maximum clarity
 
 ### Code Organization
 1. **Consistent Structure**: All features follow same pattern
 2. **Barrel Exports**: Clean import/export boundaries
 3. **Dependency Direction**: Features depend on shared, not vice versa
-4. **Configuration**: Settings override patterns
+4. **Configuration**: Settings override built-in defaults
 
 ### Testing
 1. **Layer Isolation**: Test each layer independently

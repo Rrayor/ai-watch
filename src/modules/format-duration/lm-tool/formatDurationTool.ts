@@ -23,7 +23,6 @@ export class FormatDurationTool implements LanguageModelTool<FormatDurationOptio
    * @param _token - Cancellation token (unused)
    * @returns Language model tool result with formatted duration string
    */
-
   async invoke(
     options: LanguageModelToolInvocationOptions<FormatDurationOptions>,
     _token: CancellationToken,

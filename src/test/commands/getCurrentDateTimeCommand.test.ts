@@ -23,30 +23,23 @@ suite('getCurrentDateTimeCommand', () => {
   test('returns formatted result for explicit timezone and format (UTC)', () => {
     const res = getCurrentDateTimeCommand({ timezone: 'UTC', format: 'YYYY-MM-DD HH:mm:ss' });
 
-    // For explicit timezone path, iso/utc are not included by design
-    assert.strictEqual(res.iso, undefined);
-    assert.strictEqual(res.utc, undefined);
-
-    // Local fields reflect the requested timezone in this path
     assert.ok(typeof res.local === 'string');
     assert.match(res.local as string, /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
-    assert.strictEqual(res.localTimezone, 'UTC');
-    assert.strictEqual(res.formattedResult, res.local);
+    assert.match(res.formattedResult as string, /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
+    assert.ok(typeof res.localTimezone === 'string');
+    assert.notStrictEqual(res.formattedResult, res.local);
     assert.strictEqual(res.resultTimezone, 'UTC');
   });
 
   test('returns formatted result for explicit timezone without custom format (uses default)', () => {
     const res = getCurrentDateTimeCommand({ timezone: 'UTC' });
 
-    // For explicit timezone path, iso/utc are not included
-    assert.strictEqual(res.iso, undefined);
-    assert.strictEqual(res.utc, undefined);
-
     // Should use configured default format from package contributes (YYYY-MM-DD HH:mm:ss)
     assert.ok(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(res.formattedResult));
+    assert.ok(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(res.local));
     assert.strictEqual(res.resultTimezone, 'UTC');
-    assert.strictEqual(res.localTimezone, 'UTC');
-    assert.strictEqual(res.local, res.formattedResult);
+    assert.ok(typeof res.localTimezone === 'string');
+    assert.notStrictEqual(res.local, res.formattedResult);
   });
 
   test('throws InvalidTimezoneError for bad timezone', () => {

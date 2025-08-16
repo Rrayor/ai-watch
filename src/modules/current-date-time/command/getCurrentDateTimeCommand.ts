@@ -18,9 +18,7 @@ export function getCurrentDateTimeCommand(
   options?: GetCurrentDateTimeOptions,
 ): GetCurrentDateTimeResult {
   const context = new OperationContext();
-  const result = options?.timezone
-    ? getFormattedDateTimeResult(options.timezone, context, options?.format)
-    : getLocalDateTimeResult(context);
+  const result = getDateTimeResult(options?.timezone, context, options?.format);
   return {
     ...result,
     info: context.info,
@@ -28,44 +26,32 @@ export function getCurrentDateTimeCommand(
 }
 
 /**
- * Gets the local date and time information.
- * @returns Object with local date/time information
- * @throws {InvalidTimeZoneError} If the timezone is invalid (though this should not happen)
- */
-function getLocalDateTimeResult(context: OperationContext): GetCurrentDateTimeResult {
-  const now = new Date();
-  const userTimezone = getUserTimezone(context);
-  const localTime = formatInTimezone(now, userTimezone, context);
-
-  return {
-    iso: now.toISOString(),
-    utc: formatUTC(now),
-    local: localTime,
-    localTimezone: userTimezone,
-    formattedResult: localTime,
-    resultTimezone: userTimezone,
-  };
-}
-
-/**
- * Gets the formatted date and time information.
- * @param timezone - Target timezone
+ * Gets the date and time information.
+ * @param timezone - Target timezone (optional)
+ * @param context - Operation context
  * @param format - Optional custom format string
- * @returns Object with formatted date/time information
+ * @returns Object with date/time information
  * @throws {InvalidTimeZoneError} If the timezone is invalid
  */
-function getFormattedDateTimeResult(
-  timezone: string,
+function getDateTimeResult(
+  timezone: string | undefined,
   context: OperationContext,
   format?: string,
 ): GetCurrentDateTimeResult {
   const now = new Date();
-  const formattedTime = formatInTimezone(now, timezone, context, format);
+  const localTimezone = getUserTimezone(context);
+  const local = formatInTimezone(now, localTimezone, context);
+  const resultTimezone = timezone ?? localTimezone;
+  const formattedResult = resultTimezone
+    ? formatInTimezone(now, resultTimezone, context, format)
+    : local;
 
   return {
-    resultTimezone: timezone,
-    formattedResult: formattedTime,
-    local: formattedTime,
-    localTimezone: timezone,
+    iso: now.toISOString(),
+    utc: formatUTC(now),
+    localTimezone,
+    local,
+    resultTimezone,
+    formattedResult,
   };
 }

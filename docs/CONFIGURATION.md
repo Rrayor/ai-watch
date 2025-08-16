@@ -12,8 +12,8 @@ AI Watch supports both user and workspace settings for flexible configuration ac
 |---------|------|---------|-------------|
 | `aiWatch.defaultDateFormat` | string | `"YYYY-MM-DD HH:mm:ss"` | Global default date/time display format when no explicit format is provided |
 | `aiWatch.businessDays` | string[] | `["Mon","Tue","Wed","Thu","Fri"]` | Business days definition (array of day names/abbreviations) |
-| `aiWatch.excludedDates` | array | `[]` | Dates to exclude from business calculations |
-| `aiWatch.weekStart` | string | `"monday"` | First day of the week for period calculations (also accepts numbers 0–6) |
+| `aiWatch.excludedDates` | array | `[]` | Dates to exclude from business calculations (holidays, etc.) |
+| `aiWatch.weekStart` | string | `"sunday"` | First day of the week for period calculations (also accepts numbers 0–6) |
 | `aiWatch.durationFormat` | string | `"standard"` | Default duration verbosity |
 | `aiWatch.maxDurationUnits` | number | `3` | Maximum time units in duration display (1–6) |
 
@@ -51,9 +51,7 @@ How it is applied:
 
 **Common Patterns:**
 - `"YYYY-MM-DD HH:mm:ss"` - ISO-like format (default)
-- `"MM/DD/YYYY hh:mm A"` - US format with AM/PM
 - `"DD.MM.YYYY HH:mm"` - European format
-- `"YYYY年MM月DD日 HH:mm"` - Japanese format
 
 ### Business Days
 
@@ -73,11 +71,6 @@ Defines which days of the week are considered business days.
   "aiWatch.businessDays": ["Sun","Mon","Tue","Wed","Thu"]
 }
 ```
-
-**Regional Examples:**
-- **Western:** `"Mon-Fri"` (Monday to Friday)
-- **Middle East:** `"Sun-Thu"` (Sunday to Thursday)
-- **Custom:** `"Mon,Wed,Fri"` (specific days only)
 
 ### Excluded Dates
 
@@ -123,8 +116,7 @@ Defines which day is considered the start of the week for period calculations.
 ```
 
 Notes:
-- For start/end of period queries, the default when unset is Monday.
-- For weekday navigation (next/previous weekday), when unset the internal default treats Sunday as index 0.
+- When unset anywhere, the built-in default week start is Sunday (index 0) for all queries.
 
 **Impact:**
 - Affects `startOfPeriod` and `endOfPeriod` calculations for weeks
@@ -190,7 +182,7 @@ For teams working across multiple timezones with standardized practices:
 {
   "aiWatch.defaultDateFormat": "YYYY-MM-DD HH:mm:ss",
   "aiWatch.businessDays": ["Mon","Tue","Wed","Thu","Fri"],
-  "aiWatch.weekStart": "monday",
+  "aiWatch.weekStart": "sunday",
   "aiWatch.durationFormat": "standard",
   "aiWatch.maxDurationUnits": 3,
   "aiWatch.excludedDates": [
@@ -423,4 +415,4 @@ AI Watch maintains backward compatibility for settings across versions. New sett
 For configuration help:
 - Check the [User Guide](USER_GUIDE.md) for feature explanations
 - Review the [API Reference](API_REFERENCE.md) for parameter details
-- Report configuration issues on [GitHub](https://github.com/Rrayor/copilot-watch/issues)
+- Report configuration issues on [GitHub](https://github.com/Rrayor/ai-watch/issues)

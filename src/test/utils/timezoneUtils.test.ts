@@ -11,6 +11,18 @@ import { OperationContext } from '../../modules/shared/model/OperationContext';
 import { InvalidTimezoneError } from '../../modules/shared/error/InvalidTimezoneError';
 
 suite('timezoneUtils', () => {
+  // Helper to temporarily replace global Intl for a block of code and restore it.
+  async function withPatchedIntl<T>(fakeIntl: Partial<typeof Intl>, fn: () => Promise<T> | T) {
+    const g = globalThis as unknown as { Intl: typeof Intl };
+    const original = g.Intl;
+    try {
+      g.Intl = fakeIntl as typeof Intl;
+      return await Promise.resolve(fn());
+    } finally {
+      g.Intl = original;
+    }
+  }
+
   test('formatUTC returns expected UTC format', () => {
     const d = new Date('2025-08-10T12:30:45Z');
     const out = formatUTC(d);
@@ -133,29 +145,22 @@ suite('timezoneUtils', () => {
     const ctx = new OperationContext();
     const d = new Date('2025-08-10T12:30:45Z');
 
-    // set configured default format
-    const originalIntl = (globalThis as unknown as { Intl: typeof Intl }).Intl;
-    try {
-      await cfg.update('defaultDateFormat', 'YYYY/MM/DD HH:mm:ss', true);
-      // Simulate failure by making Intl.DateTimeFormat throw so getUserTimezone fails
-      const fakeIntl = {
-        ...originalIntl,
+    // set configured default format and simulate Intl failure
+    await withPatchedIntl(
+      {
         DateTimeFormat() {
           throw new Error('simulate failure');
         },
-      } as unknown as typeof Intl;
-      const g = globalThis as unknown as { Intl: typeof Intl };
-      g.Intl = fakeIntl;
-      const out = tzUtils.formatInTimezone(d, '', ctx);
-      // expected uses local time because formatWithCustomFormat is called with undefined timezone
-      const expected = applyCustomFormat(d, 'YYYY/MM/DD HH:mm:ss');
-      assert.strictEqual(out, expected);
-    } finally {
-      // restore Intl and reset config
-      const g2 = globalThis as unknown as { Intl: typeof Intl };
-      g2.Intl = originalIntl;
-      await cfg.update('defaultDateFormat', prev, true);
-    }
+      } as unknown as Partial<typeof Intl>,
+      async () => {
+        await cfg.update('defaultDateFormat', 'YYYY/MM/DD HH:mm:ss', true);
+        const out = tzUtils.formatInTimezone(d, '', ctx);
+        // expected uses local time because formatWithCustomFormat is called with undefined timezone
+        const expected = applyCustomFormat(d, 'YYYY/MM/DD HH:mm:ss');
+        assert.strictEqual(out, expected);
+      },
+    );
+    await cfg.update('defaultDateFormat', prev, true);
   });
 
   test('when timezone detection throws and no default format, falls back to ISO-like UTC', async () => {
@@ -166,26 +171,21 @@ suite('timezoneUtils', () => {
     const d = new Date('2025-08-10T12:30:45Z');
     const originalIntl2 = (globalThis as unknown as { Intl: typeof Intl }).Intl;
 
-    try {
-      await cfg.update('defaultDateFormat', undefined, true);
-      // Simulate failure by making Intl.DateTimeFormat throw so getUserTimezone fails
-      const fakeIntl2 = {
-        ...originalIntl2,
+    await withPatchedIntl(
+      {
         DateTimeFormat() {
           throw new Error('simulate failure');
         },
-      } as unknown as typeof Intl;
-      const g3 = globalThis as unknown as { Intl: typeof Intl };
-      g3.Intl = fakeIntl2;
-      const out = tzUtils.formatInTimezone(d, '', ctx);
-      const expectedUtc = d.toISOString().slice(0, 19).replace('T', ' ');
-      const expectedLocal = applyCustomFormat(d, 'YYYY-MM-DD HH:mm:ss');
-      assert.ok(out === expectedUtc || out === expectedLocal);
-    } finally {
-      const g4 = globalThis as unknown as { Intl: typeof Intl };
-      g4.Intl = originalIntl2;
-      await cfg.update('defaultDateFormat', prev, true);
-    }
+      } as unknown as Partial<typeof Intl>,
+      async () => {
+        await cfg.update('defaultDateFormat', undefined, true);
+        const out = tzUtils.formatInTimezone(d, '', ctx);
+        const expectedUtc = d.toISOString().slice(0, 19).replace('T', ' ');
+        const expectedLocal = applyCustomFormat(d, 'YYYY-MM-DD HH:mm:ss');
+        assert.ok(out === expectedUtc || out === expectedLocal);
+      },
+    );
+    await cfg.update('defaultDateFormat', prev, true);
   });
 
   test('formatInTimezone with custom format handles missing Intl parts (tokens become empty)', () => {

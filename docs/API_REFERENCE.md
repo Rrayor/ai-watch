@@ -316,8 +316,8 @@ Performs advanced date queries including weekday navigation and period boundarie
       - Valid: 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
     - `period` (optional, string): Period type for period queries
       - Valid: 'week', 'month', 'quarter', 'year'
-    - `weekStart` (optional, string): Week start day for period queries
-      - Valid: 'monday' (default), 'sunday'
+    - `weekStart` (optional, string|number): Week start day for period queries
+      - Valid: 'sunday' (default), 'monday', or numbers 0–6 (0=Sunday)
 
 **Returns:**
 ```typescript

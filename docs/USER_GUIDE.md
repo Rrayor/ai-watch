@@ -16,11 +16,11 @@ This guide covers all features and capabilities of AI Watch, with practical exam
 
 ## Overview
 
-AI Watch is designed primarily for AI-assisted development workflows, providing comprehensive time and date tools that enable AI assistants, GitHub Copilot, and other development tools to access accurate temporal information.
+AI Watch is designed primarily for AI-assisted development workflows, providing comprehensive time and date tools that enable AI assistants, like GitHub Copilot, and other development tools to access accurate temporal information.
 
 ## AI Use Cases & Real-World Scenarios
 
-AI Watch enables a wide range of practical, time-driven workflows for individuals and teams. Below are grouped use cases and real-world scenarios to inspire your automation:
+AI Watch enables a wide range of practical, time-driven workflows for individuals and teams. Below are grouped use cases and real-world scenarios - mostly AI generated, because I couldn't come up with enough unique ideas :sweat_smile: - to inspire your automation:
 
 ### General Use Cases
 - Generate recurring schedules
@@ -388,10 +388,9 @@ AI Watch can be customized through VS Code settings for team-specific needs:
 
 ```json
 {
-  "aiWatch.defaultTimezone": "UTC",
-  "aiWatch.businessDays": "Mon-Fri",
+  "aiWatch.businessDays": ["Mon", "Tue", "Wed", "Thu", "Fri"],
   "aiWatch.excludedDates": ["2025-12-25", "2025-01-01"],
-  "aiWatch.weekStart": "monday",
+  "aiWatch.weekStart": "sunday",
   "aiWatch.durationFormat": "standard"
 }
 ```
