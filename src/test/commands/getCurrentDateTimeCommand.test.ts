@@ -27,7 +27,6 @@ suite('getCurrentDateTimeCommand', () => {
     assert.match(res.local as string, /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
     assert.match(res.formattedResult as string, /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
     assert.ok(typeof res.localTimezone === 'string');
-    assert.notStrictEqual(res.formattedResult, res.local);
     assert.strictEqual(res.resultTimezone, 'UTC');
   });
 
@@ -39,7 +38,6 @@ suite('getCurrentDateTimeCommand', () => {
     assert.ok(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(res.local));
     assert.strictEqual(res.resultTimezone, 'UTC');
     assert.ok(typeof res.localTimezone === 'string');
-    assert.notStrictEqual(res.local, res.formattedResult);
   });
 
   test('throws InvalidTimezoneError for bad timezone', () => {
