@@ -1,8 +1,8 @@
 {
   "name": "ai-watch",
   "displayName": "AI Watch",
-  "description": "Time and date tools for AI-assisted development workflows in VS Code. Features comprehensive timezone support, business day calculations, and custom formatting.",
-  "version": "1.0.0",
+  "description": "A VS Code extension providing AI assistants and developers with comprehensive time and date tools for enhanced workflows.",
+  "version": "0.5.0-alpha",
   "publisher": "rrayor",
   "author": {
     "name": "Benjamin Simon"
@@ -28,8 +28,14 @@
     "automation",
     "business-days",
     "formatting",
-    "type-safety",
-    "typescript"
+    "calendar",
+    "scheduling",
+    "workday",
+    "date calculation",
+    "duration",
+    "deadline",
+    "reminder",
+    "planner"
   ],
   "engines": {
     "vscode": "^1.103.0"
@@ -37,7 +43,7 @@
   "categories": [
     "Other",
     "AI",
-    "Data Science"
+    "Chat"
   ],
   "galleryBanner": {
     "color": "#1e1e1e",

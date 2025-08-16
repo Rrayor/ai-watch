@@ -1,7 +1,8 @@
 ![AI Watch Logo](icon.png)
+
 # AI Watch
 
-A VSCode extension that provides AI assistants and developers with comprehensive time and date tools for enhanced development workflows. Built with a modern, modular architecture for maintainability and extensibility.
+> ⌚ A VS Code extension providing AI assistants and developers with comprehensive time and date tools for enhanced workflows.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/visual-studio-marketplace/v/rrayor.ai-watch)](https://marketplace.visualstudio.com/items?itemName=rrayor.ai-watch)
@@ -10,42 +11,53 @@ A VSCode extension that provides AI assistants and developers with comprehensive
 [![DeepSource](https://app.deepsource.com/gh/Rrayor/ai-watch.svg/?label=active+issues&show_trend=true&token=O815bGyhxkzJ8iP3CzF__zVe)](https://app.deepsource.com/gh/Rrayor/ai-watch/)
 [![DeepSource](https://app.deepsource.com/gh/Rrayor/ai-watch.svg/?label=resolved+issues&show_trend=true&token=O815bGyhxkzJ8iP3CzF__zVe)](https://app.deepsource.com/gh/Rrayor/ai-watch/)
 
-## 🚀 Quick Start
+> ⚠️ **Project Status:**
+> AI Watch is in active development and believed to be stable, but has only limited testing. Please try it out and report any issues. Feedback and contributions are especially welcome!
 
-AI Watch enables AI assistants, GitHub Copilot, and other development tools to access accurate time and date information directly within VS Code. Perfect for AI-assisted development, automated documentation, and global team coordination.
+---
 
-### Key Features
+## 🚀 Overview
 
-- **📅 Current Date & Time** - Get precise timestamps in multiple formats and timezones
-- **🌍 Timezone Operations** - Convert between any IANA timezones with DST handling
-- **⏱️ Time Calculations** - Add/subtract durations, calculate differences between dates
-- **💼 Business Day Support** - Handle workdays, weekends, and holiday exclusions
-- **🔍 Advanced Date Queries** - Find next weekdays, period boundaries, and more
-- **🎨 Human-Readable Formatting** - Convert durations to natural language
+AI Watch enables AI assistants, GitHub Copilot, and other development tools to access accurate time and date information directly within VS Code. Perfect for AI-assisted development, documentation, and global team coordination.
 
-### Perfect For
+---
 
-- **AI Development Workflows** - Copilot and AI assistants get real-time date/time context
-- **Global Team Coordination** - Schedule across timezones and calculate delivery dates
-- **Performance Analysis** - Measure build times and track development cycles
-- **Documentation Generation** - Auto-generate timestamps and "last updated" dates
-- **Project Planning** - Calculate deadlines considering business days and holidays
+## ✨ Features
 
-## 🏗️ Architecture
+- 📅 Current Date & Time — Get precise timestamps in multiple formats and timezones
+- 🌍 Timezone Operations — Convert between any IANA timezones with DST handling
+- ⏱️ Time Calculations — Add/subtract durations, calculate differences between dates
+- 💼 Business Day Support — Handle workdays, weekends, and holiday exclusions
+- 🔍 Advanced Date Queries — Find next weekdays, period boundaries, and more
+- 🎨 Human-Readable Formatting — Convert durations to natural language
 
-AI Watch uses a modular architecture organized into layers:
+---
 
-- **Types**: Shared TypeScript interfaces for commands and tools
-- **Utils**: Core date/time utility functions
-- **Commands**: VS Code command implementations
-- **Tools**: Language Model Tool implementations
-- **Registration**: Extension activation and registration logic
+## 🛠️ Installation
 
-For detailed architecture information, see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- **Marketplace:** [AI Watch on VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=rrayor.ai-watch)
+- **Command Line:**
+  ```bash
+  code --install-extension rrayor.ai-watch
+  ```
+- **Manual:** Download from the Marketplace link above
 
-## 📖 Usage Examples
+No additional configuration required—works immediately after installation.
 
-### For AI Assistants & Copilot
+---
+
+## 📖 Usage
+
+### Quick Start
+
+#### Natural Language Queries
+
+- "What time will it be in 4 hours and 2 minutes?"
+- "How many days until the sprint ends on August 20th?"
+- "Convert this meeting time to Tokyo and Sydney timezones"
+- "Is tomorrow a business day for deployment?"
+
+#### Code Examples
 
 ```javascript
 // Get current time in multiple formats
@@ -64,70 +76,61 @@ const buildTime = await vscode.commands.executeCommand('ai-watch.formatDuration'
 // Result: "47 minutes, 33 seconds"
 ```
 
-### Natural Language Queries
+---
 
-AI assistants can handle conversational requests:
-- *"What time will it be in 4 hours and 2 minutes?"*
-- *"How many days until the sprint ends on August 20th?"*
-- *"Convert this meeting time to Tokyo and Sydney timezones"*
-- *"Is tomorrow a business day for deployment?"*
-
-## 🛠️ Installation
-
-1. **From VS Code Marketplace**: Search for "AI Watch" in the Extensions view
-2. **Command Line**: `code --install-extension rrayor.ai-watch`
-3. **Manual**: Download from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=rrayor.ai-watch)
-
-No additional configuration required - works immediately after installation.
-
-## 🤖 Language Model Integration
+## 🤖 Language Model & API Integration
 
 AI Watch automatically registers with VS Code's Language Model Tools, making it available to:
-- **GitHub Copilot** - Enhanced time-aware code generation
-- **AI Chat Extensions** - Contextual date/time assistance
-- **Custom AI Tools** - Direct API access for time operations
+- **GitHub Copilot** — Enhanced time-aware code generation
+- **AI Chat Extensions** — Contextual date/time assistance
+- **Custom AI Tools** — Direct API access for time operations
 
-All 8 tools are automatically available: `getCurrentDate`, `addTime`, `subtractTime`, `calculateDifference`, `convertTimezone`, `formatDuration`, `businessDay`, and `dateQuery`.
+All 8 tools are available: `getCurrentDate`, `addTime`, `subtractTime`, `calculateDifference`, `convertTimezone`, `formatDuration`, `businessDay`, and `dateQuery`.
 
-## 📚 Documentation
+---
 
-- **[Architecture Guide](docs/ARCHITECTURE.md)** - Detailed architecture overview with diagrams
-- **[User Guide](docs/USER_GUIDE.md)** - Comprehensive feature guide with examples
-- **[API Reference](docs/API_REFERENCE.md)** - Complete API documentation for developers
-- **[Configuration](docs/CONFIGURATION.md)** - Settings and customization options
-- **[Testing Guide](docs/TESTING.md)** - Testing strategy and guidelines for contributors
+## 🏗️ Architecture & Documentation
+
+> For contributors and advanced users
+
+- [Architecture Guide](docs/ARCHITECTURE.md): Code structure and design
+- [User Guide](docs/USER_GUIDE.md): Feature usage and examples
+- [API Reference](docs/API_REFERENCE.md): Command and API documentation
+- [Configuration](docs/CONFIGURATION.md): Settings and customization
+- [Testing Guide](docs/TESTING.md): How to run and contribute tests
+
+---
 
 ## 🧪 Testing
 
-AI Watch features a comprehensive test suite with **161 tests across 22 test files** covering all functionality layers. The modular architecture enables isolated testing of utilities, command integration, and end-to-end workflows.
+- **Run all tests:**
+  ```bash
+  npm test
+  ```
+- **Watch mode:**
+  ```bash
+  npm run test:watch
+  ```
+- **Run specific suite:**
+  ```bash
+  npm test -- --grep "Duration Utils Tests"
+  ```
 
-```bash
-# Run all tests
-npm test
+See the [Testing Guide](docs/TESTING.md) for more details.
 
-# Run tests in watch mode
-npm run test:watch
-
-# Run specific test suite
-npm test -- --grep "Duration Utils Tests"
-```
-
-### Test Coverage Highlights
-
-- **✅ 19 Duration Utils Tests** - Including comprehensive negative sign handling and edge case coverage
-- **✅ Type Safety Tests** - Union types prevent invalid verbosity/unit values at compile time
-- **✅ Integration Tests** - End-to-end VS Code command and Language Model Tool testing
-- **✅ Edge Case Coverage** - Zero durations, negative values, timezone boundaries, and business day calculations
-
-See the [Testing Guide](docs/TESTING.md) for detailed information about the testing strategy and contributing test cases.
+---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions! See our [Contributing Guidelines](CONTRIBUTING.md) to get started.
+
+---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT — see the [LICENSE](LICENSE) file for details.
+
+---
 
 ## 🔗 Links
 

@@ -1,10 +1,6 @@
 # 📝 AI Watch – Changelog (Pre-Release)
 
-This changelog summarizes the current state of the extension prior to its first public release.
-
----
-
-## [Unreleased]
+## 0.5.0-alpha
 
 ### Features Added
 - Modular, feature-first TypeScript architecture
@@ -29,7 +25,3 @@ This changelog summarizes the current state of the extension prior to its first 
 - No global state; stateless, testable modules
 - Pre-commit quality gates (lint, typecheck, format)
 - Ready for AI assistant and VS Code integration
-
----
-
-_This changelog will be updated for the first public release. All features and architecture described above are present in the current codebase._
