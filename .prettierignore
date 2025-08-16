@@ -1,3 +1,30 @@
+# Build outputs
 out/
+dist/
 coverage/
+
+# Dependencies
 node_modules/
+
+# Generated files
+*.d.ts
+*.js.map
+*.d.ts.map
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test files
+.vscode-test/
+
+# Package files
+package-lock.json
+yarn.lock
+
+# Configuration files that should maintain their format
+.vscode/
+.husky/
+.github/

@@ -1,9 +1,13 @@
 
-# AI Watch User Guide
 
-This guide covers all features and capabilities of AI Watch, with practical examples for both users and AI assistants.
+# 🧑‍💻 AI Watch User Guide
 
-## Table of Contents
+> **Purpose:** This guide covers all features and capabilities of AI Watch, with practical, actionable examples for both users and AI assistants.
+
+
+---
+
+## 🗂️ Table of Contents
 
 1. [Overview](#overview)
 2. [AI Use Cases & Real-World Scenarios](#ai-use-cases--real-world-scenarios)
@@ -14,13 +18,20 @@ This guide covers all features and capabilities of AI Watch, with practical exam
 7. [Troubleshooting](#troubleshooting)
 
 
-## Overview
 
-AI Watch is designed primarily for AI-assisted development workflows, providing comprehensive time and date tools that enable AI assistants, GitHub Copilot, and other development tools to access accurate temporal information.
+---
 
-## AI Use Cases & Real-World Scenarios
+## 🌟 Overview
 
-AI Watch enables a wide range of practical, time-driven workflows for individuals and teams. Below are grouped use cases and real-world scenarios to inspire your automation:
+
+AI Watch is designed primarily for AI-assisted development workflows, providing comprehensive time and date tools that enable AI assistants, like GitHub Copilot, and other development tools to access accurate temporal information.
+
+
+---
+
+## 💡 AI Use Cases & Real-World Scenarios
+
+AI Watch enables a wide range of practical, time-driven workflows for individuals and teams. Below are grouped use cases and real-world scenarios - mostly AI generated, because I couldn't come up with enough unique ideas :sweat_smile: - to inspire your automation:
 
 ### General Use Cases
 - Generate recurring schedules
@@ -51,7 +62,7 @@ AI Watch enables a wide range of practical, time-driven workflows for individual
 
 **What this prompt demonstrates:**
 
-- Get current time in multiple timezones: `getCurrentDate`, `convertTimezone`
+- Get current time in multiple timezones: `getCurrentDateTime`, `convertTimezone`
 - Schedule with business day math: `addTime`, `businessDay`
 - Timezone conversion for teams: `convertTimezone`
 - Duration since last deployment: `calculateDifference`, `formatDuration`
@@ -62,7 +73,7 @@ AI Watch enables a wide range of practical, time-driven workflows for individual
 #### Specific Examples
 
 > "Update the 'Last Reviewed' date in this README to today’s date in ISO format."
-> 
+>
 > "Log this architectural decision with the current UTC timestamp and a summary of the change."
 >
 > "Parse this log file and convert all timestamps to 'America/New_York' timezone."
@@ -111,7 +122,10 @@ AI Watch enables a wide range of practical, time-driven workflows for individual
 5. **SLA Monitoring**: Ensure targets are met
 6. **Global Impact**: Consider timezone differences
 
-## Language Model Integration
+
+---
+
+## 🤖 Language Model Integration
 
 AI Watch integrates seamlessly with VS Code's Language Model Tools, making all functionality available to AI assistants through natural language.
 
@@ -131,17 +145,29 @@ AI assistants can handle conversational requests like:
 
 All 8 language model tools are automatically registered:
 
-1. **getCurrentDate** - Current time with timezone support
+1. **getCurrentDateTime** - Current time with timezone support
 2. **addTime** - Add durations to dates
-3. **subtractTime** - Subtract durations from dates  
+3. **subtractTime** - Subtract durations from dates
 4. **calculateDifference** - Time differences between dates
 5. **convertTimezone** - Convert between timezones
 6. **formatDuration** - Human-readable duration formatting
 7. **businessDay** - Business day operations
 8. **dateQuery** - Advanced date navigation
 
+> Note on tool outputs
+>
+> When used by AI agents via Language Model Tools, each tool returns:
+> 1) A JSON payload that matches the API schema (for reliable parsing), followed by
+> 2) A short, readable message summarizing the result.
+>
+> Agents should parse the JSON for facts and may include the message in user-facing replies.
 
-## Core Features
+
+
+---
+
+## 🛠️ Core Features
+
 
 ### 📅 Current Date & Time
 
@@ -150,8 +176,16 @@ Get precise timestamps in multiple formats and timezones.
 **Basic Usage:**
 ```javascript
 // Get current time in all standard formats
-const time = await vscode.commands.executeCommand('ai-watch.getCurrentDate');
-// Returns: { iso: "2025-08-09T13:37:01.000Z", utc: "2025-08-09 13:37:01", local: "2025-08-09 09:37:01" }
+const time = await vscode.commands.executeCommand('ai-watch.getCurrentDateTime');
+// Returns (schema): {
+//   iso?: string,
+//   utc?: string,
+//   local: string,
+//   localTimezone: string,
+//   formattedResult: string,
+//   resultTimezone: string,
+//   info?: string[]
+// }
 ```
 
 **AI Use Cases:**
@@ -159,6 +193,7 @@ const time = await vscode.commands.executeCommand('ai-watch.getCurrentDate');
 - Create "last updated" dates in documentation
 - Set cache expiration times
 - Generate realistic test data
+
 
 ### 🌍 Timezone Operations
 
@@ -170,14 +205,24 @@ const converted = await vscode.commands.executeCommand('ai-watch.convertTimezone
   date: '2025-08-09T13:37:01Z',
   toTimezone: 'Asia/Tokyo'
 });
-// Returns: { formatted: "2025-08-09 22:37:01", fromTimezone: "UTC", toTimezone: "Asia/Tokyo" }
+// Returns (schema): {
+//   iso?: string,
+//   utc?: string,
+//   local: string,
+//   localTimezone: string,
+//   formattedResult: string,
+//   resultTimezone: string,   // target timezone
+//   fromTimezone?: string,
+//   info?: string[]
+// }
 ```
 
 **AI Use Cases:**
 - Coordinate global team meetings
-- Schedule deployments across regions  
+- Schedule deployments across regions
 - Localize timestamps for different audiences
 - Analyze logs from distributed systems
+
 
 ### ⏱️ Time Calculations
 
@@ -192,6 +237,16 @@ const future = await vscode.commands.executeCommand('ai-watch.addTime', {
   hours: 4,
   timezone: 'Europe/London'
 });
+// Returns (schema): {
+//   iso?: string,
+//   utc?: string,
+//   local: string,
+//   localTimezone: string,
+//   formattedResult: string,
+//   resultTimezone: string,
+//   baseTime?: string,
+//   info?: string[]
+// }
 ```
 
 **Historical Calculations:**
@@ -201,6 +256,16 @@ const past = await vscode.commands.executeCommand('ai-watch.subtractTime', {
   months: 1,
   days: 15
 });
+// Returns (schema): {
+//   iso?: string,
+//   utc?: string,
+//   local: string,
+//   localTimezone: string,
+//   formattedResult: string,
+//   resultTimezone: string,
+//   baseTime?: string,
+//   info?: string[]
+// }
 ```
 
 **Time Differences:**
@@ -210,7 +275,14 @@ const duration = await vscode.commands.executeCommand('ai-watch.calculateDiffere
   from: '2025-07-01T14:30:00Z',
   to: '2025-08-09T13:37:01Z'
 });
-// Returns: { days: 38, hours: 935, minutes: 56187, seconds: 3371221 }
+// Returns (schema): {
+//   milliseconds?: number,
+//   seconds?: number,
+//   minutes?: number,
+//   hours?: number,
+//   days?: number,
+//   formatted?: string
+// }
 ```
 
 **AI Use Cases:**
@@ -218,6 +290,7 @@ const duration = await vscode.commands.executeCommand('ai-watch.calculateDiffere
 - Measure performance and build times
 - Plan sprint schedules and delivery dates
 - Track time elapsed between events
+
 
 ### 🎨 Human-Readable Formatting
 
@@ -229,7 +302,8 @@ const readable = await vscode.commands.executeCommand('ai-watch.formatDuration',
   from: '2025-08-09T12:00:00Z',
   to: '2025-08-09T14:47:33Z'
 });
-// Returns: { formatted: "2 hours, 47 minutes, 33 seconds" }
+// Returns (schema): { formatted?: string, totalMilliseconds?: number, error?: string }
+// Example: { formatted: "2 hours, 47 minutes, 33 seconds" }
 ```
 
 **Compact Format:**
@@ -240,7 +314,8 @@ const compact = await vscode.commands.executeCommand('ai-watch.formatDuration', 
   verbosity: 'compact',
   maxUnits: 2
 });
-// Returns: { formatted: "8d 13h" }
+// Returns (schema): { formatted?: string, totalMilliseconds?: number, error?: string }
+// Example: { formatted: "8d 13h" }
 ```
 
 **AI Use Cases:**
@@ -248,6 +323,7 @@ const compact = await vscode.commands.executeCommand('ai-watch.formatDuration', 
 - Create readable performance summaries
 - Format uptime and downtime reports
 - Display "time ago" information
+
 
 ### 💼 Business Day Support
 
@@ -259,7 +335,8 @@ const isWorkday = await vscode.commands.executeCommand('ai-watch.businessDay', {
   operation: 'isBusinessDay',
   date: '2025-08-15T10:00:00Z'
 });
-// Returns: { isBusinessDay: true, weekday: "Friday" }
+// Returns (schema): { isBusinessDay?: boolean, weekday?: string }
+// Example: { isBusinessDay: true, weekday: "Friday" }
 ```
 
 **Business Day Math:**
@@ -270,6 +347,7 @@ const workdaysAdded = await vscode.commands.executeCommand('ai-watch.businessDay
   date: '2025-08-12T10:00:00Z',
   days: 5
 });
+// Returns (schema): { result?: string, days?: number, businessDays?: string, excludedDates?: string[] }
 
 // Subtract 3 business days
 const workdaysSubtracted = await vscode.commands.executeCommand('ai-watch.businessDay', {
@@ -277,6 +355,7 @@ const workdaysSubtracted = await vscode.commands.executeCommand('ai-watch.busine
   date: '2025-08-20T10:00:00Z',
   days: 3
 });
+// Returns (schema): { result?: string, days?: number, businessDays?: string, excludedDates?: string[] }
 ```
 
 **AI Use Cases:**
@@ -284,6 +363,7 @@ const workdaysSubtracted = await vscode.commands.executeCommand('ai-watch.busine
 - Schedule deployments avoiding weekends
 - Plan releases considering business hours
 - Track SLA compliance
+
 
 ### 🔍 Advanced Date Queries
 
@@ -296,6 +376,7 @@ const nextFriday = await vscode.commands.executeCommand('ai-watch.dateQuery', {
   baseDate: '2025-08-11T10:00:00Z',
   queries: [{ type: 'nextWeekday', weekday: 'friday' }]
 });
+// Returns (schema): { dates?: string[] }
 ```
 
 **Period Boundaries:**
@@ -308,6 +389,7 @@ const monthBounds = await vscode.commands.executeCommand('ai-watch.dateQuery', {
     { type: 'endOfPeriod', period: 'month' }
   ]
 });
+// Returns (schema): { dates?: string[] }
 ```
 
 **Chained Operations:**
@@ -320,25 +402,31 @@ const chained = await vscode.commands.executeCommand('ai-watch.dateQuery', {
     { type: 'nextWeekday', weekday: 'monday' }
   ]
 });
+// Returns (schema): { dates?: string[] }
 ```
 
-## Configuration
+
+---
+
+## ⚙️ Configuration
 
 AI Watch can be customized through VS Code settings for team-specific needs:
 
 ```json
 {
-  "aiWatch.defaultTimezone": "UTC",
-  "aiWatch.businessDays": "Mon-Fri", 
+  "aiWatch.businessDays": ["Mon", "Tue", "Wed", "Thu", "Fri"],
   "aiWatch.excludedDates": ["2025-12-25", "2025-01-01"],
-  "aiWatch.weekStart": "monday",
+  "aiWatch.weekStart": "sunday",
   "aiWatch.durationFormat": "standard"
 }
 ```
 
 See [Configuration Guide](CONFIGURATION.md) for complete settings documentation.
 
-## Best Practices
+
+---
+
+## 🏅 Best Practices
 
 ### For AI Development
 
@@ -361,7 +449,10 @@ See [Configuration Guide](CONFIGURATION.md) for complete settings documentation.
 3. **Format efficiently** - Choose appropriate verbosity levels
 4. **Monitor usage** - Track API calls in high-frequency scenarios
 
-## Troubleshooting
+
+---
+
+## 🆘 Troubleshooting
 
 ### Common Issues
 
@@ -373,7 +464,8 @@ See [Configuration Guide](CONFIGURATION.md) for complete settings documentation.
 
 **Timezone conversion accuracy**: Verify source and target timezones are correct
 
-### Getting Help
+
+### 🆘 Getting Help
 
 - Check the [API Reference](API_REFERENCE.md) for detailed parameter information
 - Review [Configuration](CONFIGURATION.md) for settings help
