@@ -30,13 +30,6 @@
 - [ ] Test coverage remains high (check coverage report)
 - [ ] Manual testing completed
 
-### Test Results
-```
-# Include test output summary
-npm test
-✔ XXX passing (XXXms)
-```
-
 ### Manual Testing Checklist
 <!-- Check all that were tested -->
 - [ ] VS Code commands work correctly
