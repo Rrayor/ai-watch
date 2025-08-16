@@ -400,7 +400,6 @@ All contributors must follow these documentation update rules to maintain consis
 | Change Type | README | USER_GUIDE | API_REF | ARCHITECTURE | CONFIG | TESTING | CONTRIBUTING |
 |-------------|---------|------------|---------|--------------|--------|---------|--------------|
 | New Command | ✅ Major | ✅ Always | ✅ Always | ⚠️ If new layer | ⚠️ If settings | ⚠️ If test change | ❌ Rarely |
-| UI Feature | ✅ Major | ✅ Always | ❌ Never | ❌ Never | ⚠️ If settings | ❌ Never | ❌ Never |
 | API Change | ⚠️ Breaking | ⚠️ If user-facing | ✅ Always | ❌ Never | ❌ Never | ⚠️ If test change | ❌ Never |
 | Architecture | ✅ Major | ❌ Never | ❌ Never | ✅ Always | ❌ Never | ⚠️ If test structure | ⚠️ If dev workflow |
 | Settings | ⚠️ Major | ✅ Always | ❌ Never | ❌ Never | ✅ Always | ❌ Never | ❌ Never |
