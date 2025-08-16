@@ -169,7 +169,6 @@ suite('timezoneUtils', () => {
     const prev = cfg.get('defaultDateFormat');
     const ctx = new OperationContext();
     const d = new Date('2025-08-10T12:30:45Z');
-    const originalIntl2 = (globalThis as unknown as { Intl: typeof Intl }).Intl;
 
     await withPatchedIntl(
       {
