@@ -1,46 +1,35 @@
-# Change Log
+# 📝 AI Watch – Changelog (Pre-Release)
 
-All notable changes to AI Watch will be documented in this file.
+This changelog summarizes the current state of the extension prior to its first public release.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+---
 
-## [1.0.0] - 2025-08-09
+## [Unreleased]
 
-### Added
-- **Initial Release** - Complete time and date toolkit for AI-assisted development
-- **8 Language Model Tools** - Full integration with VS Code's Language Model Tools API
-- **Current Date & Time** - Get timestamps in multiple formats and timezones
-- **Timezone Operations** - Convert between any IANA timezones with DST handling
-- **Time Calculations** - Add/subtract durations, calculate time differences
-- **Business Day Support** - Handle workdays, weekends, and holiday exclusions
-- **Advanced Date Queries** - Find weekdays, period boundaries, and date navigation
-- **Human-Readable Formatting** - Convert durations to natural language
-- **VS Code Commands** - Complete programmatic API for extension developers
-- **Comprehensive Settings** - Configurable business days, timezones, and formats
-- **Error Handling** - Robust validation with clear error messages
-- **AI Assistant Integration** - Ready for GitHub Copilot and AI chat extensions
+### Features Added
+- Modular, feature-first TypeScript architecture
+- Dual interface: all features as both VS Code commands and Language Model Tools
+- 8 core capabilities:
+	- Current date/time (multi-timezone)
+	- Add/subtract time intervals
+	- Timezone conversion (IANA, DST-aware)
+	- Business day calculations (configurable, holiday exclusions)
+	- Human-readable duration formatting
+	- Time difference calculations
+	- Advanced date queries (weekday navigation, period boundaries)
+- Comprehensive error handling with specific error types
+- Strict type safety and explicit TypeScript interfaces
+- Full test suite: unit, integration, and document-driven tests
+- Workspace and user configuration support
+- Modern documentation: API reference, user guide, architecture, configuration, and testing guides
 
-### Language Model Tools
-- `getCurrentDate` - Current time with timezone awareness
-- `addTime` - Add durations to dates with multi-unit support
-- `subtractTime` - Subtract durations from dates for historical calculations
-- `calculateDifference` - Precise time differences between any two dates
-- `convertTimezone` - Convert dates between IANA timezones
-- `formatDuration` - Human-readable duration formatting with verbosity control
-- `businessDay` - Business day validation and calculations
-- `dateQuery` - Advanced date navigation and period boundary queries
+### Architectural Setup
+- Modular directory structure: entry point, registration layer, feature modules, shared utilities
+- Barrel exports for all modules
+- No global state; stateless, testable modules
+- Pre-commit quality gates (lint, typecheck, format)
+- Ready for AI assistant and VS Code integration
 
-### Features
-- **Multi-timezone Support** - Full IANA timezone database with DST handling
-- **Business Day Intelligence** - Configurable business rules and holiday exclusions
-- **Performance Optimized** - Efficient calculations with minimal memory usage
-- **Developer Friendly** - TypeScript definitions and comprehensive error handling
-- **Team Collaboration** - Workspace settings for consistent team configuration
-- **Global Ready** - Support for different week starts and date formats
+---
 
-### Documentation
-- Complete user guide with practical examples
-- Comprehensive API reference for developers
-- Configuration guide for team setup
-- Real-world usage scenarios and best practices
+_This changelog will be updated for the first public release. All features and architecture described above are present in the current codebase._

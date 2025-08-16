@@ -1,0 +1,22 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"declaration": false,
+		"declarationMap": false,
+		"sourceMap": true,
+		"outDir": "out/test",
+		// Relaxed settings for test files
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"exactOptionalPropertyTypes": false,
+		"noUncheckedIndexedAccess": false
+	},
+	"include": [
+		"src/**/*"
+	],
+	"exclude": [
+		"node_modules",
+		"out",
+		"dist"
+	]
+}

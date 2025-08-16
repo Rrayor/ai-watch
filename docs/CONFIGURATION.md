@@ -1,55 +1,48 @@
-# AI Watch Configuration
 
-This guide covers all configuration options and settings for AI Watch.
+# ⚙️ AI Watch Configuration
 
-## VS Code Settings
+> **Purpose:** This guide covers all configuration options and settings for AI Watch, with actionable examples and troubleshooting tips.
+
+
+---
+
+## 📝 VS Code Settings
 
 AI Watch supports both user and workspace settings for flexible configuration across different environments and teams.
 
-### Settings Overview
+
+### 🔧 Settings Overview
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `aiWatch.defaultTimezone` | string | System detected | Default timezone for operations |
-| `aiWatch.defaultDateFormat` | string | `"YYYY-MM-DD HH:mm:ss"` | Default date/time format pattern |
-| `aiWatch.businessDays` | string | `"Mon-Fri"` | Business days definition |
-| `aiWatch.excludedDates` | array | `[]` | Dates to exclude from business calculations |
-| `aiWatch.weekStart` | string | `"monday"` | First day of the week |
+| `aiWatch.defaultDateFormat` | string | `"YYYY-MM-DD HH:mm:ss"` | Global default date/time display format when no explicit format is provided |
+| `aiWatch.businessDays` | string[] | `["Mon","Tue","Wed","Thu","Fri"]` | Business days definition (array of day names/abbreviations) |
+| `aiWatch.excludedDates` | array | `[]` | Dates to exclude from business calculations (holidays, etc.) |
+| `aiWatch.weekStart` | string | `"sunday"` | First day of the week for period calculations (also accepts numbers 0–6) |
 | `aiWatch.durationFormat` | string | `"standard"` | Default duration verbosity |
-| `aiWatch.maxDurationUnits` | number | `3` | Maximum time units in duration display |
+| `aiWatch.maxDurationUnits` | number | `3` | Maximum time units in duration display (1–6) |
 
-## Detailed Configuration
 
-### Default Timezone
+---
 
-**Setting:** `aiWatch.defaultTimezone`
+## ⚙️ Detailed Configuration
 
-Specifies the default timezone for operations when not explicitly provided.
 
-**Valid Values:** Any IANA timezone identifier
-- `"UTC"` - Coordinated Universal Time
-- `"America/New_York"` - Eastern Time (US)
-- `"Europe/London"` - Greenwich Mean Time/British Summer Time
-- `"Asia/Tokyo"` - Japan Standard Time
-- `"Australia/Sydney"` - Australian Eastern Time
+### 🌍 Timezone Handling
 
-**Examples:**
-```json
-{
-  "aiWatch.defaultTimezone": "Europe/London"
-}
-```
+AI Watch automatically detects the system timezone and uses it as the default for all operations. If you need a specific timezone for an operation, pass it as the `timezone` parameter to the command or tool call. There is no global timezone override setting - this ensures predictable behavior and prevents configuration conflicts.
 
-**Usage:**
-- Applied when no timezone parameter is provided to tools
-- Used for local time calculations
-- Affects timezone-aware operations
 
-### Default Date Format
+### 📅 Default Date Format
 
 **Setting:** `aiWatch.defaultDateFormat`
 
-Defines the default format pattern for date/time display.
+Defines the global default format pattern for date/time display.
+
+How it is applied:
+- Used whenever a command/tool does not provide an explicit `format` parameter.
+- Independent of timezone detection. The timezone only determines the clock time; the pattern controls how it’s rendered.
+- If both `format` (per call) and `aiWatch.defaultDateFormat` are absent, a standard locale-safe format is used.
 
 **Valid Values:** Format string using standard tokens
 - `YYYY` - 4-digit year
@@ -68,33 +61,30 @@ Defines the default format pattern for date/time display.
 
 **Common Patterns:**
 - `"YYYY-MM-DD HH:mm:ss"` - ISO-like format (default)
-- `"MM/DD/YYYY hh:mm A"` - US format with AM/PM
 - `"DD.MM.YYYY HH:mm"` - European format
-- `"YYYY年MM月DD日 HH:mm"` - Japanese format
 
-### Business Days
+
+### 🗓️ Business Days
 
 **Setting:** `aiWatch.businessDays`
 
 Defines which days of the week are considered business days.
 
 **Valid Values:**
-- **Range format:** `"Mon-Fri"`, `"Sun-Thu"`, `"Tue-Sat"`
-- **List format:** `"Mon,Wed,Fri"`, `"Tue,Thu,Sat"`
+- Array of day names/abbreviations (case-insensitive), e.g.:
+  - `["Mon","Tue","Wed","Thu","Fri"]`
+  - `["Sun","Mon","Tue","Wed","Thu"]`
+  - `["Mon","Wed","Fri"]`
 
 **Examples:**
 ```json
 {
-  "aiWatch.businessDays": "Sun-Thu"
+  "aiWatch.businessDays": ["Sun","Mon","Tue","Wed","Thu"]
 }
 ```
 
-**Regional Examples:**
-- **Western:** `"Mon-Fri"` (Monday to Friday)
-- **Middle East:** `"Sun-Thu"` (Sunday to Thursday)
-- **Custom:** `"Mon,Wed,Fri"` (specific days only)
 
-### Excluded Dates
+### 🚫 Excluded Dates
 
 **Setting:** `aiWatch.excludedDates`
 
@@ -107,7 +97,7 @@ List of specific dates to exclude from business day calculations (holidays, shut
 {
   "aiWatch.excludedDates": [
     "2025-12-25",
-    "2025-12-26", 
+    "2025-12-26",
     "2025-01-01",
     "2026-01-01"
   ]
@@ -120,15 +110,16 @@ List of specific dates to exclude from business day calculations (holidays, shut
 - Regional observances
 - Maintenance windows
 
-### Week Start
+
+### 🏁 Week Start
 
 **Setting:** `aiWatch.weekStart`
 
 Defines which day is considered the start of the week for period calculations.
 
 **Valid Values:**
-- `"monday"` - Week starts on Monday (default)
-- `"sunday"` - Week starts on Sunday
+- Strings: weekday names/abbreviations like `"monday"`, `"sunday"` (case-insensitive)
+- Numbers: 0–6 (0=Sunday, 1=Monday, ...)
 
 **Examples:**
 ```json
@@ -137,12 +128,16 @@ Defines which day is considered the start of the week for period calculations.
 }
 ```
 
+Notes:
+- When unset anywhere, the built-in default week start is Sunday (index 0) for all queries.
+
 **Impact:**
 - Affects `startOfPeriod` and `endOfPeriod` calculations for weeks
 - Influences business day calculations
 - Used in date navigation queries
 
-### Duration Format
+
+### ⏳ Duration Format
 
 **Setting:** `aiWatch.durationFormat`
 
@@ -165,13 +160,17 @@ Default verbosity level for duration formatting.
 - **Standard:** `"1 day, 2 hours, 30 minutes"`
 - **Verbose:** `"1 day, 2 hours and 30 minutes"`
 
-### Max Duration Units
+Applied when:
+- Using `formatDuration` without an explicit `verbosity` parameter.
+
+
+### 🔢 Max Duration Units
 
 **Setting:** `aiWatch.maxDurationUnits`
 
 Maximum number of time units to display in duration formatting.
 
-**Valid Values:** Integer between 1 and 7
+**Valid Values:** Integer between 1 and 6
 
 **Examples:**
 ```json
@@ -185,18 +184,24 @@ Maximum number of time units to display in duration formatting.
 - **maxUnits: 2** - `"2 days, 3 hours"` (two largest units)
 - **maxUnits: 3** - `"2 days, 3 hours, 45 minutes"` (three largest units)
 
-## Configuration Examples
+Applied when:
+- Using `formatDuration` without an explicit `maxUnits` parameter.
 
-### Global Development Team
+
+---
+
+## 💡 Configuration Examples
+
+
+#### Global Development Team
 
 For teams working across multiple timezones with standardized practices:
 
 ```json
 {
-  "aiWatch.defaultTimezone": "UTC",
   "aiWatch.defaultDateFormat": "YYYY-MM-DD HH:mm:ss",
-  "aiWatch.businessDays": "Mon-Fri",
-  "aiWatch.weekStart": "monday",
+  "aiWatch.businessDays": ["Mon","Tue","Wed","Thu","Fri"],
+  "aiWatch.weekStart": "sunday",
   "aiWatch.durationFormat": "standard",
   "aiWatch.maxDurationUnits": 3,
   "aiWatch.excludedDates": [
@@ -206,15 +211,15 @@ For teams working across multiple timezones with standardized practices:
 }
 ```
 
-### US Enterprise
+
+#### US Enterprise
 
 For US-based companies with typical business practices:
 
 ```json
 {
-  "aiWatch.defaultTimezone": "America/New_York",
   "aiWatch.defaultDateFormat": "MM/DD/YYYY hh:mm A",
-  "aiWatch.businessDays": "Mon-Fri", 
+  "aiWatch.businessDays": ["Mon","Tue","Wed","Thu","Fri"],
   "aiWatch.weekStart": "sunday",
   "aiWatch.durationFormat": "verbose",
   "aiWatch.maxDurationUnits": 4,
@@ -234,15 +239,15 @@ For US-based companies with typical business practices:
 }
 ```
 
-### Middle East Region
+
+#### Middle East Region
 
 For Middle Eastern companies with Friday-Saturday weekends:
 
 ```json
 {
-  "aiWatch.defaultTimezone": "Asia/Dubai",
   "aiWatch.defaultDateFormat": "DD/MM/YYYY HH:mm",
-  "aiWatch.businessDays": "Sun-Thu",
+  "aiWatch.businessDays": ["Sun","Mon","Tue","Wed","Thu"],
   "aiWatch.weekStart": "sunday",
   "aiWatch.durationFormat": "standard",
   "aiWatch.maxDurationUnits": 3,
@@ -254,15 +259,15 @@ For Middle Eastern companies with Friday-Saturday weekends:
 }
 ```
 
-### European Union
+
+#### European Union
 
 For EU-based teams with Monday week start:
 
 ```json
 {
-  "aiWatch.defaultTimezone": "Europe/Berlin",
   "aiWatch.defaultDateFormat": "DD.MM.YYYY HH:mm",
-  "aiWatch.businessDays": "Mon-Fri",
+  "aiWatch.businessDays": ["Mon","Tue","Wed","Thu","Fri"],
   "aiWatch.weekStart": "monday",
   "aiWatch.durationFormat": "standard",
   "aiWatch.maxDurationUnits": 3,
@@ -280,9 +285,13 @@ For EU-based teams with Monday week start:
 }
 ```
 
-## Settings Scope
 
-### User vs Workspace Settings
+---
+
+## 📂 Settings Scope
+
+
+### 👤 User vs Workspace Settings
 
 **User Settings** (`settings.json` in user profile):
 - Apply globally to all VS Code workspaces
@@ -294,13 +303,14 @@ For EU-based teams with Monday week start:
 - Good for team configurations and project-specific needs
 - Committed to version control for team consistency
 
-### Settings Priority
+
+### 🥇 Settings Priority
 
 Settings are applied in order of precedence (highest to lowest):
 
 1. **Function Parameters** - Direct API call parameters
 2. **Workspace Settings** - Project-specific configuration
-3. **User Settings** - Personal global configuration  
+3. **User Settings** - Personal global configuration
 4. **Extension Defaults** - Built-in fallback values
 
 **Example:**
@@ -311,9 +321,13 @@ await vscode.commands.executeCommand('ai-watch.getCurrentDate', {
 });
 ```
 
-## Configuration Management
 
-### Team Setup
+---
+
+## 🛠️ Configuration Management
+
+
+### 👥 Team Setup
 
 For consistent team configuration:
 
@@ -322,7 +336,8 @@ For consistent team configuration:
 3. **Document decisions** in team guidelines
 4. **Update as needed** for changing requirements
 
-### Environment-Specific Settings
+
+### 🌐 Environment-Specific Settings
 
 Different environments may need different configurations:
 
@@ -342,9 +357,13 @@ Different environments may need different configurations:
 }
 ```
 
-## Validation and Troubleshooting
 
-### Common Issues
+---
+
+## 🧪 Validation and Troubleshooting
+
+
+### ⚠️ Common Issues
 
 **Invalid Timezone:**
 ```
@@ -360,23 +379,25 @@ Error: Invalid excluded date '25/12/2025'. Use YYYY-MM-DD format.
 
 **Invalid Business Days:**
 ```
-Error: Invalid business days 'Monday-Friday'. Use 'Mon-Fri' format.
+Error: Invalid business days 'Monday-Friday'. Provide an array like ["Mon","Tue","Wed","Thu","Fri"].
 ```
-**Solution:** Use 3-letter day abbreviations in range or list format.
+**Solution:** Provide an array of day names/abbreviations (case-insensitive).
 
-### Settings Validation
+
+### ✅ Settings Validation
 
 AI Watch validates settings on startup and provides clear error messages for invalid configurations. Check the VS Code output panel for validation errors.
 
-### Testing Configuration
+
+### 🧪 Testing Configuration
 
 Test your configuration with these commands:
 
 ```javascript
-// Test timezone setting
-await vscode.commands.executeCommand('ai-watch.getCurrentDate');
+// Test current time functionality
+await vscode.commands.executeCommand('ai-watch.getCurrentDateTime');
 
-// Test business days setting  
+// Test business days setting
 await vscode.commands.executeCommand('ai-watch.businessDay', {
   operation: 'isBusinessDay',
   date: '2025-08-16T10:00:00Z'  // Saturday
@@ -389,9 +410,13 @@ await vscode.commands.executeCommand('ai-watch.formatDuration', {
 });
 ```
 
-## Migration and Updates
 
-### Updating Settings
+---
+
+## 🔄 Migration and Updates
+
+
+### 🆕 Updating Settings
 
 When updating settings:
 
@@ -400,36 +425,46 @@ When updating settings:
 3. **Update documentation** for team members
 4. **Communicate changes** to affected users
 
-### Version Compatibility
+
+### 🔗 Version Compatibility
 
 AI Watch maintains backward compatibility for settings across versions. New settings are added with sensible defaults that don't break existing configurations.
 
-## Best Practices
 
-### For Teams
+---
+
+## 🏅 Best Practices
+
+
+### 👥 For Teams
 
 1. **Standardize on workspace settings** for consistency
 2. **Document configuration decisions** in README or wiki
 3. **Use version control** for workspace settings
 4. **Regular review** of excluded dates and business rules
 
-### For Individual Users
+
+### 👤 For Individual Users
 
 1. **Set user defaults** that match your typical work environment
 2. **Override in workspaces** for project-specific needs
 3. **Keep settings simple** unless specific requirements exist
 4. **Test configuration changes** before committing
 
-### For Global Organizations
+
+### 🌍 For Global Organizations
 
 1. **Establish regional defaults** for different locations
 2. **Create configuration templates** for new projects
 3. **Document timezone policies** for distributed teams
 4. **Plan for holiday calendar updates** annually
 
-## Support
+
+---
+
+## 🆘 Support
 
 For configuration help:
 - Check the [User Guide](USER_GUIDE.md) for feature explanations
 - Review the [API Reference](API_REFERENCE.md) for parameter details
-- Report configuration issues on [GitHub](https://github.com/Rrayor/copilot-watch/issues)
+- Report configuration issues on [GitHub](https://github.com/Rrayor/ai-watch/issues)
