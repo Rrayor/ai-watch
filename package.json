@@ -171,18 +171,23 @@
           "properties": {
             "date": {
               "type": "string",
-              "description": "Date/time in ISO format (e.g., '2025-08-09T13:37:01Z')",
+              "description": "Date/time either as an absolute ISO with offset/Z (e.g. '2025-08-09T13:37:01Z' or '2025-08-09T13:37:01+09:00') OR as a naive wall-clock local time (e.g. '2025-08-16T15:00:00' or '2025-08-16 15:00:00'). If a naive value is provided, `fromTimezone` MUST also be provided.",
               "default": "2025-08-09T13:37:01Z"
             },
             "fromTimezone": {
               "type": "string",
-              "description": "Source IANA timezone (optional, defaults to UTC)",
+              "description": "Source IANA timezone. REQUIRED when `date` has no offset/Z. If `date` already contains an offset, this value will be ignored (but may be returned in `info`).",
               "default": "UTC"
             },
             "toTimezone": {
               "type": "string",
               "description": "Target IANA timezone (e.g., 'Asia/Tokyo', 'America/New_York')",
               "default": "America/New_York"
+            },
+            "interpretAsLocal": {
+              "type": "boolean",
+              "description": "Optional flag to force treating `date` as a naive local wall-clock in `fromTimezone` even if an offset is present (useful for deterministic testing).",
+              "default": false
             }
           },
           "required": [

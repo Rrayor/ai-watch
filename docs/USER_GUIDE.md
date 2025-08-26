@@ -201,8 +201,10 @@ Convert between any IANA timezones with automatic DST handling.
 
 **Basic Conversion:**
 ```javascript
+// Preferred for AI assistants: pass a naive wall-clock together with an IANA source zone
 const converted = await vscode.commands.executeCommand('ai-watch.convertTimezone', {
-  date: '2025-08-09T13:37:01Z',
+  date: '2025-08-16T15:00:00', // naive local wall-clock
+  fromTimezone: 'America/New_York',
   toTimezone: 'Asia/Tokyo'
 });
 // Returns (schema): {
@@ -211,10 +213,16 @@ const converted = await vscode.commands.executeCommand('ai-watch.convertTimezone
 //   local: string,
 //   localTimezone: string,
 //   formattedResult: string,
-//   resultTimezone: string,   // target timezone
+//   resultTimezone: string, // target timezone
 //   fromTimezone?: string,
 //   info?: string[]
 // }
+
+// If you already have an absolute ISO with offset/Z, pass it directly and `fromTimezone` will be ignored
+const converted2 = await vscode.commands.executeCommand('ai-watch.convertTimezone', {
+  date: '2025-08-09T13:37:01Z',
+  toTimezone: 'Asia/Tokyo'
+});
 ```
 
 **AI Use Cases:**
@@ -458,7 +466,16 @@ See [Configuration Guide](CONFIGURATION.md) for complete settings documentation.
 
 **Invalid timezone names**: Use IANA timezone identifiers like 'America/New_York', not abbreviations like 'EST'
 
-**Date format errors**: Ensure dates are in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ)
+**Date format and ambiguity guidance**:
+- Preferred: when supplying a naive wall-clock (no offset), also supply `fromTimezone` (IANA) so the tool can unambiguously resolve the instant.
+- If a naive ISO without offset is provided and `fromTimezone` is omitted, the tool will return an explicit error instructing the caller to provide `fromTimezone` or an ISO with offset. This prevents LLMs from silently making incorrect assumptions about timezone offsets.
+- Example error message returned for ambiguous input:
+
+```json
+{
+  "error": "Ambiguous date: '2025-08-16T15:00:00' has no timezone offset. Provide 'fromTimezone' (IANA) or an ISO with offset (e.g., '2025-08-16T15:00:00-04:00')."
+}
+```
 
 **Business day configuration**: Check weekStart settings and excluded dates
 

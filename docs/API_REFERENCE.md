@@ -81,31 +81,51 @@ await vscode.commands.executeCommand('ai-watch.calculateDifference', {
 **Converts date/time between different timezones.**
 
 #### Parameters
-- `date` (required, string): Date/time in ISO 8601 format
+- `date` (required, string): Date/time value. Two accepted forms:
+  - Absolute ISO with timezone offset or trailing Z (e.g. `2025-08-09T13:37:01Z` or `2025-08-09T13:37:01+09:00`).
+  - Naive wall-clock local time (e.g. `2025-08-16T15:00:00` or `2025-08-16 15:00:00`). If a naive wall-clock is supplied it MUST be accompanied by `fromTimezone`.
 - `toTimezone` (required, string): Target IANA timezone
-- `fromTimezone` (optional, string): Source timezone, defaults to 'UTC'
+- `fromTimezone` (optional, string): Source IANA timezone. REQUIRED when `date` is naive. If `date` already contains an offset, `fromTimezone` is ignored.
+- `interpretAsLocal` (optional, boolean): If true forces the `date` to be treated as a naive wall-clock in `fromTimezone` even when an offset is present (useful for deterministic testing).
 
 #### Returns
 ```typescript
 {
-  iso?: string;            // ISO 8601 format (if available)
-  utc?: string;            // UTC format (if available)
+  iso?: string;            // ISO 8601 format (canonical UTC instant if resolvable)
+  utc?: string;            // UTC formatted string
   local: string;           // Local timezone formatted time
   localTimezone: string;   // Detected local timezone
   formattedResult: string; // Converted/Formatted string in target timezone
   resultTimezone: string;  // Target timezone identifier
   fromTimezone?: string;   // Source timezone (if provided)
-  info?: string[];         // Informational messages
+  info?: string[];         // Informational messages, e.g. DST disambiguation notes
 }
 ```
 
+#### Notes and error behavior
+- If `date` contains an explicit offset/Z it will be parsed as an absolute instant and `fromTimezone` will be ignored (but may be echoed in `info`).
+- If `date` is naive (no offset) and `fromTimezone` is omitted, the command will return an explicit error indicating the ambiguity and instructing the caller to provide an IANA `fromTimezone` or an ISO with offset. This avoids silent, incorrect assumptions by LLMs.
+- DST edge-cases:
+  - Non-existent local times (DST gaps) will produce an error with guidance to select a different wall time or provide an explicit offset.
+  - Ambiguous local times (DST overlaps) will either be deterministically resolved and noted in `info` or return an error depending on the configuration; callers should check `info` for details.
+
 #### Example
 ```javascript
+// Naive wall-clock with explicit fromTimezone (recommended for LLMs)
+await vscode.commands.executeCommand('ai-watch.convertTimezone', {
+  date: '2025-08-16T15:00:00',
+  fromTimezone: 'America/New_York',
+  toTimezone: 'Asia/Tokyo'
+});
+
+// Absolute ISO (offset present) — fromTimezone ignored
 await vscode.commands.executeCommand('ai-watch.convertTimezone', {
   date: '2025-08-09T13:37:01Z',
   toTimezone: 'Asia/Tokyo'
 });
-// Returns: { formatted: "2025-08-09 22:37:01", fromTimezone: "UTC", toTimezone: "Asia/Tokyo" }
+
+// Ambiguous/incorrect input will receive a clear error prompting the caller to disambiguate
+// Example: { error: "Ambiguous date: '2025-08-16T15:00:00' has no timezone offset. Provide `fromTimezone` or an ISO with offset." }
 ```
 
 

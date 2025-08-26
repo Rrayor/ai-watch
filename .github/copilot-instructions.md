@@ -283,7 +283,3 @@ A task is considered successfully completed when:
 - Drill down: Find domain-specific docs and patterns
 - Cross-reference: Verify consistency with architectural decisions
 - Validate approach: Ensure proposed changes align with established patterns
-
----
-
-*This document is intended as a general-purpose AI agent instruction set. Adapt and extend as needed for your repository.*

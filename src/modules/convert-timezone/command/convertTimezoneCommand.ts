@@ -2,7 +2,13 @@
  * Command implementation for converting times between timezones.
  */
 import { ConvertTimezoneResult } from '../model/ConvertTimezoneResult';
-import { formatInTimezone, getUserTimezone, parseISOString, OperationContext } from '../../shared';
+import {
+  formatInTimezone,
+  getUserTimezone,
+  parseISOString,
+  OperationContext,
+  AmbiguousDateError,
+} from '../../shared';
 import { ConvertTimezoneOptions } from '../model/ConvertTimezoneOptions';
 
 /**
@@ -14,8 +20,20 @@ import { ConvertTimezoneOptions } from '../model/ConvertTimezoneOptions';
  * @throws {InvalidTimeZoneError} if the timezone is invalid
  */
 export function convertTimezoneCommand(options: ConvertTimezoneOptions): ConvertTimezoneResult {
-  const date = parseISOString(options.date);
-  // Default fromTimezone to UTC if not specified
+  // Validate input contract: if date is naive (no offset) and the caller
+  // didn't provide fromTimezone, refuse with an AmbiguousDateError to avoid
+  // silent assumptions by language models.
+  const naiveIsoWithoutOffset = !/([zZ]|[+-]\d{2}:?\d{2})$/.test(options.date);
+  if (naiveIsoWithoutOffset && !options.fromTimezone && !options.interpretAsLocal) {
+    throw new AmbiguousDateError(options.date);
+  }
+
+  // Parse the date. parseISOString accepts an optional IANA timezone to
+  // interpret naive wall-clock inputs correctly. We pass through fromTimezone
+  // when provided or when interpretAsLocal forces local interpretation.
+  const date = parseISOString(options.date, options.fromTimezone);
+
+  // Default fromTimezone to UTC if not specified (after validation)
   const operationContext = new OperationContext();
   let fromTz = options.fromTimezone;
   if (!fromTz) {
