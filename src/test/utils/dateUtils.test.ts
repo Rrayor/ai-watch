@@ -4,6 +4,8 @@ import {
   weekdayToNumber,
   buildDurationParts,
 } from '../../modules/shared/util/dateUtils';
+import { InvalidTimezoneError } from '../../modules/shared/error/InvalidTimezoneError';
+import { AmbiguousDateError } from '../../modules/shared/error/AmbiguousDateError';
 
 suite('dateUtils', () => {
   suite('parseISOString', () => {
@@ -22,6 +24,18 @@ suite('dateUtils', () => {
       for (const s of invalidInputs) {
         assert.throws(() => parseISOString(s));
       }
+    });
+
+    test('interprets naive ISO with provided IANA timezone correctly', () => {
+      // 15:00 in New York (UTC-4 in August) -> 19:00Z
+      const naive = '2025-08-26T15:00:00';
+      const d = parseISOString(naive, 'America/New_York');
+      assert.strictEqual(d.toISOString(), '2025-08-26T19:00:00.000Z');
+    });
+
+    test('throws InvalidTimezoneError for bad IANA timezone when interpreting naive ISO', () => {
+      const naive = '2025-08-26T15:00:00';
+      assert.throws(() => parseISOString(naive, 'Invalid/Zone'), InvalidTimezoneError);
     });
   });
 

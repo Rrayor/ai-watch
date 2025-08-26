@@ -3,6 +3,7 @@
  */
 import { InvalidWeekDayError } from '../error/InvalidWeekDayError';
 import { InvalidDateError } from '../error/InvalidDateError';
+import { InvalidTimezoneError } from '../error/InvalidTimezoneError';
 import { SubtractTimeOptions } from '../../subtract-time/model/SubtractTimeOptions';
 import { AddTimeOptions } from '../../add-time/model/AddTimeOptions';
 import { zonedTimeToUtc } from 'date-fns-tz';
@@ -28,6 +29,39 @@ const DAY_MAP: Record<string, number> = {
 };
 
 /**
+ * Validate an IANA timezone string using Intl. Throws InvalidTimezoneError on failure.
+ * @throws {InvalidTimezoneError} if the timezone is invalid
+ */
+function validateIanaTimezone(tz?: string): void {
+  if (!tz) return;
+  try {
+    // Prefer modern API when available: Intl.supportedValuesOf('timeZone')
+    // provides a canonical list of zones and is deterministic across
+    // environments.
+    // feature-detect supportedValuesOf in a safe, typed way
+    const { supportedValuesOf } = Intl as unknown as {
+      supportedValuesOf?: (k: string) => string[];
+    };
+    if (typeof supportedValuesOf === 'function') {
+      const zones: string[] = supportedValuesOf.call(Intl, 'timeZone');
+      // IANA identifiers are case sensitive, but we're developing for LLMs, so we ignore case when matching.
+      if (!zones.some((z) => z.toLowerCase() === tz.toLowerCase())) {
+        throw new InvalidTimezoneError(tz);
+      }
+    } else {
+      // Fallback: use date-fns-tz to validate; zonedTimeToUtc may throw
+      // or return an invalid date for unknown zones.
+      const test = zonedTimeToUtc('1970-01-01T00:00:00', tz);
+      if (isNaN(test.getTime())) {
+        throw new InvalidTimezoneError(tz);
+      }
+    }
+  } catch {
+    throw new InvalidTimezoneError(tz);
+  }
+}
+
+/**
  * Parses an ISO date string and returns a Date object.
  *
  * @param dateString - ISO date string to parse
@@ -39,12 +73,18 @@ export function parseISOString(dateString: string, ianaTimezone?: string): Date 
   // (no trailing 'Z' or offset), try to interpret the string in that timezone
   let input = dateString;
   if (ianaTimezone && !/([zZ]|[+-]\d{2}:?\d{2})$/.test(dateString)) {
+    validateIanaTimezone(ianaTimezone);
     // Build an offset for the provided timezone at the given local wall time.
     // We create a Date from the components in UTC by asking Intl for the
     // timezone offset at the same wall-clock instant in the target timezone.
     const maybeOffset = buildOffsetForLocalTime(dateString, ianaTimezone);
     if (maybeOffset) {
       input = `${dateString}${maybeOffset}`;
+    } else {
+      // If we couldn't compute an offset when an IANA timezone was provided,
+      // treat it as an invalid timezone rather than silently accepting the
+      // naive input. This surfaces configuration/typo errors to callers.
+      throw new InvalidTimezoneError(ianaTimezone);
     }
   }
 
