@@ -18,8 +18,8 @@
 
 1. **Fork and Clone**
    ```bash
-   git clone https://github.com/your-username/copilot-watch.git
-   cd copilot-watch
+   git clone https://github.com/your-username/ai-watch.git
+   cd ai-watch
    ```
 
 2. **Install Dependencies**
