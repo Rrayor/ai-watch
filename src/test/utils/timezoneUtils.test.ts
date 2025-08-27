@@ -9,6 +9,7 @@ import {
 } from '../../modules/shared/util/timezoneUtils';
 import { OperationContext } from '../../modules/shared/model/OperationContext';
 import { InvalidTimezoneError } from '../../modules/shared/error/InvalidTimezoneError';
+import { InvalidDateFormatError } from '../../modules/shared/error/InvalidDateFormatError';
 
 suite('timezoneUtils', () => {
   // Helper to temporarily replace global Intl for a block of code and restore it.
@@ -111,11 +112,9 @@ suite('timezoneUtils', () => {
     assert.strictEqual(out, expected);
   });
 
-  test('applyCustomFormat leaves unknown tokens untouched', () => {
+  test('applyCustomFormat throws for unknown token specifiers', () => {
     const date = new Date(2020, 11, 31, 23, 59, 59);
-    const out = applyCustomFormat(date, 'YYYY-XX-DD');
-    const expected = `${String(date.getFullYear())}-XX-${String(date.getDate()).padStart(2, '0')}`;
-    assert.strictEqual(out, expected);
+    assert.throws(() => applyCustomFormat(date, 'YYYY-XX-DD'), InvalidDateFormatError);
   });
 
   test('formatStandard formats date in given timezone (UTC)', () => {

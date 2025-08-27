@@ -342,6 +342,10 @@ await vscode.commands.executeCommand('ai-watch.businessDay', {
     - `weekStart` (optional, string|number): Week start day for period queries
       - Valid: 'sunday' (default), 'monday', or numbers 0–6 (0=Sunday)
 
+    - `chain` (optional, boolean): Controls whether queries are evaluated in sequence (chained) or independently.
+      - `true` (default): each query uses the previous query's result as its base.
+      - `false`: every query is evaluated against `baseDate` (useful for comparisons like "next Tuesday" vs "last Friday").
+
 #### Returns
 ```typescript
 {
@@ -372,6 +376,16 @@ await vscode.commands.executeCommand('ai-watch.dateQuery', {
   queries: [
     { type: 'previousWeekday', weekday: 'wednesday' },
     { type: 'nextWeekday', weekday: 'monday' }
+  ]
+});
+
+// Independent queries (non-chained): both queries use baseDate rather than chaining
+await vscode.commands.executeCommand('ai-watch.dateQuery', {
+  baseDate: '2025-08-15T10:00:00Z',
+  chain: false,
+  queries: [
+    { type: 'nextWeekday', weekday: 'tuesday' },
+    { type: 'previousWeekday', weekday: 'friday' }
   ]
 });
 ```

@@ -17,4 +17,6 @@ export interface DateQueryOptions {
     /** Week start day (defaults to sunday) */
     weekStart?: string | number | undefined;
   }>;
+  /** If false, each query is evaluated independently against `baseDate` instead of chaining results. Defaults to true (chained). */
+  chain?: boolean;
 }

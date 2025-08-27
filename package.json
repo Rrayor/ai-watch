@@ -240,6 +240,11 @@
               "description": "Days to add (can be negative for subtraction)",
               "default": 0
             },
+            "chain": {
+              "type": "boolean",
+              "description": "If false, each query is evaluated independently against `baseDate` instead of chaining results. Defaults to true (chained).",
+              "default": true
+            },
             "hours": {
               "type": "number",
               "description": "Hours to add (can be negative for subtraction)",

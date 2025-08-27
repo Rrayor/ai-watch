@@ -1,5 +1,6 @@
 import { workspace } from 'vscode';
 import { InvalidTimezoneError } from '../error/InvalidTimezoneError';
+import { InvalidDateFormatError } from '../error/InvalidDateFormatError';
 import { OperationContext } from '../model/OperationContext';
 
 // Constants for string operations
@@ -179,7 +180,10 @@ export function getUserTimezone(context: OperationContext): string {
 function applyCustomFormatFromParts(parts: Intl.DateTimeFormatPart[], format: string): string {
   const partMap = createPartMap(parts);
   const tokens = createFormatTokens(partMap);
-  return replaceFormatTokens(format, tokens);
+  const allowedTokens = Object.keys(tokens);
+  const tokensWithAliases = addLowercaseAliases(tokens);
+  validateFormatString(format, allowedTokens.concat(Object.keys(tokensWithAliases)));
+  return replaceFormatTokens(format, tokensWithAliases);
 }
 
 /**
@@ -205,7 +209,44 @@ export function applyCustomFormat(date: Date, format: string): string {
     s: String(date.getSeconds()),
   };
 
+  // Add lowercase/common aliases for convenience (avoid aliasing 'mm' which is minutes)
+  tokens['yyyy'] = tokens['YYYY'] ?? '';
+  tokens['yy'] = tokens['YY'] ?? '';
+  tokens['dd'] = tokens['DD'] ?? '';
+  tokens['d'] = tokens['D'] ?? '';
+  tokens['hh'] = tokens['HH'] ?? '';
+
+  // Validate format contains only known tokens (helps LLMs detect mistakes)
+  validateFormatString(format, Object.keys(tokens));
+
   return replaceTokensInString(format, tokens);
+}
+
+/**
+ * Adds lowercase aliases for tokens produced by createFormatTokens
+ */
+function addLowercaseAliases(tokens: { [key: string]: string }): { [key: string]: string } {
+  const result: { [key: string]: string } = { ...tokens };
+  // Add common lowercase aliases; avoid conflicting 'mm' (minutes)
+  if (tokens['YYYY']) result['yyyy'] = tokens['YYYY'];
+  if (tokens['YY']) result['yy'] = tokens['YY'];
+  if (tokens['DD']) result['dd'] = tokens['DD'];
+  if (tokens['D']) result['d'] = tokens['D'];
+  if (tokens['HH']) result['hh'] = tokens['HH'];
+  return result;
+}
+
+/**
+ * Validates the format string only contains known tokens (or literals).
+ * @throws {InvalidDateFormatError} when unknown token patterns are found.
+ */
+function validateFormatString(format: string, allowedTokens: string[]): void {
+  // Find sequences of letters that look like tokens (e.g., yyyy, MM, dd, HH, mm, ss)
+  const tokenCandidates = Array.from(format.matchAll(/[A-Za-z]+/g)).map((m) => m[0]);
+  const unknown = tokenCandidates.filter((t) => !allowedTokens.includes(t));
+  if (unknown.length > 0) {
+    throw new InvalidDateFormatError(format, allowedTokens);
+  }
 }
 
 /**

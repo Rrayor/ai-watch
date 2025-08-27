@@ -1,4 +1,3 @@
-
 # 🤝 Contributing to AI Watch
 
 > **Purpose:** This guide provides actionable, up-to-date contribution guidelines for AI Watch, aligned with current architecture, documentation, and review standards.
@@ -563,6 +562,9 @@ We follow [Semantic Versioning](https://semver.org/):
 ### High Priority
 
 - **Testing**: Increase test coverage, perform manual testing, and report bugs.
+- **Behavior feedback**: Does the tool behave as you expect? If not, describe the steps, environment, and what you expected vs what happened; mention any confusing settings or defaults.
+
+  Note: "Behavior feedback" is for usability and expectation gaps (surprising defaults, unclear settings, or workflows that don't match your mental model). If you can reproduce an error, include exact steps, input, and any error messages and file an issue as a bug report instead—bugs should contain reproduction steps and diagnostic details.
 - **Bug fixing**: Address reported issues and improve stability.
 - **Performance Optimizations**: Improve calculation efficiency. While no major performance issues are known, long-running tasks can cause AI agents to hang or behave unpredictably—proactively prevent this.
 - **Error Handling**: Enhance error messages and recovery. Ensure AI agents and users are clearly notified of errors, especially in multi-step or automated processes.

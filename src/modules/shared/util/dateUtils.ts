@@ -69,24 +69,7 @@ function validateIanaTimezone(tz?: string): void {
  * @throws {InvalidDateError} if the date format is invalid
  */
 export function parseISOString(dateString: string, ianaTimezone?: string): Date {
-  // If an IANA timezone is provided and the input lacks an explicit timezone
-  // (no trailing 'Z' or offset), try to interpret the string in that timezone
-  let input = dateString;
-  if (ianaTimezone && !/([zZ]|[+-]\d{2}:?\d{2})$/.test(dateString)) {
-    validateIanaTimezone(ianaTimezone);
-    // Build an offset for the provided timezone at the given local wall time.
-    // We create a Date from the components in UTC by asking Intl for the
-    // timezone offset at the same wall-clock instant in the target timezone.
-    const maybeOffset = buildOffsetForLocalTime(dateString, ianaTimezone);
-    if (maybeOffset) {
-      input = `${dateString}${maybeOffset}`;
-    } else {
-      // If we couldn't compute an offset when an IANA timezone was provided,
-      // treat it as an invalid timezone rather than silently accepting the
-      // naive input. This surfaces configuration/typo errors to callers.
-      throw new InvalidTimezoneError(ianaTimezone);
-    }
-  }
+  const input = appendOffsetIfNeeded(dateString, ianaTimezone);
 
   const date = new Date(input);
   if (isNaN(date.getTime())) {
@@ -95,29 +78,140 @@ export function parseISOString(dateString: string, ianaTimezone?: string): Date 
     throw new InvalidDateError(dateString);
   }
 
-  // Check if the parsed date matches the input (detect auto-correction) only
-  // when the original input included explicit timezone information or when
-  // we did not append an offset. If we appended an offset for a naive input
-  // (to interpret it in an IANA zone), comparing the produced UTC ISO to the
-  // constructed input will always differ and produce false positives.
+  // Validate that parsing didn't auto-correct the user's input in a way
+  // that indicates an invalid/malformed ISO string. This validation is
+  // intentionally conservative for naive inputs; see helpers.
+  validateParsedDate(dateString, input, date, ianaTimezone);
+
+  return date;
+}
+
+/**
+ * If an IANA timezone is provided and the input lacks an explicit timezone,
+ * validate the timezone and attempt to append a computed offset string.
+ * Returns the possibly-modified input string.
+ */
+function appendOffsetIfNeeded(dateString: string, ianaTimezone?: string): string {
+  if (!ianaTimezone) return dateString;
+  if (/([zZ]|[+-]\d{2}:?\d{2})$/.test(dateString)) return dateString;
+  validateIanaTimezone(ianaTimezone);
+  const maybeOffset = buildOffsetForLocalTime(dateString, ianaTimezone);
+  if (!maybeOffset) throw new InvalidTimezoneError(ianaTimezone);
+  return `${dateString}${maybeOffset}`;
+}
+
+// ... canonicalization helper removed (unused)
+const MAX_MONTH = 12;
+const MAX_HOUR = 23;
+const MAX_MIN_SEC = 59;
+const MAX_OFFSET_HOUR = 14;
+
+/**
+ * Validates that the parsed Date corresponds to the provided input string.
+ * @throws {InvalidDateError} when mismatches indicating autocorrection are found.
+ */
+function validateParsedDate(
+  dateString: string,
+  input: string,
+  date: Date,
+  ianaTimezone?: string,
+): void {
+  // Fast-path: accept bare calendar dates like "YYYY-MM-DD".
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return;
+
   const originalHadTz = /([zZ]|[+-]\d{2}:?\d{2})$/.test(dateString);
   const weAppendedOffset = Boolean(ianaTimezone && !originalHadTz);
 
-  // Only perform strict ISO equality check when the original input had explicit
-  // timezone info or when we did not append an offset ourselves.
-  if (!weAppendedOffset) {
-    // Handle the .000Z vs Z formatting difference that JavaScript introduces
-    let normalizedInput = input;
-    if (input.endsWith('Z') && !input.includes('.')) {
-      normalizedInput = input.replace('Z', '.000Z');
-    }
-
-    if (date.toISOString() !== normalizedInput) {
-      throw new InvalidDateError(dateString);
-    }
+  // If the caller included an explicit timezone/offset, validate the
+  // ISO components structurally (month/day/hour ranges). This lets inputs
+  // like "2025-08-27T12:00:00+02:00" pass while rejecting malformed values.
+  if (originalHadTz) {
+    if (!isWellFormedIsoWithOffset(dateString)) throw new InvalidDateError(dateString);
+    return;
   }
 
-  return date;
+  // If we appended an offset for an IANA timezone, accept the parsed date.
+  // Otherwise (naive date-time without timezone) perform the strict
+  // equality check to detect JS autocorrections.
+  if (weAppendedOffset) return;
+
+  // Strict check: normalize inputs like "...Z" to include milliseconds so
+  // comparison against date.toISOString() is consistent.
+  let normalizedInput = input;
+  if (input.endsWith('Z') && !input.includes('.')) normalizedInput = input.replace('Z', '.000Z');
+  if (date.toISOString() !== normalizedInput) throw new InvalidDateError(dateString);
+}
+
+/**
+ * Validates that an ISO 8601 date-time string with timezone/offset is well-formed
+ * and that components fall into expected ranges (month 1-12, day valid for
+ * month, hour 0-23, minute/second 0-59). Returns true for well-formed inputs.
+ */
+function isWellFormedIsoWithOffset(s: string): boolean {
+  const parsed = parseIsoWithOffset(s);
+  if (!parsed) return false;
+
+  const { year, month, day, hour, minute, second, tz } = parsed;
+
+  if (!validateYMD(year, month, day)) return false;
+  if (!validateHMS(hour, minute, second)) return false;
+  if (!tz) return false;
+  if (tz === 'Z') return true;
+  return validateOffsetString(tz);
+}
+
+function parseIsoWithOffset(s: string): {
+  year: number;
+  month: number;
+  day: number;
+  hour: number;
+  minute: number;
+  second: number;
+  tz: string;
+} | null {
+  const re = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?(Z|[+-]\d{2}:?\d{2})$/;
+  const m = s.match(re);
+  if (!m) return null;
+  const [, y, mo, da, hh, mi, ss, , tz] = m;
+  return {
+    year: Number(y),
+    month: Number(mo),
+    day: Number(da),
+    hour: Number(hh),
+    minute: Number(mi),
+    second: Number(ss),
+    tz: tz as string,
+  };
+}
+
+function validateYMD(year: number, month: number, day: number): boolean {
+  if (!(month >= 1 && month <= MAX_MONTH)) return false;
+  const dt = new Date(year, month - 1, day);
+  return dt.getFullYear() === year && dt.getMonth() === month - 1 && dt.getDate() === day;
+}
+
+function validateHMS(hour: number, minute: number, second: number): boolean {
+  return (
+    hour >= 0 &&
+    hour <= MAX_HOUR &&
+    minute >= 0 &&
+    minute <= MAX_MIN_SEC &&
+    second >= 0 &&
+    second <= MAX_MIN_SEC
+  );
+}
+
+function validateOffsetString(tz: string): boolean {
+  const off = tz.replace(':', ''); // +0900
+  const [sign] = off;
+  if (sign !== '+' && sign !== '-') return false;
+  const HOUR_SLICE_START = 1;
+  const HOUR_SLICE_END = 3;
+  const MIN_SLICE_START = 3;
+  const oh = Number(off.slice(HOUR_SLICE_START, HOUR_SLICE_END));
+  const om = Number(off.slice(MIN_SLICE_START));
+  if (Number.isNaN(oh) || Number.isNaN(om)) return false;
+  return oh >= 0 && oh <= MAX_OFFSET_HOUR && om >= 0 && om <= MAX_MIN_SEC;
 }
 
 /**

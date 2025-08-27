@@ -42,6 +42,8 @@ export function dateQueryCommand(options: DateQueryOptions): DateQueryResult {
     .getConfiguration('aiWatch')
     .get<string | number>('weekStart');
 
+  const shouldChain = options.chain !== false;
+
   for (let i = 0; i < options.queries.length; i++) {
     const query = options.queries[i];
     if (!query) {
@@ -52,7 +54,9 @@ export function dateQueryCommand(options: DateQueryOptions): DateQueryResult {
       query.weekStart = weekStartsOnConfig;
     }
 
-    const result = processQuery(query, baseDate, results, i, tz);
+    // Decide which base to use: chained (previous result) or original baseDate
+    const resultBase = shouldChain ? getQueryBaseDate(baseDate, results, i) : baseDate;
+    const result = processQuery(query, resultBase, tz);
     results.push(result);
   }
 
@@ -90,15 +94,14 @@ function getQueryBaseDate(baseDate: Date, results: Date[], index: number): Date 
 function processNextWeekdayQuery(
   query: DateQueryOptions['queries'][0],
   baseDate: Date,
-  results: Date[],
-  index: number,
   timezone: string,
 ): Date {
   if (!query.weekday) {
     throw new InvalidWeekDayQueryError('Weekday required for nextWeekday query');
   }
-  const queryBase = getQueryBaseDate(baseDate, results, index);
-  return getNextOccurenceOfWeekday(queryBase, query.weekday, query.weekStart, timezone);
+  // Use the baseDate provided by the caller. The caller decides whether this
+  // is the original base or a previous result (controlled by the `chain` flag).
+  return getNextOccurenceOfWeekday(baseDate, query.weekday, query.weekStart, timezone);
 }
 
 /**
@@ -114,15 +117,13 @@ function processNextWeekdayQuery(
 function processPreviousWeekdayQuery(
   query: DateQueryOptions['queries'][0],
   baseDate: Date,
-  results: Date[],
-  index: number,
   timezone: string,
 ): Date {
   if (!query.weekday) {
     throw new InvalidWeekDayQueryError('Weekday required for previousWeekday query');
   }
-  const queryBase = getQueryBaseDate(baseDate, results, index);
-  return getPreviousWeekday(queryBase, query.weekday, query.weekStart, timezone);
+  // Use the caller-provided baseDate so non-chained mode behaves correctly.
+  return getPreviousWeekday(baseDate, query.weekday, query.weekStart, timezone);
 }
 
 /**
@@ -179,15 +180,13 @@ function processEndOfPeriodQuery(
 function processQuery(
   query: DateQueryOptions['queries'][0],
   baseDate: Date,
-  results: Date[],
-  index: number,
   timezone: string,
 ): Date {
   switch (query.type) {
     case 'nextWeekday':
-      return processNextWeekdayQuery(query, baseDate, results, index, timezone);
+      return processNextWeekdayQuery(query, baseDate, timezone);
     case 'previousWeekday':
-      return processPreviousWeekdayQuery(query, baseDate, results, index, timezone);
+      return processPreviousWeekdayQuery(query, baseDate, timezone);
     case 'startOfPeriod':
       return processStartOfPeriodQuery(query, baseDate, timezone);
     case 'endOfPeriod':
