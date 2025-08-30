@@ -107,13 +107,11 @@
           "properties": {
             "timezone": {
               "type": "string",
-              "description": "IANA timezone (e.g., 'America/New_York', 'Europe/Berlin'). If not specified, returns ISO and UTC formats.",
-              "default": ""
+              "description": "IANA timezone (e.g., 'America/New_York', 'Europe/Berlin'). If not specified, returns ISO and UTC formats."
             },
             "format": {
               "type": "string",
-              "description": "Date format pattern. If omitted, uses aiWatch.defaultDateFormat when configured.",
-              "default": "YYYY-MM-DD HH:mm:ss"
+              "description": "Date format pattern. If omitted, uses aiWatch.defaultDateFormat when configured."
             }
           }
         }
@@ -137,13 +135,11 @@
           "properties": {
             "from": {
               "type": "string",
-              "description": "Starting date/time in ISO format (e.g., '2025-08-01T00:00:00Z')",
-              "default": "2025-08-01T00:00:00Z"
+              "description": "Starting date/time in ISO format (e.g., '2025-08-01T00:00:00Z')"
             },
             "to": {
               "type": "string",
-              "description": "Ending date/time in ISO format (e.g., '2025-08-09T13:37:01Z')",
-              "default": "2025-08-09T13:37:01Z"
+              "description": "Ending date/time in ISO format (e.g., '2025-08-09T13:37:01Z')"
             }
           },
           "required": [
@@ -171,23 +167,19 @@
           "properties": {
             "date": {
               "type": "string",
-              "description": "Date/time either as an absolute ISO with offset/Z (e.g. '2025-08-09T13:37:01Z' or '2025-08-09T13:37:01+09:00') OR as a naive wall-clock local time (e.g. '2025-08-16T15:00:00' or '2025-08-16 15:00:00'). If a naive value is provided, `fromTimezone` MUST also be provided.",
-              "default": "2025-08-09T13:37:01Z"
+              "description": "Date/time either as an absolute ISO with offset/Z (e.g. '2025-08-09T13:37:01Z' or '2025-08-09T13:37:01+09:00') OR as a naive wall-clock local time (e.g. '2025-08-16T15:00:00' or '2025-08-16 15:00:00'). If a naive value is provided, `fromTimezone` MUST also be provided."
             },
             "fromTimezone": {
               "type": "string",
-              "description": "Source IANA timezone. REQUIRED when `date` has no offset/Z. If `date` already contains an offset, this value will be ignored (but may be returned in `info`).",
-              "default": "UTC"
+              "description": "Source IANA timezone. REQUIRED when `date` has no offset/Z. If `date` already contains an offset, this value will be ignored (but may be returned in `info`)."
             },
             "toTimezone": {
               "type": "string",
-              "description": "Target IANA timezone (e.g., 'Asia/Tokyo', 'America/New_York')",
-              "default": "America/New_York"
+              "description": "Target IANA timezone (e.g., 'Asia/Tokyo', 'America/New_York')"
             },
             "interpretAsLocal": {
               "type": "boolean",
-              "description": "Optional flag to force treating `date` as a naive local wall-clock in `fromTimezone` even if an offset is present (useful for deterministic testing).",
-              "default": false
+              "description": "Optional flag to force treating `date` as a naive local wall-clock in `fromTimezone` even if an offset is present (useful for deterministic testing)."
             }
           },
           "required": [
@@ -217,53 +209,43 @@
           "properties": {
             "baseTime": {
               "type": "string",
-              "description": "Base time in ISO format (optional, defaults to current time)",
-              "default": ""
+              "description": "Base time in ISO format (optional, defaults to current time)"
             },
             "years": {
               "type": "number",
-              "description": "Years to add (can be negative for subtraction)",
-              "default": 0
+              "description": "Years to add (can be negative for subtraction)"
             },
             "months": {
               "type": "number",
-              "description": "Months to add (can be negative for subtraction)",
-              "default": 0
+              "description": "Months to add (can be negative for subtraction)"
             },
             "weeks": {
               "type": "number",
-              "description": "Weeks to add (can be negative for subtraction)",
-              "default": 0
+              "description": "Weeks to add (can be negative for subtraction)"
             },
             "days": {
               "type": "number",
-              "description": "Days to add (can be negative for subtraction)",
-              "default": 0
+              "description": "Days to add (can be negative for subtraction)"
             },
             "chain": {
               "type": "boolean",
-              "description": "If false, each query is evaluated independently against `baseDate` instead of chaining results. Defaults to true (chained).",
-              "default": true
+              "description": "If false, each query is evaluated independently against `baseDate` instead of chaining results. Defaults to true (chained)."
             },
             "hours": {
               "type": "number",
-              "description": "Hours to add (can be negative for subtraction)",
-              "default": 0
+              "description": "Hours to add (can be negative for subtraction)"
             },
             "minutes": {
               "type": "number",
-              "description": "Minutes to add (can be negative for subtraction)",
-              "default": 0
+              "description": "Minutes to add (can be negative for subtraction)"
             },
             "seconds": {
               "type": "number",
-              "description": "Seconds to add (can be negative for subtraction)",
-              "default": 0
+              "description": "Seconds to add (can be negative for subtraction)"
             },
             "timezone": {
               "type": "string",
-              "description": "Optional timezone to display result in (e.g., 'America/New_York')",
-              "default": ""
+              "description": "Optional timezone to display result in (e.g., 'America/New_York')"
             }
           }
         }
@@ -289,48 +271,39 @@
           "properties": {
             "baseTime": {
               "type": "string",
-              "description": "Base time in ISO format (optional, defaults to current time)",
-              "default": ""
+              "description": "Base time in ISO format (optional, defaults to current time)"
             },
             "years": {
               "type": "number",
-              "description": "Years to subtract",
-              "default": 0
+              "description": "Years to subtract"
             },
             "months": {
               "type": "number",
-              "description": "Months to subtract",
-              "default": 0
+              "description": "Months to subtract"
             },
             "weeks": {
               "type": "number",
-              "description": "Weeks to subtract",
-              "default": 0
+              "description": "Weeks to subtract"
             },
             "days": {
               "type": "number",
-              "description": "Days to subtract",
-              "default": 0
+              "description": "Days to subtract"
             },
             "hours": {
               "type": "number",
-              "description": "Hours to subtract",
-              "default": 0
+              "description": "Hours to subtract"
             },
             "minutes": {
               "type": "number",
-              "description": "Minutes to subtract",
-              "default": 0
+              "description": "Minutes to subtract"
             },
             "seconds": {
               "type": "number",
-              "description": "Seconds to subtract",
-              "default": 0
+              "description": "Seconds to subtract"
             },
             "timezone": {
               "type": "string",
-              "description": "Optional timezone to display result in (e.g., 'America/New_York')",
-              "default": ""
+              "description": "Optional timezone to display result in (e.g., 'America/New_York')"
             }
           }
         }
@@ -355,13 +328,11 @@
           "properties": {
             "from": {
               "type": "string",
-              "description": "Starting date/time in ISO format",
-              "default": "2025-08-01T00:00:00Z"
+              "description": "Starting date/time in ISO format"
             },
             "to": {
               "type": "string",
-              "description": "Ending date/time in ISO format",
-              "default": "2025-08-09T13:37:01Z"
+              "description": "Ending date/time in ISO format"
             },
             "verbosity": {
               "type": "string",
@@ -370,13 +341,11 @@
                 "compact",
                 "standard",
                 "verbose"
-              ],
-              "default": "standard"
+              ]
             },
             "maxUnits": {
               "type": "number",
-              "description": "Maximum number of time units to show (e.g., 2 for '2 days, 3 hours')",
-              "default": 3
+              "description": "Maximum number of time units to show (e.g., 2 for '2 days, 3 hours')"
             }
           },
           "required": [
@@ -410,18 +379,15 @@
                 "isBusinessDay",
                 "addBusinessDays",
                 "subtractBusinessDays"
-              ],
-              "default": "addBusinessDays"
+              ]
             },
             "date": {
               "type": "string",
-              "description": "Base date in ISO format",
-              "default": "2025-08-09T13:37:01Z"
+              "description": "Base date in ISO format"
             },
             "days": {
               "type": "number",
-              "description": "Number of business days to add/subtract (for add/subtract operations)",
-              "default": 5
+              "description": "Number of business days to add/subtract (for add/subtract operations)"
             },
             "businessDays": {
               "type": "array",
@@ -466,13 +432,11 @@
           "properties": {
             "baseDate": {
               "type": "string",
-              "description": "Base date for calculations in ISO format",
-              "default": "2025-08-09T13:37:01Z"
+              "description": "Base date for calculations in ISO format"
             },
             "timezone": {
               "type": "string",
-              "description": "Optional IANA timezone for calculations; defaults to the local timezone when omitted",
-              "default": ""
+              "description": "Optional IANA timezone for calculations; defaults to the local timezone when omitted"
             },
             "queries": {
               "type": "array",
@@ -516,17 +480,10 @@
                     "enum": [
                       "monday",
                       "sunday"
-                    ],
-                    "default": "sunday"
+                    ]
                   }
                 }
-              },
-              "default": [
-                {
-                  "type": "nextWeekday",
-                  "weekday": "friday"
-                }
-              ]
+              }
             }
           },
           "required": [
@@ -550,13 +507,6 @@
           "items": {
             "type": "string"
           },
-          "default": [
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri"
-          ],
           "description": "Business days definition as array of day names/abbreviations (e.g., [\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\"]).",
           "scope": "window"
         },
@@ -566,7 +516,6 @@
             "type": "string",
             "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
           },
-          "default": [],
           "description": "List of dates to exclude from business day calculations (holidays, shutdowns) in YYYY-MM-DD format",
           "scope": "window"
         },
@@ -585,7 +534,6 @@
               "maximum": 6
             }
           ],
-          "default": "sunday",
           "description": "First day of the week for period calculations. Accepts 'monday' | 'sunday' or numbers 0–6 (0=Sunday).",
           "scope": "window"
         },
@@ -596,7 +544,6 @@
             "standard",
             "verbose"
           ],
-          "default": "standard",
           "description": "Default verbosity level for duration formatting",
           "scope": "window"
         },
@@ -604,7 +551,6 @@
           "type": "number",
           "minimum": 1,
           "maximum": 6,
-          "default": 3,
           "description": "Maximum number of time units to display in duration formatting",
           "scope": "window"
         }
