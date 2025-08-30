@@ -4,6 +4,33 @@
 
 AI Watch is a modular VS Code extension providing advanced date and time tools for AI assistants and developers. It is designed for maintainability, extensibility, and seamless integration with both VS Code commands and Language Model Tools.
 
+## Development stability & compatibility (pre-release)
+
+This repository is a VS Code extension that is currently in active development and has not been released. During this pre-release phase:
+- Breaking changes to internal APIs, module layouts, command names, and LM tool contracts are allowed.
+- There is no requirement to preserve backward compatibility with older VS Code or Node runtimes at this time; the minimum supported runtime at launch will be the latest VS Code release and its required Node version.
+- Even though breaking changes are permitted pre-release, the AI must flag any change that could affect users or downstream integrations with a short alert (see the template below). This ensures developers are aware of potentially disruptive changes, especially if a release occurs before these instructions are updated.
+
+### Breaking change alert (minimal)
+When a change could break user behavior or public contracts, the AI should emit the following minimal alert in PR text / chat:
+
+```markdown
+⚠️ BREAKING CHANGE
+
+Summary
+A one-line summary of the change.
+
+Potential user impact
+- <component or API> — <what may break and why>
+- <configuration / setting / command> — <what may break and why>
+
+Affected files / modules
+- <file or module list>
+
+Notes
+- This project is pre-release; breaking changes are permitted. This alert exists to make the developer aware for future release planning and to act as soft-gate for disruptive changes in case a release already happened and these instructions weren't updated.
+```
+
 ### 📦 Architecture at a Glance
 - **Entry Point:** `src/extension.ts` – Handles activation/deactivation
 - **Registration Layer:** `src/registration/` – Wires up commands and LM tools
