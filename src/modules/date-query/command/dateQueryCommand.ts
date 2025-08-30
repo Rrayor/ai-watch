@@ -30,6 +30,7 @@ const MONTHS_PER_QUARTER = 3;
  * @throws {InvalidQueryError} If any query operation is invalid
  * @throws {InvalidWeekDayQueryError} If a weekday is invalid
  * @throws {InvalidDateError} If the base date is invalid
+ * @throws {InvalidTimezoneError} if the timezone is invalid
  * @throws {MissingPeriodQueryError} If a period is missing
  * @throws {InvalidPeriodQueryError} If a period is invalid
  */
@@ -42,6 +43,8 @@ export function dateQueryCommand(options: DateQueryOptions): DateQueryResult {
     .getConfiguration('aiWatch')
     .get<string | number>('weekStart');
 
+  const shouldChain = options.chain !== false;
+
   for (let i = 0; i < options.queries.length; i++) {
     const query = options.queries[i];
     if (!query) {
@@ -52,7 +55,9 @@ export function dateQueryCommand(options: DateQueryOptions): DateQueryResult {
       query.weekStart = weekStartsOnConfig;
     }
 
-    const result = processQuery(query, baseDate, results, i, tz);
+    // Decide which base to use: chained (previous result) or original baseDate
+    const resultBase = shouldChain ? getQueryBaseDate(baseDate, results, i) : baseDate;
+    const result = processQuery(query, resultBase, tz);
     results.push(result);
   }
 
@@ -78,11 +83,11 @@ function getQueryBaseDate(baseDate: Date, results: Date[], index: number): Date 
 }
 
 /**
- * Processes a nextWeekday query
+ * Processes a nextWeekday query.
+ *
  * @param query - Query object containing weekday to find
- * @param baseDate - Original base date
- * @param results - Array of previous query results
- * @param index - Current query index
+ * @param baseDate - The date to search from (either the original base date or a previous result, as determined by the caller's chaining logic)
+ * @param timezone - IANA timezone string
  * @returns Date of next occurrence of the specified weekday
  * @throws {InvalidWeekDayQueryError} if weekday is missing
  * @throws {InvalidDateError} if base date is invalid
@@ -90,15 +95,12 @@ function getQueryBaseDate(baseDate: Date, results: Date[], index: number): Date 
 function processNextWeekdayQuery(
   query: DateQueryOptions['queries'][0],
   baseDate: Date,
-  results: Date[],
-  index: number,
   timezone: string,
 ): Date {
   if (!query.weekday) {
     throw new InvalidWeekDayQueryError('Weekday required for nextWeekday query');
   }
-  const queryBase = getQueryBaseDate(baseDate, results, index);
-  return getNextOccurenceOfWeekday(queryBase, query.weekday, query.weekStart, timezone);
+  return getNextOccurenceOfWeekday(baseDate, query.weekday, query.weekStart, timezone);
 }
 
 /**
@@ -114,15 +116,13 @@ function processNextWeekdayQuery(
 function processPreviousWeekdayQuery(
   query: DateQueryOptions['queries'][0],
   baseDate: Date,
-  results: Date[],
-  index: number,
   timezone: string,
 ): Date {
   if (!query.weekday) {
     throw new InvalidWeekDayQueryError('Weekday required for previousWeekday query');
   }
-  const queryBase = getQueryBaseDate(baseDate, results, index);
-  return getPreviousWeekday(queryBase, query.weekday, query.weekStart, timezone);
+  // Use the caller-provided baseDate so non-chained mode behaves correctly.
+  return getPreviousWeekday(baseDate, query.weekday, query.weekStart, timezone);
 }
 
 /**
@@ -179,15 +179,13 @@ function processEndOfPeriodQuery(
 function processQuery(
   query: DateQueryOptions['queries'][0],
   baseDate: Date,
-  results: Date[],
-  index: number,
   timezone: string,
 ): Date {
   switch (query.type) {
     case 'nextWeekday':
-      return processNextWeekdayQuery(query, baseDate, results, index, timezone);
+      return processNextWeekdayQuery(query, baseDate, timezone);
     case 'previousWeekday':
-      return processPreviousWeekdayQuery(query, baseDate, results, index, timezone);
+      return processPreviousWeekdayQuery(query, baseDate, timezone);
     case 'startOfPeriod':
       return processStartOfPeriodQuery(query, baseDate, timezone);
     case 'endOfPeriod':
@@ -324,6 +322,7 @@ export function getEndOfPeriod(
  * Resolves the week start day to a numeric value.
  * @param weekStart - The week start day (string or number)
  * @returns The numeric day of the week (0=Sunday, 1=Monday, ...)
+ * @throws {InvalidWeekDayError} if the week start day is invalid
  */
 function resolveWeekStartsOn(weekStart: string | number): Day {
   if (typeof weekStart === 'number') {

@@ -3,8 +3,12 @@
  */
 import { InvalidWeekDayError } from '../error/InvalidWeekDayError';
 import { InvalidDateError } from '../error/InvalidDateError';
+import { InvalidTimezoneError } from '../error/InvalidTimezoneError';
+import { UnsupportedRuntimeError } from '../error/UnsupportedRuntimeError';
 import { SubtractTimeOptions } from '../../subtract-time/model/SubtractTimeOptions';
 import { AddTimeOptions } from '../../add-time/model/AddTimeOptions';
+import { parseISO, isValid as isValidDate } from 'date-fns';
+import { zonedTimeToUtc } from 'date-fns-tz';
 
 const DAYS_IN_WEEK = 7;
 
@@ -26,31 +30,74 @@ const DAY_MAP: Record<string, number> = {
 };
 
 /**
+ * Module-level cache of supported IANA timezones (lowercase -> canonical).
+ *
+ * Initialized at import-time using `Intl.supportedValuesOf('timeZone')`.
+ * Left `null` when the runtime lacks the API or if retrieval fails so callers
+ * (e.g. `validateIanaTimezone`) can fail fast with a clear message.
+ *
+ * @internal
+ * @readonly
+ */
+const SUPPORTED_TIMEZONES: { zones: string[]; lowerToCanonical: Map<string, string> } = (() => {
+  const intlAny = Intl as unknown as {
+    supportedValuesOf?: (k: string) => string[];
+  };
+  const supportedFn = intlAny.supportedValuesOf;
+  if (typeof supportedFn !== 'function') {
+    throw new UnsupportedRuntimeError(
+      'Intl.supportedValuesOf("timeZone") is required by this extension. Please use a modern VS Code runtime.',
+    );
+  }
+
+  try {
+    const zones: string[] = supportedFn.call(Intl, 'timeZone');
+    const lowerToCanonical = new Map<string, string>(zones.map((z) => [z.toLowerCase(), z]));
+    return { zones, lowerToCanonical };
+  } catch (err) {
+    throw new UnsupportedRuntimeError(
+      `Failed to initialize timezone cache from Intl.supportedValuesOf("timeZone"): ${String(err)}`,
+    );
+  }
+})();
+
+/**
  * Parses an ISO date string and returns a Date object.
  *
- * @param dateString - ISO date string to parse
+ * If the input string is "naive" (lacks an explicit offset or 'Z'), and an IANA timezone is provided,
+ * the function interprets the input as wall-clock time in that timezone and applies the correct offset.
+ * If no timezone is provided for a naive input, UTC is assumed.
+ *
+ * @param dateString - ISO date string to parse (may be naive or include offset)
+ * @param ianaTimezone - Optional IANA timezone name. If provided and dateString is naive, interprets as local time in this timezone.
  * @returns Parsed Date object
  * @throws {InvalidDateError} if the date format is invalid
+ * @throws {InvalidTimezoneError} if the timezone is invalid
  */
-export function parseISOString(dateString: string): Date {
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) {
-    throw new InvalidDateError(dateString);
+export function parseISOString(dateString: string, ianaTimezone?: string): Date {
+  // Preserve fast-path for YYYY-MM-DD bare dates
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+    const d = parseISO(dateString);
+    if (!isValidDate(d)) throw new InvalidDateError(dateString);
+    return d;
   }
 
-  // Check if the parsed date matches the input (detect auto-correction)
-  // This catches cases like Feb 29 in non-leap years where JS auto-corrects to March 1
-  // Handle the .000Z vs Z formatting difference that JavaScript introduces
-  const normalizedInput =
-    dateString.endsWith('Z') && !dateString.includes('.')
-      ? dateString.replace('Z', '.000Z')
-      : dateString;
+  const originalHadTz = /([zZ]|[+-]\d{2}:?\d{2})$/.test(dateString);
 
-  if (date.toISOString() !== normalizedInput) {
-    throw new InvalidDateError(dateString);
+  // If the string is naive (no explicit offset) but an IANA timezone was provided,
+  // interpret the input as a wall-clock in that timezone and convert to the corresponding UTC instant.
+  if (!originalHadTz && ianaTimezone) {
+    validateIanaTimezone(ianaTimezone);
+    const canonical = dateString.includes('T') ? dateString : dateString.replace(' ', 'T');
+    const dt = zonedTimeToUtc(canonical, ianaTimezone);
+    if (!isValidDate(dt)) throw new InvalidDateError(dateString);
+    return dt;
   }
 
-  return date;
+  // Otherwise parse directly (handles explicit offsets and Z). Rely on parseISO for correctness.
+  const parsed = parseISO(dateString);
+  if (!isValidDate(parsed)) throw new InvalidDateError(dateString);
+  return parsed;
 }
 
 /**
@@ -110,4 +157,24 @@ export function buildDurationParts(params: AddTimeOptions | SubtractTimeOptions)
   });
 
   return parts;
+}
+
+/**
+ * Validate an IANA timezone string.
+ *
+ * This uses the module-level cache populated from
+ * `Intl.supportedValuesOf('timeZone')`. Matching is tolerant for LLM-style
+ * inputs: the input is compared case-insensitively against the canonical
+ * zone list and mapped to the canonical name. If the runtime does not
+ * provide `Intl.supportedValuesOf`, this function throws a clear Error
+ * indicating the runtime requirement (no silent fallback). For invalid
+ * timezone strings an `InvalidTimezoneError` is thrown.
+ *
+ * @param tz - Optional IANA timezone string to validate
+ * @throws {InvalidTimezoneError} if the timezone is invalid
+ */
+function validateIanaTimezone(tz?: string): void {
+  if (!tz) return;
+  const canonical = SUPPORTED_TIMEZONES.lowerToCanonical.get(tz.toLowerCase());
+  if (!canonical) throw new InvalidTimezoneError(tz);
 }
