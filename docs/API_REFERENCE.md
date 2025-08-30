@@ -436,6 +436,13 @@ All tools provide comprehensive error handling with descriptive messages. Always
 }
 ```
 
+**Unsupported Runtime:**
+```javascript
+{
+  error: "UnsupportedRuntimeError: Host runtime missing required platform APIs (e.g. Intl.supportedValuesOf)"
+}
+```
+
 **Missing Required Parameters:**
 ```javascript
 {

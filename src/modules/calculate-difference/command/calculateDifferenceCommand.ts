@@ -18,6 +18,7 @@ import {
  * @param options - Configuration with from/to dates and unit
  * @returns Object with calculated date difference
  * @throws {InvalidDateError} If the date format is invalid
+ * @throws {InvalidTimezoneError} if the timezone is invalid
  */
 export function calculateDifferenceCommand(
   options: CalculateDifferenceOptions,

@@ -30,6 +30,7 @@ const MONTHS_PER_QUARTER = 3;
  * @throws {InvalidQueryError} If any query operation is invalid
  * @throws {InvalidWeekDayQueryError} If a weekday is invalid
  * @throws {InvalidDateError} If the base date is invalid
+ * @throws {InvalidTimezoneError} if the timezone is invalid
  * @throws {MissingPeriodQueryError} If a period is missing
  * @throws {InvalidPeriodQueryError} If a period is invalid
  */
@@ -82,11 +83,11 @@ function getQueryBaseDate(baseDate: Date, results: Date[], index: number): Date 
 }
 
 /**
- * Processes a nextWeekday query
+ * Processes a nextWeekday query.
+ *
  * @param query - Query object containing weekday to find
- * @param baseDate - Original base date
- * @param results - Array of previous query results
- * @param index - Current query index
+ * @param baseDate - The date to search from (either the original base date or a previous result, as determined by the caller's chaining logic)
+ * @param timezone - IANA timezone string
  * @returns Date of next occurrence of the specified weekday
  * @throws {InvalidWeekDayQueryError} if weekday is missing
  * @throws {InvalidDateError} if base date is invalid
@@ -99,8 +100,6 @@ function processNextWeekdayQuery(
   if (!query.weekday) {
     throw new InvalidWeekDayQueryError('Weekday required for nextWeekday query');
   }
-  // Use the baseDate provided by the caller. The caller decides whether this
-  // is the original base or a previous result (controlled by the `chain` flag).
   return getNextOccurenceOfWeekday(baseDate, query.weekday, query.weekStart, timezone);
 }
 
@@ -323,6 +322,7 @@ export function getEndOfPeriod(
  * Resolves the week start day to a numeric value.
  * @param weekStart - The week start day (string or number)
  * @returns The numeric day of the week (0=Sunday, 1=Monday, ...)
+ * @throws {InvalidWeekDayError} if the week start day is invalid
  */
 function resolveWeekStartsOn(weekStart: string | number): Day {
   if (typeof weekStart === 'number') {

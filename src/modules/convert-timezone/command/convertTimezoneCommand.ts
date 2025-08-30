@@ -28,9 +28,6 @@ export function convertTimezoneCommand(options: ConvertTimezoneOptions): Convert
     throw new AmbiguousDateError(options.date);
   }
 
-  // Parse the date. parseISOString accepts an optional IANA timezone to
-  // interpret naive wall-clock inputs correctly. We pass through fromTimezone
-  // when provided or when interpretAsLocal forces local interpretation.
   const date = parseISOString(options.date, options.fromTimezone);
 
   // Default fromTimezone to UTC if not specified (after validation)

@@ -32,6 +32,8 @@ const WEEKDAY_NAMES = [
  *
  * @param options - Configuration with business day operation details
  * @returns Object with business day operation results
+ * @throws {InvalidDateError} if the date is invalid
+ * @throws {InvalidTimezoneError} if the timezone is invalid
  * @throws {InvalidWeekDayError} If the weekday is invalid
  * @throws {MissingDaysError} If the days parameter is missing
  * @throws {UnsupportedBusinessDayOperation} If the operation is not supported
@@ -143,6 +145,7 @@ function handleSubtractBusinessDays(
  * Parses a custom business day configuration.
  * @param businessDays - Array of business day names (e.g., ["Monday", "Tuesday"])
  * @returns Array of business day numbers (0=Sunday, 1=Monday, etc.)
+ * @throws {InvalidWeekDayError} if a weekday is invalid
  */
 function parseCustomBusinessDayConfiguration(businessDays: string[]): number[] {
   return businessDays.map((day) => weekdayToNumber(day)).filter((day) => day !== undefined);
