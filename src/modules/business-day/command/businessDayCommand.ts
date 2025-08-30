@@ -95,7 +95,8 @@ function handleAddBusinessDays(
   date: Date,
   businessDaysToOperateOn: number[],
 ): BusinessDayResult {
-  if (!options.days) {
+  // TypeScript should narrow the type of options.days here, so we can safely assume if it's not a number, it's missing
+  if (typeof options.days !== 'number') {
     throw new MissingDaysError('addBusinessDays');
   }
   const result = addBusinessDays(
@@ -125,7 +126,8 @@ function handleSubtractBusinessDays(
   date: Date,
   businessDaysToOperateOn: number[],
 ): BusinessDayResult {
-  if (!options.days) {
+  // TypeScript should narrow the type of options.days here, so we can safely assume if it's not a number, it's missing
+  if (typeof options.days !== 'number') {
     throw new MissingDaysError('subtractBusinessDays');
   }
   const result = subtractBusinessDays(
@@ -208,7 +210,7 @@ function resolveBusinessDaysConfig(perRequestBusinessDays?: string[]): number[] 
     .getConfiguration('aiWatch')
     .get<string[] | undefined>('businessDays');
 
-  if (businessDayConfiguration) {
+  if (businessDayConfiguration?.length) {
     return parseCustomBusinessDayConfiguration(businessDayConfiguration);
   }
 

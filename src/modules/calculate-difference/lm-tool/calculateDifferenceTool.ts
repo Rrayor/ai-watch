@@ -13,7 +13,7 @@ import {
   MarkdownString,
 } from 'vscode';
 import { CalculateDifferenceOptions } from '../model/CalculateDifferenceOptions';
-import { InvalidDateError } from '../../shared';
+import { InvalidDateError, InvalidTimezoneError } from '../../shared';
 import { calculateDifferenceCommand } from '../command/calculateDifferenceCommand';
 import { CalculateDifferenceResult } from '../model/CalculateDifferenceResult';
 
@@ -98,6 +98,11 @@ export class CalculateDifferenceTool implements LanguageModelTool<CalculateDiffe
     if (error instanceof InvalidDateError) {
       return `Difference calculation failed: ${error.message}`;
     }
+
+    if (error instanceof InvalidTimezoneError) {
+      return `Difference calculation failed: ${error.message}`;
+    }
+
     return `Difference calculation failed: An unknown error occurred: ${String(error)}`;
   }
 }

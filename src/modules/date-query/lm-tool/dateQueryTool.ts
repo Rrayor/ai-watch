@@ -12,7 +12,7 @@ import {
   CancellationToken,
 } from 'vscode';
 import { DateQueryOptions } from '../model/DateQueryOptions';
-import { InvalidDateError } from '../../shared';
+import { InvalidDateError, InvalidTimezoneError } from '../../shared';
 import { dateQueryCommand } from '../command/dateQueryCommand';
 import { InvalidQueryError } from '../error/InvalidQueryError';
 import { InvalidPeriodQueryError } from '../error/InvalidPeriodQueryError';
@@ -111,6 +111,10 @@ export class DateQueryTool implements LanguageModelTool<DateQueryOptions> {
 
     if (error instanceof InvalidDateError) {
       return `Invalid date: ${error.message}`;
+    }
+
+    if (error instanceof InvalidTimezoneError) {
+      return `Invalid timezone: ${error.message}`;
     }
 
     if (error instanceof InvalidWeekDayQueryError) {

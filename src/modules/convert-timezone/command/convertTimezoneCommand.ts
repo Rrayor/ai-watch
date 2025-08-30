@@ -16,6 +16,7 @@ import { ConvertTimezoneOptions } from '../model/ConvertTimezoneOptions';
  *
  * @param options - Configuration with date and target timezone
  * @returns Object with timezone conversion results
+ * @throws {AmbiguousDateError} if the date is ambiguous
  * @throws {InvalidDateError} if the date format is invalid
  * @throws {InvalidTimeZoneError} if the timezone is invalid
  */
