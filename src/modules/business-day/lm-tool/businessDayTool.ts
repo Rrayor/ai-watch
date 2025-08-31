@@ -12,7 +12,7 @@ import {
   CancellationToken,
 } from 'vscode';
 import { BusinessDayOptions } from '../model/BusinessDayOptions';
-import { InvalidWeekDayError } from '../../shared';
+import { InvalidDateError, InvalidTimezoneError, InvalidWeekDayError } from '../../shared';
 import { businessDayCommand } from '../command/businessDayCommand';
 import { MissingDaysError } from '../error/MissingDaysError';
 import { UnsupportedBusinessDayOperation } from '../error/UnsupportedBusinessDayOperation';
@@ -78,6 +78,14 @@ export class BusinessDayTool implements LanguageModelTool<BusinessDayOptions> {
    * @returns A user-friendly error message
    */
   private static getErrorMessage(error: unknown): string {
+    if (error instanceof InvalidDateError) {
+      return `Invalid date: ${error.message}`;
+    }
+
+    if (error instanceof InvalidTimezoneError) {
+      return `Invalid timezone: ${error.message}`;
+    }
+
     if (error instanceof InvalidWeekDayError) {
       return `Invalid week day: ${error.message}`;
     }

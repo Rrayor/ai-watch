@@ -32,6 +32,8 @@ const WEEKDAY_NAMES = [
  *
  * @param options - Configuration with business day operation details
  * @returns Object with business day operation results
+ * @throws {InvalidDateError} if the date is invalid
+ * @throws {InvalidTimezoneError} if the timezone is invalid
  * @throws {InvalidWeekDayError} If the weekday is invalid
  * @throws {MissingDaysError} If the days parameter is missing
  * @throws {UnsupportedBusinessDayOperation} If the operation is not supported
@@ -93,7 +95,8 @@ function handleAddBusinessDays(
   date: Date,
   businessDaysToOperateOn: number[],
 ): BusinessDayResult {
-  if (!options.days) {
+  // TypeScript should narrow the type of options.days here, so we can safely assume if it's not a number, it's missing
+  if (typeof options.days !== 'number') {
     throw new MissingDaysError('addBusinessDays');
   }
   const result = addBusinessDays(
@@ -123,7 +126,8 @@ function handleSubtractBusinessDays(
   date: Date,
   businessDaysToOperateOn: number[],
 ): BusinessDayResult {
-  if (!options.days) {
+  // TypeScript should narrow the type of options.days here, so we can safely assume if it's not a number, it's missing
+  if (typeof options.days !== 'number') {
     throw new MissingDaysError('subtractBusinessDays');
   }
   const result = subtractBusinessDays(
@@ -143,6 +147,7 @@ function handleSubtractBusinessDays(
  * Parses a custom business day configuration.
  * @param businessDays - Array of business day names (e.g., ["Monday", "Tuesday"])
  * @returns Array of business day numbers (0=Sunday, 1=Monday, etc.)
+ * @throws {InvalidWeekDayError} if a weekday is invalid
  */
 function parseCustomBusinessDayConfiguration(businessDays: string[]): number[] {
   return businessDays.map((day) => weekdayToNumber(day)).filter((day) => day !== undefined);
@@ -205,7 +210,7 @@ function resolveBusinessDaysConfig(perRequestBusinessDays?: string[]): number[] 
     .getConfiguration('aiWatch')
     .get<string[] | undefined>('businessDays');
 
-  if (businessDayConfiguration) {
+  if (businessDayConfiguration?.length) {
     return parseCustomBusinessDayConfiguration(businessDayConfiguration);
   }
 

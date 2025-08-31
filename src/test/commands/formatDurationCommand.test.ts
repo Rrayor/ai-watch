@@ -32,7 +32,7 @@ suite('formatDurationCommand', () => {
     assert.strictEqual(negUnits.formatted, '1 day, 1 hour, 2 minutes');
 
     const veryNeg = formatDurationCommand({ from, to, verbosity: 'compact', maxUnits: -10 });
-    assert.strictEqual(veryNeg.formatted, '0s');
+    assert.strictEqual(veryNeg.formatted, '1d 1h 2m');
   });
 
   test('maxUnits larger than available units includes all present units', () => {

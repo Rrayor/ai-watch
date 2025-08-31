@@ -195,6 +195,23 @@ suite('dateQueryCommand', () => {
     assert.ok(second > first);
   });
 
+  test('non-chained queries use baseDate for each query when chain is false', () => {
+    // base is 2025-08-14 (Thursday)
+    const res = dateQueryCommand({
+      baseDate: base,
+      timezone: 'UTC',
+      chain: false,
+      queries: [
+        { type: 'nextWeekday', weekday: 'tuesday' },
+        { type: 'previousWeekday', weekday: 'friday' },
+      ],
+    } as unknown as Parameters<typeof dateQueryCommand>[0]);
+    // next Tuesday after 2025-08-14 is 2025-08-19
+    assert.strictEqual(res.dates?.[0].startsWith('2025-08-19'), true);
+    // previous Friday before 2025-08-14 is 2025-08-08
+    assert.strictEqual(res.dates?.[1].startsWith('2025-08-08'), true);
+  });
+
   test('startOfPeriod week with numeric weekStart', async () => {
     const cfg = workspace.getConfiguration('aiWatch');
     const prev = cfg.get('weekStart');

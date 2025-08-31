@@ -32,6 +32,23 @@ AI Watch supports both user and workspace settings for flexible configuration ac
 
 AI Watch automatically detects the system timezone and uses it as the default for all operations. If you need a specific timezone for an operation, pass it as the `timezone` parameter to the command or tool call. There is no global timezone override setting - this ensures predictable behavior and prevents configuration conflicts.
 
+### 🧭 Runtime requirements
+
+AI Watch requires a modern JavaScript runtime with full Intl support to correctly validate and work with IANA timezones. Specifically, the extension uses `Intl.supportedValuesOf('timeZone')` at import-time to build a canonical timezone cache. If the host runtime does not provide this API the extension will fail fast during initialization and surface an `UnsupportedRuntimeError`.
+
+What this means for users:
+- The extension targets modern VS Code/Electron runtimes. Older or custom runtimes without `Intl.supportedValuesOf` are not supported.
+- When the requirement is not met, the extension intentionally fails early rather than attempting a heuristic fallback. This prevents subtle runtime bugs and ensures timezone calculations are accurate.
+
+How to diagnose and remediate:
+- On unsupported runtimes you will see an `UnsupportedRuntimeError` in the extension host logs with a message like:
+  - "Intl.supportedValuesOf('timeZone') is required by this extension. Please use a modern VS Code runtime."
+- Remediation steps:
+  1. Upgrade VS Code to a recent stable release (recommended).
+  2. Ensure the environment includes up-to-date ICU/Intl data if you run VS Code in a custom Electron/Node build.
+ 3. If you must run on an older platform, contact the maintainers to discuss adding a fallback (this is intentionally not enabled by default).
+
+
 
 ### 📅 Default Date Format
 

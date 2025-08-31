@@ -13,7 +13,12 @@ import {
   MarkdownString,
 } from 'vscode';
 import { ConvertTimezoneOptions } from '../model/ConvertTimezoneOptions';
-import { parseISOString, InvalidDateError, InvalidTimezoneError } from '../../shared';
+import {
+  parseISOString,
+  InvalidDateError,
+  InvalidTimezoneError,
+  AmbiguousDateError,
+} from '../../shared';
 import { convertTimezoneCommand } from '../command/convertTimezoneCommand';
 import { ConvertTimezoneResult } from '../model/ConvertTimezoneResult';
 
@@ -65,7 +70,7 @@ export class ConvertTimezoneTool implements LanguageModelTool<ConvertTimezoneOpt
       const commandResult = convertTimezoneCommand(params);
       const messageData: ConvertTimezoneMessage = {
         original: {
-          date: parseISOString(params.date),
+          date: parseISOString(params.date, params.fromTimezone),
           fromTimezone: params.fromTimezone,
         },
         result: commandResult,
@@ -147,6 +152,10 @@ export class ConvertTimezoneTool implements LanguageModelTool<ConvertTimezoneOpt
    * @returns User-friendly error message string
    */
   private getErrorMessage(error: unknown): string {
+    if (error instanceof AmbiguousDateError) {
+      return `Ambiguous date: ${error.message}`;
+    }
+
     if (error instanceof InvalidDateError) {
       return `Error converting timezone: ${error.message}`;
     }

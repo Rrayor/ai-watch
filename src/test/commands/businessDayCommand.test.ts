@@ -58,13 +58,14 @@ suite('businessDayCommand', () => {
     assert.strictEqual(res.result?.startsWith('2025-08-15'), true);
   });
 
-  test('addBusinessDays with zero days throws MissingDaysError', () => {
+  test('addBusinessDays with zero days returns same date (current behavior)', () => {
     const opts = {
       operation: 'addBusinessDays',
       date: '2025-08-13T10:00:00Z',
       days: 0,
     } as unknown as BusinessDayOptions;
-    assert.throws(() => businessDayCommand(opts));
+    const res = businessDayCommand(opts);
+    assert.strictEqual(res.result?.startsWith('2025-08-13'), true);
   });
 
   test('unsupported operation throws', () => {
@@ -86,11 +87,84 @@ suite('businessDayCommand', () => {
     assert.throws(() => businessDayCommand(badDays));
   });
 
-  test('subtractBusinessDays with zero days throws MissingDaysError', () => {
+  test('subtractBusinessDays with zero days returns same date (current behavior)', () => {
     const opts = {
       operation: 'subtractBusinessDays',
       date: '2025-08-13T10:00:00Z',
       days: 0,
+    } as unknown as BusinessDayOptions;
+    const res = businessDayCommand(opts);
+    assert.strictEqual(res.result?.startsWith('2025-08-13'), true);
+  });
+
+  test('addBusinessDays rejects numeric string days at runtime (current behavior)', () => {
+    const opts = {
+      operation: 'addBusinessDays',
+      date: '2025-08-15T10:00:00Z',
+      days: '1',
+    } as unknown as BusinessDayOptions;
+    assert.throws(() => businessDayCommand(opts));
+  });
+
+  test('addBusinessDays rejects non-numeric string days at runtime (current behavior)', () => {
+    const opts = {
+      operation: 'addBusinessDays',
+      date: '2025-08-15T10:00:00Z',
+      days: 'abc',
+    } as unknown as BusinessDayOptions;
+    assert.throws(() => businessDayCommand(opts));
+  });
+
+  test('subtractBusinessDays rejects numeric string days at runtime (current behavior)', () => {
+    const opts = {
+      operation: 'subtractBusinessDays',
+      date: '2025-08-20T10:00:00Z',
+      days: '2',
+    } as unknown as BusinessDayOptions;
+    assert.throws(() => businessDayCommand(opts));
+  });
+
+  test('addBusinessDays rejects negative numeric string days at runtime (current behavior)', () => {
+    const opts = {
+      operation: 'addBusinessDays',
+      date: '2025-08-18T10:00:00Z',
+      days: '-1',
+    } as unknown as BusinessDayOptions;
+    assert.throws(() => businessDayCommand(opts));
+  });
+
+  test('addBusinessDays rejects numeric string days at runtime (current behavior)', () => {
+    const opts = {
+      operation: 'addBusinessDays',
+      date: '2025-08-15T10:00:00Z',
+      days: '1',
+    } as unknown as BusinessDayOptions;
+    assert.throws(() => businessDayCommand(opts));
+  });
+
+  test('addBusinessDays rejects non-numeric string days at runtime (current behavior)', () => {
+    const opts = {
+      operation: 'addBusinessDays',
+      date: '2025-08-15T10:00:00Z',
+      days: 'abc',
+    } as unknown as BusinessDayOptions;
+    assert.throws(() => businessDayCommand(opts));
+  });
+
+  test('subtractBusinessDays rejects numeric string days at runtime (current behavior)', () => {
+    const opts = {
+      operation: 'subtractBusinessDays',
+      date: '2025-08-20T10:00:00Z',
+      days: '2',
+    } as unknown as BusinessDayOptions;
+    assert.throws(() => businessDayCommand(opts));
+  });
+
+  test('addBusinessDays rejects negative numeric string days at runtime (current behavior)', () => {
+    const opts = {
+      operation: 'addBusinessDays',
+      date: '2025-08-18T10:00:00Z',
+      days: '-1',
     } as unknown as BusinessDayOptions;
     assert.throws(() => businessDayCommand(opts));
   });

@@ -57,7 +57,7 @@ export function formatDurationCommand(options: FormatDurationOptions): FormatDur
     fromDate,
     toDate,
     options.verbosity ?? 'standard',
-    options.maxUnits ?? DEFAULT_MAX_UNITS,
+    validateMaxUnits(options.maxUnits),
   );
 
   return { formatted };
@@ -186,4 +186,13 @@ function formatCompactFromDuration(
     if (value > 0) parts.push(`${value}${abbr[unit]}`);
   }
   return parts.length ? parts.join(' ') : '0s';
+}
+
+/**
+ * Validates the maxUnits parameter.
+ * @param maxUnits - The maximum number of units
+ * @returns The validated maxUnits or the default value
+ */
+function validateMaxUnits(maxUnits?: number): number {
+  return typeof maxUnits === 'number' && maxUnits > 0 ? maxUnits : DEFAULT_MAX_UNITS;
 }

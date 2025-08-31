@@ -26,7 +26,6 @@ This script covers all features with prompts and expected outcomes for AI chat/m
   - [Edge Cases](#edge-cases)
   - [Completion Checklist](#completion-checklist)
   - [Notes Section](#notes-section)
-  - [Test Environment Information](#test-environment-information)
 
 ---
 
@@ -83,7 +82,7 @@ This script covers all features with prompts and expected outcomes for AI chat/m
 |   | Prompt | Expected Outcome | Done |
 |---|--------|-----------------|------|
 | 4.1 | `What time will it be 4 hours and 30 minutes from now?` | Tool: `addTime`<br>Current +4:30 | [ ] |
-| 4.2 | `Add 2 weeks, 3 days, 5 hours, and 45 minutes to August 1st, 2025 at 9:00 AM.` | Tool: `addTime`<br>2025-08-17T14:45:00Z | [ ] |
+| 4.2 | `Add 2 weeks, 3 days, 5 hours, and 45 minutes to August 1st, 2025 at 9:00 AM.` | Tool: `addTime`<br>2025-08-18T14:45:00Z | [ ] |
 | 4.3 | `What time will it be in Tokyo 6 hours from now?` | Tool: `addTime` with timezone<br>JST result | [ ] |
 | 4.4 | `What was the time 2 hours and 15 minutes ago?` | Tool: `addTime` negative or `subtractTime`<br>Current -2:15 | [ ] |
 | 4.5 | `Add 1 year, 3 months, and 15 days to December 15th, 2024.` | Tool: `addTime`<br>2026-03-30T00:00:00Z | [ ] |
@@ -224,18 +223,3 @@ Expected: [What should happen]
 Actual: [What actually happened]
 Status: [Fixed/Known Issue/Needs Investigation]
 ```
-
----
-
-## Test Environment Information
-
-**Date of Testing:** ___________
-**VS Code Version:** ___________
-**AI Watch Extension Version:** ___________
-**Operating System:** ___________
-**AI Chat Provider:** ___________
-**Configuration Used:** ___________
-
----
-
-*This manual testing script ensures comprehensive coverage of all AI Watch features. Execute systematically and document any issues for resolution.*
