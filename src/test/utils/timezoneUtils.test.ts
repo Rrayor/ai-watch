@@ -64,6 +64,9 @@ suite('timezoneUtils', () => {
     const ctx = new OperationContext();
     const d = new Date('2025-08-10T12:30:45Z');
     assert.throws(() => formatInTimezone(d, 'Invalid/Zone', ctx), InvalidTimezoneError);
+    // When an explicit timezone was provided the failure path should re-throw
+    // and no informational messages should have been added to the context.
+    assert.deepStrictEqual(ctx.info, []);
   });
 
   test('fallback to ISO-like UTC when no timezone and no default format', async () => {
@@ -153,10 +156,12 @@ suite('timezoneUtils', () => {
       } as unknown as Partial<typeof Intl>,
       async () => {
         await cfg.update('defaultDateFormat', 'YYYY/MM/DD HH:mm:ss', true);
-        const out = tzUtils.formatInTimezone(d, '', ctx);
+        const out = tzUtils.formatInTimezone(d, undefined, ctx);
         // expected uses local time because formatWithCustomFormat is called with undefined timezone
         const expected = applyCustomFormat(d, 'YYYY/MM/DD HH:mm:ss');
         assert.strictEqual(out, expected);
+        // ensure some informational message was added to the context (fallback/default path exercised)
+        assert.ok(ctx.info.length > 0);
       },
     );
     await cfg.update('defaultDateFormat', prev, true);
@@ -177,10 +182,12 @@ suite('timezoneUtils', () => {
       } as unknown as Partial<typeof Intl>,
       async () => {
         await cfg.update('defaultDateFormat', undefined, true);
-        const out = tzUtils.formatInTimezone(d, '', ctx);
+        const out = tzUtils.formatInTimezone(d, undefined, ctx);
         const expectedUtc = d.toISOString().slice(0, 19).replace('T', ' ');
         const expectedLocal = applyCustomFormat(d, 'YYYY-MM-DD HH:mm:ss');
         assert.ok(out === expectedUtc || out === expectedLocal);
+        // ensure some informational message was added to the context (fallback/default path exercised)
+        assert.ok(ctx.info.length > 0);
       },
     );
     await cfg.update('defaultDateFormat', prev, true);
