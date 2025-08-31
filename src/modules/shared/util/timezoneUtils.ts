@@ -145,19 +145,18 @@ export function applyCustomFormat(date: Date, format: string): string {
  * @returns A map of date tokens.
  */
 function buildTokensFromDate(date: Date): TokenMap {
-  const pad2 = (n: number): string => String(n).padStart(2, '0');
   const tokens: TokenMap = {
     YYYY: String(date.getFullYear()),
     YY: String(date.getFullYear()).slice(YEAR_SLICE_LENGTH),
-    MM: pad2(date.getMonth() + 1),
+    MM: addLeadingZeros(date.getMonth() + 1, 2),
     M: String(date.getMonth() + 1),
-    DD: pad2(date.getDate()),
+    DD: addLeadingZeros(date.getDate(), 2),
     D: String(date.getDate()),
-    HH: pad2(date.getHours()),
+    HH: addLeadingZeros(date.getHours(), 2),
     H: String(date.getHours()),
-    mm: pad2(date.getMinutes()),
+    mm: addLeadingZeros(date.getMinutes(), 2),
     m: String(date.getMinutes()),
-    ss: pad2(date.getSeconds()),
+    ss: addLeadingZeros(date.getSeconds(), 2),
     s: String(date.getSeconds()),
   };
 
@@ -169,6 +168,16 @@ function buildTokensFromDate(date: Date): TokenMap {
   tokens['hh'] = tokens['HH'] ?? '';
 
   return tokens;
+}
+
+/**
+ * Adds leading zeros to a number until it reaches the target length.
+ * @param num The number to pad.
+ * @param targetLength The desired length of the output string.
+ * @returns The padded string representation of the number.
+ */
+function addLeadingZeros(num: number, targetLength: number): string {
+  return String(num).padStart(targetLength, '0');
 }
 
 /**
@@ -187,29 +196,36 @@ function buildTokensFromParts(parts: Intl.DateTimeFormatPart[]): TokenMap {
   const minute = (map['minute'] as string) ?? '';
   const second = (map['second'] as string) ?? '';
 
-  const toNumStr = (v: string): string => (v ? String(Number(v)) : '');
-
   const tokens: TokenMap = {
     YYYY: year,
     YY: year.slice(YEAR_SLICE_LENGTH),
     MM: month,
-    M: toNumStr(month),
+    M: trimLeadingZeros(month),
     DD: day,
-    D: toNumStr(day),
+    D: trimLeadingZeros(day),
     HH: hour,
-    H: toNumStr(hour),
+    H: trimLeadingZeros(hour),
     mm: minute,
-    m: toNumStr(minute),
+    m: trimLeadingZeros(minute),
     ss: second,
-    s: toNumStr(second),
+    s: trimLeadingZeros(second),
     yyyy: year,
     yy: year.slice(YEAR_SLICE_LENGTH),
     dd: day,
-    d: toNumStr(day),
+    d: trimLeadingZeros(day),
     hh: hour,
   };
 
   return tokens;
+}
+
+/**
+ * Trims leading zeros from a string representation of a number.
+ * @param str The input string.
+ * @returns The trimmed string.
+ */
+function trimLeadingZeros(str: string): string {
+  return str ? String(Number(str)) : '';
 }
 
 /**

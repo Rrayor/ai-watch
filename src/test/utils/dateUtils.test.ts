@@ -5,7 +5,6 @@ import {
   buildDurationParts,
 } from '../../modules/shared/util/dateUtils';
 import { InvalidTimezoneError } from '../../modules/shared/error/InvalidTimezoneError';
-import { AmbiguousDateError } from '../../modules/shared/error/AmbiguousDateError';
 
 suite('dateUtils', () => {
   suite('parseISOString', () => {

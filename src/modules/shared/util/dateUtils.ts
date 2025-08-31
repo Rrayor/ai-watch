@@ -77,9 +77,9 @@ const SUPPORTED_TIMEZONES: { zones: string[]; lowerToCanonical: Map<string, stri
 export function parseISOString(dateString: string, ianaTimezone?: string): Date {
   // Preserve fast-path for YYYY-MM-DD bare dates
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-    const d = parseISO(dateString);
-    if (!isValidDate(d)) throw new InvalidDateError(dateString);
-    return d;
+    const isoDate = parseISO(dateString);
+    if (!isValidDate(isoDate)) throw new InvalidDateError(dateString);
+    return isoDate;
   }
 
   const originalHadTz = /([zZ]|[+-]\d{2}:?\d{2})$/.test(dateString);
